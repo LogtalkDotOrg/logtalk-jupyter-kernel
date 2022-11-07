@@ -9,7 +9,7 @@
 
 	:- public([
 		jupyter_server_start/0,
-     	jupyter_server_start/1
+		jupyter_server_start/1
 	]).
 
 	:- uses(jupyter_logging, [log/1, log/2]).

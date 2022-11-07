@@ -66,7 +66,7 @@
 	% Output is the output of the term which was executed.
 	% AdditionalData is a list containing Key-Value pairs providing additional data for the client.
 	json_error_term(ErrorCode, ErrorMessageData, Output, AdditionalData, JsonErrorTerm) :-
-		jupyter_query_handling:retrieve_message(ErrorMessageData, PrologMessage),
+		jupyter_query_handling::retrieve_message(ErrorMessageData, PrologMessage),
 		error_data(PrologMessage, Output, AdditionalData, ErroData),
 		error_object_code(ErrorCode, NumericErrorCode, JsonRpcErrorMessage),
 		jsonrpc_error(NumericErrorCode, JsonRpcErrorMessage, ErroData, JsonErrorTerm).

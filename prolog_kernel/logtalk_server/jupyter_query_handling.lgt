@@ -29,6 +29,7 @@
 	:- meta_predicate(call_query_with_output_to_file(0, *, *, *, *, *, *)).
 	:- meta_predicate(call_with_exception_handling(0, *)).
 
+	:- uses(debugger, [notrace/0]).
 	:- uses(list, [append/2, append/3, length/2]).
 	:- uses(logtalk, [print_message/3]).
 	:- uses(os, [delete_file/1, wall_time/1]).
@@ -141,10 +142,10 @@ call_with_exception_handling(MGoal, ErrorMessageData) :-
         ErrorMessageData = message_data(error, Exception)).
 
 debug_mode_for_breakpoints :-
-  % If there are any breakpoints, switch debug mode on
-  user::current_breakpoint(_Conditions, _BID, _Status, _Kind, _Type),
-  debug,
-  !.
+	% If there are any breakpoints, switch debug mode on
+	user::current_breakpoint(_Conditions, _BID, _Status, _Kind, _Type),
+	debug,
+	!.
 :- endif.
 debug_mode_for_breakpoints.
 
@@ -194,33 +195,33 @@ debug_mode_for_breakpoints.
 	delete_output_file(_).
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Print and read (error) messages
+	% Print and read (error) messages
 
-% retrieve_message(+ErrorMessageData, -Message)
-%
-% ErrorMessageData either null or a term of the form message_data(Kind, Term).
-% In the first case, Message=''.
-% Otherwise, Message is the message as printed by print_message(Kind, Term).
-% For this, the error stream is redirected to a file, the message is printed and read from the file.
-retrieve_message(null, '') :- !.
-retrieve_message(message_data(Kind, Term), Message) :-
-	% Open a file to print the message to it
-	file_name(message_output, FileName),
-	open(FileName, write, Stream),
-	redirect_output_to_stream(user_error, Stream),
-	% Do not send an error reply when printing the error message
-	% Use catch/3, because send_reply_on_error might have been retracted by call_with_output_to_file/3
-	catch(retractall(send_reply_on_error), _Exception, true),
-	print_message(Kind, jupyter, Term),
-	assertz(send_reply_on_error),
-	close(Stream),
-	% Read the error message from the file
-	read_atom_from_file(FileName, false, Message),
-	delete_file(FileName),
-	!.
+	% retrieve_message(+ErrorMessageData, -Message)
+	%
+	% ErrorMessageData either null or a term of the form message_data(Kind, Term).
+	% In the first case, Message=''.
+	% Otherwise, Message is the message as printed by print_message(Kind, Term).
+	% For this, the error stream is redirected to a file, the message is printed and read from the file.
+	retrieve_message(null, '') :- !.
+	retrieve_message(message_data(Kind, Term), Message) :-
+		% Open a file to print the message to it
+		file_name(message_output, FileName),
+		open(FileName, write, Stream),
+		redirect_output_to_stream(user_error, Stream),
+		% Do not send an error reply when printing the error message
+		% Use catch/3, because send_reply_on_error might have been retracted by call_with_output_to_file/3
+		catch(retractall(send_reply_on_error), _Exception, true),
+		print_message(Kind, jupyter, Term),
+		assertz(send_reply_on_error),
+		close(Stream),
+		% Read the error message from the file
+		read_atom_from_file(FileName, false, Message),
+		delete_file(FileName),
+		!.
 
 
 % redirect_output_to_stream(+StreamAlias, +Stream)
@@ -265,10 +266,10 @@ read_output_from_file(OutputFileName, _, Output) :-
 		!,
 		remove_output_lines(IsSicstusJupyterTrace, AllLinesCodes, LineCodes),
 		% Create an atom from the line lists
-		( LineCodes == [] ->
-		  FileContent = ''
-		; append(LineCodes, [_|ContentCodes]), % Cut off the first new line code
-		  atom_codes(FileContent, ContentCodes)
+		(	LineCodes == [] ->
+			FileContent = ''
+		;	append(LineCodes, [_|ContentCodes]), % Cut off the first new line code
+			atom_codes(FileContent, ContentCodes)
 		).
 	read_atom_from_file(_FileName, _DeleteLastLine, '').
 

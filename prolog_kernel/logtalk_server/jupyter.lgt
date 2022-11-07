@@ -25,6 +25,7 @@
 		update_completion_data/0
 	]).
 
+	:- uses(debugger, [trace/0, notrace/0]).
 	:- uses(format, [format/2]).
 	:- uses(list, [append/3, member/2, reverse/2]).
 	:- uses(term_io, [read_term_from_codes/3, write_term_to_codes/3, format_to_codes/3]).
@@ -250,68 +251,23 @@ predicate_doc('jupyter:update_completion_data/0', Doc) :-
   ], Doc).
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Trace
+	% Trace
 
-:- if(swi).
-
-% trace(+Goal)
-%
-% Switch the tracer on, call the goal Goal and stop the tracer.
-% Debug mode is switched on so that any breakpoints which might exist can be activated.
-% Because of user:prolog_trace_interception/4 defined in jupyter_server, debugging messages are printed to the current output without requesting user interaction.
-trace(Goal) :-
-  trace,
-  ( call(Goal) ->
-    notrace
-  ; notrace
-  ),
-  !.
-
-:- else.
-
-% trace(+Goal)
-%
-% Switches on trace mode, calls the goal Goal and switches debug mode off.
-% Since the last line of the output contains the debugging message of nodebug/1, this line is removed.
-% If any breakpoints exist, debug mode is switched back on again so that the debugger can stop at a breakpoint.
-% All ports are unleashed so that the debugger does not stop at an invocation to wait for user input.
-% However, breakpoints are not affected by this.
-trace(Goal) :-
-  catch(jupyter_query_handling::retractall(remove_output_lines_for(trace_debugging_messages)), _Exception, true),
-  module_name_expanded(Goal, MGoal),
-  switch_trace_mode_on,
-  ( call(MGoal) ->
-    % Switch off trace mode so that no more debugging messages are printed
-    % Afterwards, it needs to be checked if debug mode should be switched on again
-    nodebug
-  ; nodebug
-  ),
-  !,
-  jupyter_query_handling::debug_mode_for_breakpoints.
-
-
-switch_trace_mode_on :-
-  current_prolog_flag(debugging, Debugging),
-  member(Debugging, [debug, trace]),
-  % The debugger is already switched on
-  !,
-  % When reading the output, some additional lines need to be removed
-  % This is done if a clause jupyter_query_handling::remove_output_lines_for(trace_debugging_messages) exists
-  jupyter_query_handling::assertz(remove_output_lines_for(trace_debugging_messages)),
-  trace.
-switch_trace_mode_on :-
-  trace.
-
-
-% module_name_expanded(+Term, -MTerm)
-module_name_expanded((Module:Head:-Body), Module:(Head:-Body)) :- !.
-module_name_expanded(Module:Term, Module:Term) :- !.
-module_name_expanded(Term, user:Term).
-
-:- endif.
+	% trace(+Goal)
+	%
+	% Switch the tracer on, call the goal Goal and stop the tracer.
+	% Debug mode is switched on so that any breakpoints which might exist can be activated.
+	% Because of user:prolog_trace_interception/4 defined in jupyter_server, debugging messages are printed to the current output without requesting user interaction.
+	trace(Goal) :-
+		trace,
+		(	{Goal} ->
+			notrace
+		;	notrace
+		),
+		!.
 
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -324,9 +280,9 @@ module_name_expanded(Term, user:Term).
 	% Print the previous variable bindings which can be reused with a term of the form $Var.
 	print_variable_bindings :-
 		jupyter_variable_bindings::var_bindings(Bindings),
-		( Bindings == [] ->
-		  format('No previous variable bindings~n', [])
-		; print_variable_bindings(Bindings)
+		(	Bindings == [] ->
+			format('No previous variable bindings~n', [])
+		;	print_variable_bindings(Bindings)
 		).
 
 	print_variable_bindings([]) :- !.
