@@ -1,9 +1,16 @@
-build/
-*.egg-info
-__pycache__
-dist
+# Logtalk temporary file directories
+.lgt_tmp/
+lgt_tmp/
 
-# Jupyter notebook checkpoints
-.ipynb_checkpoints/
+# Logtalk default unit testing and doclet results and logs directories
+logtalk_tester_logs/
+logtalk_doclet_logs/
 
-.prolog_server_log*
+# backend Prolog compiler temporary files
+.pl-history
+*.out
+*.xwam
+*.qo
+*.ql
+*.itf
+*.po
