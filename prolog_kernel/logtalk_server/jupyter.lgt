@@ -53,41 +53,41 @@ cut :-
   throw(jupyter(no_single_goal(cut/0))).
 
 {cut :-
-  throw(jupyter(no_single_goal(jupyter:cut/0)))}.
+  throw(jupyter(no_single_goal(jupyter::cut/0)))}.
 
 
 % jupyter:set_prolog_impl(+PrologImplementationID)
 jupyter:set_prolog_impl(_PrologImplementationID) :-
-  throw(jupyter(no_single_goal(jupyter:set_prolog_impl/1))).
+  throw(jupyter(no_single_goal(jupyter::set_prolog_impl/1))).
 
 
 % jupyter:print_sld_tree(+Goal)
 jupyter:print_sld_tree(_Goal) :-
-  throw(jupyter(no_single_goal(jupyter:print_sld_tree/1))).
+  throw(jupyter(no_single_goal(jupyter::print_sld_tree/1))).
 
 
 % jupyter:print_stack
 jupyter:print_stack :-
-  throw(jupyter(no_single_goal(jupyter:print_stack/0))).
+  throw(jupyter(no_single_goal(jupyter::print_stack/0))).
 
 
 % jupyter:print_table(+Goal)
 jupyter:print_table(_Goal) :-
-  throw(jupyter(no_single_goal(jupyter:print_table/1))).
+  throw(jupyter(no_single_goal(jupyter::print_table/1))).
 
 % jupyter:print_table(+ValuesLists, +VariableNames)
 jupyter:print_table(_ValuesLists, _VariableNames) :-
-  throw(jupyter(no_single_goal(jupyter:print_table/2))).
+  throw(jupyter(no_single_goal(jupyter::print_table/2))).
 
 
 % jupyter:print_transition_graph(+PredSpec, +FromIndex, +ToIndex, +LabelIndex)
 jupyter:print_transition_graph(_PredSpec, _FromIndex, _ToIndex, _LabelIndex) :-
-  throw(jupyter(no_single_goal(jupyter:print_transition_graph/4))).
+  throw(jupyter(no_single_goal(jupyter::print_transition_graph/4))).
 
 
 % jupyter:update_completion_data
 jupyter:update_completion_data :-
-  throw(jupyter(no_single_goal(jupyter:update_completion_data/0))).
+  throw(jupyter(no_single_goal(jupyter::update_completion_data/0))).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -99,7 +99,7 @@ jupyter:update_completion_data :-
 %
 % PredDocs is a list with elements of the form Pred=Doc, where Pred is a predicate exported by this module and Doc is its documentation as an atom.
 jupyter:predicate_docs(PredDocs) :-
-  findall(Pred=Doc, predicate_doc(Pred, Doc), PredDocs).
+	findall(Pred=Doc, predicate_doc(Pred, Doc), PredDocs).
 
 
 % Prints the documentation for all predicates defined in module jupyter.

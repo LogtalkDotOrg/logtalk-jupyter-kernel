@@ -31,7 +31,7 @@
 
 	:- uses(list, [append/2, append/3, length/2]).
 	:- uses(logtalk, [print_message/3]).
-	:- uses(os, [delete_file/1]).
+	:- uses(os, [delete_file/1, wall_time/1]).
 	:- uses(reader, [line_to_codes/2 as read_line_to_codes/2]).
 	:- uses(term_io, [write_term_to_codes/3]).
 	:- uses(jupyter_logging, [log/1, log/2]).

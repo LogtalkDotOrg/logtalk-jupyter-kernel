@@ -360,8 +360,8 @@ discontiguous_pred(_Module:PredName/PredArity) :-
 %
 % PredDefinitionSpecs is a list of Module:PredName/PredArity elements for every predicate which is defined by the current request.
 current_pred_definition_specs(PredDefinitionSpecs) :-
-  pred_definition_specs(PredDefinitionSpecs),
-  !.
+	pred_definition_specs(PredDefinitionSpecs),
+	!.
 current_pred_definition_specs([]).
 
 
@@ -646,66 +646,60 @@ output_and_failure_message(Output, FailureMessage, OutputAndFailureMessage) :-
   atom_concat(Output, FailureMessageWithNl, OutputAndFailureMessage).
 
 
-% assert_query_success_response(+IsDirective, +ResultBindings, +Output)
-assert_query_success_response(true, _ResultBindings, Output) :-
-  % For directives, no bindings are output
-  !,
-  assert_success_response(directive, [], Output, []).
-assert_query_success_response(_IsDirective, ResultBindings, Output) :-
-  assert_success_response(query, ResultBindings, Output, []).
+	% assert_query_success_response(+IsDirective, +ResultBindings, +Output)
+	assert_query_success_response(true, _ResultBindings, Output) :-
+		% For directives, no bindings are output
+		!,
+		assert_success_response(directive, [], Output, []).
+	assert_query_success_response(_IsDirective, ResultBindings, Output) :-
+		assert_success_response(query, ResultBindings, Output, []).
 
 
-% update_variable_bindings(+BindingsWithoutSingletons)
-:- if(swi).
-update_variable_bindings(BindingsWithoutSingletons) :-
-  toplevel_variables:expand_answer(BindingsWithoutSingletons, _NewBindings).
-:- else.
-update_variable_bindings(BindingsWithoutSingletons) :-
-  jupyter_variable_bindings:store_var_bindings(BindingsWithoutSingletons).
-:- endif.
+	update_variable_bindings(BindingsWithoutSingletons) :-
+		jupyter_variable_bindings::store_var_bindings(BindingsWithoutSingletons).
 
 
-% retry_message_and_output(+GoalAtom, +Output, -RetryMessageAndOutput)
-%
-% If the current term was 'retry', a retry message is prepended to the output of the goal.
-retry_message_and_output(GoalAtom, Output, RetryMessageAndOutput) :-
-  % The Id can be from the initial 'call' request or from a subsequent 'retry' request.
-  retract(is_retry(IsRetry)),
-  retry_message(IsRetry, GoalAtom, RetryMessage),
-  atom_concat(RetryMessage, Output, RetryMessageAndOutput).
+	% retry_message_and_output(+GoalAtom, +Output, -RetryMessageAndOutput)
+	%
+	% If the current term was 'retry', a retry message is prepended to the output of the goal.
+	retry_message_and_output(GoalAtom, Output, RetryMessageAndOutput) :-
+		% The Id can be from the initial 'call' request or from a subsequent 'retry' request.
+		retract(is_retry(IsRetry)),
+		retry_message(IsRetry, GoalAtom, RetryMessage),
+		atom_concat(RetryMessage, Output, RetryMessageAndOutput).
 
 
-% retry_message(+IsRetry, +GoalAtom, -RetryMessage)
-%
-% If the current term was a 'retry' term (IsRetry=true), a retry message is sent to the client.
-% This message contains the goal which was retried.
-retry_message(true, GoalAtom, RetryMessage) :-
-  !,
-  format_to_atom('% Retrying goal: ~w~n', [GoalAtom], RetryMessage).
-retry_message(_IsRetry, _GoalAtom, '').
+	% retry_message(+IsRetry, +GoalAtom, -RetryMessage)
+	%
+	% If the current term was a 'retry' term (IsRetry=true), a retry message is sent to the client.
+	% This message contains the goal which was retried.
+	retry_message(true, GoalAtom, RetryMessage) :-
+		!,
+		format_to_atom('% Retrying goal: ~w~n', [GoalAtom], RetryMessage).
+	retry_message(_IsRetry, _GoalAtom, '').
 
 
-% handle_result_variable_bindings(+Bindings, -ResultBindings)
-handle_result_variable_bindings(Bindings, ResultBindings) :-
-  % Update the stored variable bindings
-  remove_singleton_variables(Bindings, BindingsWithoutSingletons),
-  update_variable_bindings(BindingsWithoutSingletons),
-  % Convert the variable values to json parsable terms
-  json_parsable_vars(BindingsWithoutSingletons, Bindings, ResultBindings).
+	% handle_result_variable_bindings(+Bindings, -ResultBindings)
+	handle_result_variable_bindings(Bindings, ResultBindings) :-
+		% Update the stored variable bindings
+		remove_singleton_variables(Bindings, BindingsWithoutSingletons),
+		update_variable_bindings(BindingsWithoutSingletons),
+		% Convert the variable values to json parsable terms
+		json_parsable_vars(BindingsWithoutSingletons, Bindings, ResultBindings).
 
 
-% remove_singleton_variables(+Bindings, -BindingsWithoutSingletons)
-%
-% Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the term currently being handled.
-% BindingsWithoutSingletons contains the elements of Bindings except for (named) singleton variables starting with '_'
-remove_singleton_variables([], []) :- !.
-remove_singleton_variables([Name=_Var|Bindings], BindingsWithoutSingletons) :-
-  % Name starts with '_'
-  sub_atom(Name, 0, 1, _After, '_'),
-  !,
-  remove_singleton_variables(Bindings, BindingsWithoutSingletons).
-remove_singleton_variables([Binding|Bindings], [Binding|BindingsWithoutSingletons]) :-
-  remove_singleton_variables(Bindings, BindingsWithoutSingletons).
+	% remove_singleton_variables(+Bindings, -BindingsWithoutSingletons)
+	%
+	% Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the term currently being handled.
+	% BindingsWithoutSingletons contains the elements of Bindings except for (named) singleton variables starting with '_'
+	remove_singleton_variables([], []) :- !.
+	remove_singleton_variables([Name=_Var|Bindings], BindingsWithoutSingletons) :-
+		% Name starts with '_'
+		sub_atom(Name, 0, 1, _After, '_'),
+		!,
+		remove_singleton_variables(Bindings, BindingsWithoutSingletons).
+	remove_singleton_variables([Binding|Bindings], [Binding|BindingsWithoutSingletons]) :-
+		remove_singleton_variables(Bindings, BindingsWithoutSingletons).
 
 
 % json_parsable_vars(+NonParsableVars, +Bindings, -JsonParsableVars)
@@ -775,16 +769,16 @@ same_var([_Binding|BindingsWithoutSingletons], Var) :-
 
 % handle_retry(+CallRequestId, +Stack)
 handle_retry(Stack) :-
-  ( Stack = [_ActiveGoal|_RemainingStack] ->
-    % Tell caller that the current query is a retry
-    asserta(is_retry(true)),
-    % Redirect all output to a file and call statistics/2 to compute the runtime as would normally be done before calling a query
-    jupyter_query_handling:redirect_output_to_file,
-    statistics(walltime, _Value),
-    fail
-  ; % No active call
-    assert_error_response(no_active_call, null, '', [])
-  ).
+	(	Stack = [_ActiveGoal|_RemainingStack] ->
+	 	% Tell caller that the current query is a retry
+	 	asserta(is_retry(true)),
+	 	% Redirect all output to a file and call statistics/2 to compute the runtime as would normally be done before calling a query
+	 	jupyter_query_handling:redirect_output_to_file,
+	 	statistics(walltime, _Value),
+	 	fail
+	;	% No active call
+	 	assert_error_response(no_active_call, null, '', [])
+	).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -797,21 +791,21 @@ handle_retry(Stack) :-
 
 % handle_cut(+Stack, -Cont)
 handle_cut(Stack, Cont) :-
-  ( Stack = [_Active|RemainingStack] ->
-    cut_message(RemainingStack, CutMessage),
-    assert_success_response(query, [], CutMessage, []),
-    Cont = cut
-  ; % No active call
-    assert_error_response(no_active_call, null, '', []),
-    Cont = continue
-  ).
+	(	Stack = [_Active|RemainingStack] ->
+	 	cut_message(RemainingStack, CutMessage),
+	 	assert_success_response(query, [], CutMessage, []),
+	 	Cont = cut
+	;	% No active call
+	 	assert_error_response(no_active_call, null, '', []),
+	 	Cont = continue
+	).
 
 
 % cut_message(+RemainingStack, -CutMessage)
 cut_message([], '% There is no previous active goal') :- !.
 cut_message([ActiveGoalAtom|_RemainingStack], CutMessage) :-
-  format_to_codes('% The new active goal is: ~w', [ActiveGoalAtom], MessageCodes),
-  atom_codes(CutMessage, MessageCodes).
+	format_to_codes('% The new active goal is: ~w', [ActiveGoalAtom], MessageCodes),
+	atom_codes(CutMessage, MessageCodes).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -822,7 +816,7 @@ cut_message([ActiveGoalAtom|_RemainingStack], CutMessage) :-
 % The type of the success reply sent to the client indicates that the server was halted and needs to be restarted for the next execution request.
 
 handle_halt :-
-  assertz(term_response(json([status=halt]))).
+	assertz(term_response(json([status=halt]))).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -843,19 +837,19 @@ handle_halt :-
 % The header of the table will contain the names of the variables occurring in Goal.
 % Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the goal Goal.
 handle_print_table_with_findall(Bindings, Goal) :-
-  ( jupyter_query_handling::call_with_output_to_file(jupyter_term_handling::findall_results_and_var_names(Goal, Bindings, Results, VarNames), Output, ErrorMessageData),
-    % Success or exception from findall_results_and_var_names/4
-    ( nonvar(ErrorMessageData) ->
-      !,
-      assert_error_response(exception, ErrorMessageData, '', [])
-    ; % success
-      % Return the additional 'print_table' data
-      assert_success_response(query, [], Output, [print_table=json(['ValuesLists'=Results, 'VariableNames'=VarNames])])
-    ),
-    !
-  ; % findall_results_and_var_names/4 failed
-    assert_error_response(failure, null, '', [])
-  ).
+	(	jupyter_query_handling::call_with_output_to_file(jupyter_term_handling::findall_results_and_var_names(Goal, Bindings, Results, VarNames), Output, ErrorMessageData),
+	 	% Success or exception from findall_results_and_var_names/4
+	 	(	nonvar(ErrorMessageData) ->
+	 	 	!,
+	 	 	assert_error_response(exception, ErrorMessageData, '', [])
+	 	;	% success
+	 	 	% Return the additional 'print_table' data
+	 	 	assert_success_response(query, [], Output, [print_table=json(['ValuesLists'=Results, 'VariableNames'=VarNames])])
+	 	),
+	 	!
+	;	% findall_results_and_var_names/4 failed
+	 	assert_error_response(failure, null, '', [])
+	).
 
 
 % handle_print_table(+Bindings, +ValuesLists, +VariableNames)
@@ -865,45 +859,45 @@ handle_print_table_with_findall(Bindings, Goal) :-
 % It contains the data which is to be printed in the table.
 % VariableNames is [] or a list of ground terms which need to be of the same length as the values lists.
 handle_print_table(_Bindings, [], VariableNames) :- !,
-  assert_success_response(query, [], '', [print_table=json(['ValuesLists'=[], 'VariableNames'=VariableNames])]).
+	assert_success_response(query, [], '', [print_table=json(['ValuesLists'=[], 'VariableNames'=VariableNames])]).
 handle_print_table(Bindings, ValuesLists, VariableNames) :-
-  % Get the length of the first list and make sure that all other lists have the same length
-  ValuesLists = [ValuesList|RemainingValuesLists],
-  length(ValuesList, Length),
-  ( forall(member(List, RemainingValuesLists), length(List, Length)) ->
-    % Make sure that VariableNames is valid
-    ( table_variable_names(VariableNames, Length, TableVariableNames) ->
-      % As not all of the values can be parsed to JSON (e.g. uninstantiated variables and compounds), they need to be made JSON parsable first by converting them to atoms
-      findall(ValuesAtomList, (member(Values, ValuesLists), convert_to_atom_list(Values, Bindings, ValuesAtomList)), JsonParsableValuesLists),
-      % Return the additional 'print_table' data
-      assert_success_response(query, [], '', [print_table=json(['ValuesLists'=JsonParsableValuesLists, 'VariableNames'=TableVariableNames])])
-    ; % The variable names are invalid
-      assert_error_response(exception, message_data(error, jupyter(invalid_table_variable_names)), '', [])
-    )
-  ; % Not all lists in ValuesLists are of the same length
-    assert_error_response(exception, message_data(error, jupyter(invalid_table_values_lists_length)), '', [])
-  ).
+	% Get the length of the first list and make sure that all other lists have the same length
+	ValuesLists = [ValuesList|RemainingValuesLists],
+	length(ValuesList, Length),
+	(	forall(member(List, RemainingValuesLists), length(List, Length)) ->
+	 	% Make sure that VariableNames is valid
+	 	(	table_variable_names(VariableNames, Length, TableVariableNames) ->
+	 	 	% As not all of the values can be parsed to JSON (e.g. uninstantiated variables and compounds), they need to be made JSON parsable first by converting them to atoms
+	 	 	findall(ValuesAtomList, (member(Values, ValuesLists), convert_to_atom_list(Values, Bindings, ValuesAtomList)), JsonParsableValuesLists),
+	 	 	% Return the additional 'print_table' data
+	 	 	assert_success_response(query, [], '', [print_table=json(['ValuesLists'=JsonParsableValuesLists, 'VariableNames'=TableVariableNames])])
+	 	;	% The variable names are invalid
+	 	 	assert_error_response(exception, message_data(error, jupyter(invalid_table_variable_names)), '', [])
+	 	)
+	;	% Not all lists in ValuesLists are of the same length
+	 	assert_error_response(exception, message_data(error, jupyter(invalid_table_values_lists_length)), '', [])
+	).
 
 
 % table_variable_names(+VariableNames, +Length, -TableVariableNames)
 table_variable_names([], Length, TableVariableNames) :-
-  % If no variable names are provided, capital letters are used instead
-  Letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
-  % TableVariableNames is a list containing the first Length letters
-  length(TableVariableNames, Length),
-  append(TableVariableNames, _, Letters).
+	% If no variable names are provided, capital letters are used instead
+	Letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
+	% TableVariableNames is a list containing the first Length letters
+	length(TableVariableNames, Length),
+	append(TableVariableNames, _, Letters).
 table_variable_names(VariableNames, Length, VariableNames) :-
-  % Check that the number of variable names is correct and that all of them are ground
-  length(VariableNames, Length),
-  forall(member(VariableName, VariableNames), ground(VariableName)),
-  !.
+	% Check that the number of variable names is correct and that all of them are ground
+	length(VariableNames, Length),
+	forall(member(VariableName, VariableNames), ground(VariableName)),
+	!.
 
 
 % convert_to_atom_list(+List, +Bindings, -AtomList)
 %
 % AtomList contains the elements of List after converting them to atoms.
 convert_to_atom_list(List, Bindings, AtomList) :-
-  findall(ElementAtom, (member(Element, List), write_term_to_atom(Element, Bindings, ElementAtom)), AtomList).
+	findall(ElementAtom, (member(Element, List), write_term_to_atom(Element, Bindings, ElementAtom)), AtomList).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -921,7 +915,7 @@ convert_to_atom_list(List, Bindings, AtomList) :-
 
 % handle_single_test_directive
 handle_single_test_directive :-
-  assert_error_response(exception, message_data(error, jupyter(single_test_directive)), '', []).
+	assert_error_response(exception, message_data(error, jupyter(single_test_directive)), '', []).
 
 
 % handle_begin_tests(+Directive, +Unit +Bindings)
@@ -948,20 +942,20 @@ handle_begin_tests(Directive, Unit, Bindings) :-
 
 % begin_new_test_file(+Directive, +Unit +Bindings)
 begin_new_test_file(Directive, Unit, Bindings) :-
-  test_file_name(Unit, TestFileName),
-  open(TestFileName, write, TestDefinitionStream),
-  assertz(test_definition_stream(TestDefinitionStream)),
-  % Load the module plunit in the file
-  % Otherwise, if the module was not loaded, the loading of the test definition file fails with an existence error because of user:begin_test/1
-  write_term(TestDefinitionStream, ':- use_module(library(plunit)).\n', []),
-  write_term_to_stream(Directive, Bindings, TestDefinitionStream).
+	test_file_name(Unit, TestFileName),
+	open(TestFileName, write, TestDefinitionStream),
+	assertz(test_definition_stream(TestDefinitionStream)),
+	% Load the module plunit in the file
+	% Otherwise, if the module was not loaded, the loading of the test definition file fails with an existence error because of user:begin_test/1
+	write_term(TestDefinitionStream, ':- use_module(library(plunit)).\n', []),
+	write_term_to_stream(Directive, Bindings, TestDefinitionStream).
 
 
 % handle_end_tests(+Directive)
 handle_end_tests(Directive) :-
-  test_definition_stream(TestDefinitionStream),
-  % Otherwise, there was no begin_tests directive -> there is no file to write to
-  write_term_to_stream(Directive, [], TestDefinitionStream).
+	test_definition_stream(TestDefinitionStream),
+	% Otherwise, there was no begin_tests directive -> there is no file to write to
+	write_term_to_stream(Directive, [], TestDefinitionStream).
 
 
 % handle_run_tests(+Term, +CallRequestId, +Stack, +Bindings, -Cont)
@@ -969,14 +963,14 @@ handle_end_tests(Directive) :-
 % If in the current query tests were defined, the test definition file is loaded.
 % Afterwards, this is handled the same as any other query.
 handle_run_tests(Term, CallRequestId, Stack, Bindings, Cont) :-
-  test_definition_end(true),
-  handle_query(Term, false, CallRequestId, Stack, Bindings, _OriginalTermData, cut, Cont).
+	test_definition_end(true),
+	handle_query(Term, false, CallRequestId, Stack, Bindings, _OriginalTermData, cut, Cont).
 
 
 % write_term_to_stream(+Term, +Bindings, +TestDefinitionStream)
 write_term_to_stream(Term, Bindings, TestDefinitionStream) :-
-  write_term(TestDefinitionStream, Term, [variable_names(Bindings)]),
-  write_term(TestDefinitionStream, '.\n', []).
+	write_term(TestDefinitionStream, Term, [variable_names(Bindings)]),
+	write_term(TestDefinitionStream, '.\n', []).
 
 
 % test_definition_end(+LoadFile)
@@ -1631,33 +1625,33 @@ gen_node_attr_codes([dot_attr(Attr,Val)|Tail]) -->
 gen_atom(Atom,In,Out) :- format_to_codes('~w',Atom,Codes), append(Codes,Out,In).
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Change the Prolog implementation
+	% Change the Prolog implementation
 
-% The user requested to change the active Prolog implementation.
-% The actual changing of the implementation is handled by the client (the Jupyter kernel).
-% It expects an 'set_prolog_impl_id' item to be part of the result.
+	% The user requested to change the active Prolog implementation.
+	% The actual changing of the implementation is handled by the client (the Jupyter kernel).
+	% It expects an 'set_prolog_impl_id' item to be part of the result.
 
-% handle_set_prolog_impl(+PrologImplementationID)
-handle_set_prolog_impl(PrologImplementationID) :-
-  atom(PrologImplementationID),
-  !,
-  assert_success_response(query, [], '', [set_prolog_impl_id=PrologImplementationID]).
-handle_set_prolog_impl(_PrologImplementationID) :-
-  assert_error_response(exception, message_data(error, jupyter(prolog_impl_id_no_atom)), '', []).
+	% handle_set_prolog_impl(+PrologImplementationID)
+	handle_set_prolog_impl(PrologImplementationID) :-
+		atom(PrologImplementationID),
+		!,
+		assert_success_response(query, [], '', [set_prolog_impl_id=PrologImplementationID]).
+	handle_set_prolog_impl(_PrologImplementationID) :-
+		assert_error_response(exception, message_data(error, jupyter(prolog_impl_id_no_atom)), '', []).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Change a Jupyter Prolog preference
+	% Change a Jupyter Prolog preference
 
-handle_set_preference(Pref,Value) :-
-  set_preference(Pref,Old,Value),
-  !,
-  format_to_atom('% Changing preference ~w from ~w to ~w~n', [Pref,Old,Value], Msg),
-  assert_success_response(query, [], Msg, []).
-handle_set_preference(Pref,Value) :- 
-  assert_error_response(exception, message_data(error, jupyter(set_preference(Pref,Value))), '', []).
+	handle_set_preference(Pref,Value) :-
+		set_preference(Pref,Old,Value),
+		!,
+		format_to_atom('% Changing preference ~w from ~w to ~w~n', [Pref,Old,Value], Msg),
+		assert_success_response(query, [], Msg, []).
+	handle_set_preference(Pref,Value) :- 
+		assert_error_response(exception, message_data(error, jupyter(set_preference(Pref,Value))), '', []).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

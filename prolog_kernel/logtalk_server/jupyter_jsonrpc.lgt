@@ -33,27 +33,27 @@
 
 
 	% Create a JSON-RPC Request object (http://www.jsonrpc.org/specification#request_object)
-	jsonrpc_request(Method, Params, Id, json([jsonrpc='2.0',id=Id,method=Method,params=Params])).
+	jsonrpc_request(Method, Params, Id, json([jsonrpc-'2.0',id-Id,method-Method,params-Params])).
 
-	jsonrpc_request(Method, Id, json([jsonrpc='2.0',id=Id,method=Method])).
+	jsonrpc_request(Method, Id, json([jsonrpc-'2.0',id-Id,method-Method])).
 
 
 	% Create a JSON-RPC success Response object (http://www.jsonrpc.org/specification#response_object)
-	jsonrpc_response(Result, Id, json([jsonrpc='2.0',id=Id,result=Result])).
+	jsonrpc_response(Result, Id, json([jsonrpc-'2.0',id-Id,result-Result])).
 
 
 	% Create a JSON-RPC error Response object (http://www.jsonrpc.org/specification#response_object)
-	jsonrpc_error_response(Error, Id, json([jsonrpc='2.0',id=Id,error=Error])).
+	jsonrpc_error_response(Error, Id, json([jsonrpc-'2.0',id-Id,error-Error])).
 
 	% Create a JSON-RPC error Response object (http://www.jsonrpc.org/specification#response_object)
-	jsonrpc_error_response(Error, json([jsonrpc='2.0',id= @(null),error=Error])).
+	jsonrpc_error_response(Error, json([jsonrpc-'2.0',id- @(null),error-Error])).
 
 
 	% Create a JSON-RPC Error object (http://www.jsonrpc.org/specification#error_object)
-	jsonrpc_error(Code, Message, Data, json([code=Code,message=Message,data=Data])).
+	jsonrpc_error(Code, Message, Data, json([code-Code,message-Message,data-Data])).
 
 	% Create a JSON-RPC Error object (http://www.jsonrpc.org/specification#error_object)
-	jsonrpc_error(Code, Message, json([code=Code,message=Message])).
+	jsonrpc_error(Code, Message, json([code-Code,message-Message])).
 
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -64,7 +64,7 @@
 	% ErrorCode is one of the error codes defined by error_object_code/3 (e.g. exception).
 	% ErrorMessageData is a term of the form message_data(Kind, Term) so that the acutal error message can be retrieved with print_message(Kind, Term)
 	% Output is the output of the term which was executed.
-	% AdditionalData is a list containing Key=Value pairs providing additional data for the client.
+	% AdditionalData is a list containing Key-Value pairs providing additional data for the client.
 	json_error_term(ErrorCode, ErrorMessageData, Output, AdditionalData, JsonErrorTerm) :-
 		jupyter_query_handling:retrieve_message(ErrorMessageData, PrologMessage),
 		error_data(PrologMessage, Output, AdditionalData, ErroData),
@@ -73,11 +73,11 @@
 
 
 	% error_data(+PrologMessage, +Output, +AdditionalData, -ErrorData)
-	error_data(PrologMessage, Output, AdditionalData, json([prolog_message=PrologMessage|AdditionalData])) :-
+	error_data(PrologMessage, Output, AdditionalData, json([prolog_message-PrologMessage|AdditionalData])) :-
 		var(Output),
 		!.
-	error_data(PrologMessage, '', AdditionalData, json([prolog_message=PrologMessage|AdditionalData])) :- !.
-	error_data(PrologMessage, Output, AdditionalData, json([prolog_message=PrologMessage, output=Output|AdditionalData])).
+	error_data(PrologMessage, '', AdditionalData, json([prolog_message-PrologMessage|AdditionalData])) :- !.
+	error_data(PrologMessage, Output, AdditionalData, json([prolog_message-PrologMessage, output-Output|AdditionalData])).
 
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -99,7 +99,7 @@
 	% PrologMessage is an error message as output by print_message/2.
 	send_error_reply(Id, ErrorCode, PrologMessage) :-
 		error_object_code(ErrorCode, NumericErrorCode, JsonRpcErrorMessage),
-		json_error_term(NumericErrorCode, JsonRpcErrorMessage, json([prolog_message=PrologMessage]), RPCError),
+		json_error_term(NumericErrorCode, JsonRpcErrorMessage, json([prolog_message-PrologMessage]), RPCError),
 		jsonrpc_error_response(RPCError, Id, RPCResult),
 		write_message(RPCResult).
 
@@ -239,29 +239,29 @@
 	% The atom TermsAtom should form valid Prolog term syntax (the last term does not need to be terminated by a full-stop).
 	% Reads all Prolog terms from TermsAtom.
 	% TermsAndVariables is a list with elements of the form Term-Variables.
-	% Variables is a list of variable name and variable mappings (of the form [Name=Var, ...]) which occur in the corresponding term Term.
+	% Variables is a list of variable name and variable mappings (of the form [Name-Var, ...]) which occur in the corresponding term Term.
 	% ParsingErrorMessageData is instantiated to a term of the form message_data(Kind, Term) if a syntax error was encountered when reading the terms.
 	% ParsingErrorMessageData can be used to print the actual error message with print_message(Kind, Term).
 	% In case of a syntax error, TermsAndVariables is left unbound.
 	%
 	% Examples:
 	% - terms_from_atom("hello(world).", [hello(world)-[]], _ParsingError).
-	% - terms_from_atom("member(E, [1,2,3]).", [member(_A,[1,2,3])-['E'=_A]], _ParsingError).
+	% - terms_from_atom("member(E, [1,2,3]).", [member(_A,[1,2,3])-['E'-_A]], _ParsingError).
 	% - terms_from_atom("hello(world)", _TermsAndVariables, parsing_error(error(syntax_error('operator expected after expression'),syntax_error(read_term('$stream'(140555796879536),_A,[variable_names(_B)]),1,'operator expected after expression',[atom(hello)-1,'('-1,atom(world)-1,')'-1],0)),'! Syntax error in read_term/3\n! operator expected after expression\n! in line 1\n! hello ( world ) \n! <<here>>')).
 
 	terms_from_atom(TermsAtom, TermsAndVariables, ParsingErrorMessageData) :-
 		atom_codes(TermsAtom, GoalCodes),
 		% Try reading the terms from the codes
 		terms_from_codes(GoalCodes, TermsAndVariables, ParsingErrorMessageData),
-		( nonvar(ParsingErrorMessageData)
-		-> % No valid Prolog syntax
-		  % The error might have been caused by a missing terminating full-stop
-		  ( append(_, [46], GoalCodes) % NOTE: the dot could be on a comment line.
-		  ; % If the last code of the GoalCodes list does not represent a full-stop, add one and try reading the term(s) again
-		    append(GoalCodes, [10, 46], GoalCodesWithFullStop), % The last line might be a comment -> add a new line code as well
-		    terms_from_codes(GoalCodesWithFullStop, TermsAndVariables, _NewParsingErrorMessageData)
-		  )
-		; true
+		(	nonvar(ParsingErrorMessageData)
+		->	% No valid Prolog syntax
+			% The error might have been caused by a missing terminating full-stop
+			(	append(_, [46], GoalCodes) % NOTE: the dot could be on a comment line.
+			;	% If the last code of the GoalCodes list does not represent a full-stop, add one and try reading the term(s) again
+				append(GoalCodes, [10, 46], GoalCodesWithFullStop), % The last line might be a comment -> add a new line code as well
+				terms_from_codes(GoalCodesWithFullStop, TermsAndVariables, _NewParsingErrorMessageData)
+			)
+		;	true
 		).
 
 
@@ -306,7 +306,7 @@
 	json_member(Object, Name, _Default, Value) :-
 		nonvar(Object),
 		Object = json(Members),
-		memberchk(Name=V, Members),
+		memberchk(Name-V, Members),
 		!,
 		Value = V.
 	json_member(_Object, _Name, Default, Value) :-
