@@ -26,7 +26,7 @@
 	:- uses(term_io, [write_term_to_codes/3, format_to_codes/3]).
 	:- uses(jupyter_logging, [create_log_file/1, log/1, log/2]).
 	:- uses(jupyter_jsonrpc, [send_success_reply/2, send_error_reply/3, next_jsonrpc_message/1, parse_json_terms_request/3]).
-	:- uses(jupyter_term_handling, [handle_term/6, declaration_end/1, test_definition_end/1, pred_definition_specs/1, term_response/1]).
+	:- uses(jupyter_term_handling, [handle_term/6, declaration_end/1, pred_definition_specs/1, term_response/1]).
 	:- uses(jupyter_query_handling, [send_reply_on_error/0, retrieve_message/2]).
 	:- uses(jupyter, []).
 
@@ -55,8 +55,7 @@
 		retract(request_data(_CallRequestId, _TermsAndVariables)),
 		% Use catch/3, because no clauses might have been asserted
 		catch(jupyter_term_handling::retractall(pred_definition_specs(_)), _, true),
-		% Delete the test definition and declaration file
-		test_definition_end(false),
+		% Delete the declaration file
 		declaration_end(false),
 		% Send an error response
 		jupyter_query_handling::retrieve_message(message_data(error, MessageTerm), ExceptionMessage),
@@ -120,8 +119,7 @@
 		retract(request_data(CallRequestId, _)),
 		% Use catch/3, because no clauses might have been asserted
 		catch(jupyter_term_handling::retractall(pred_definition_specs(_)), _, true),
-		% If any tests were defined or declarations were made by the current request, load the corresponding file(s)
-		test_definition_end(true),
+		% If any declarations were made by the current request, load the corresponding file(s)
 		declaration_end(true),
 		% Collect the responses and send them to the client
 		term_responses(1, TermResponses),

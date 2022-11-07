@@ -4,9 +4,6 @@
 % For each of the types there are terms which need to be handled specially.
 % The following types of terms are differentiated:
 % - directives:
-%   - begin_tests/1
-%   - begin_tests/2
-%   - end_tests/1
 %   - any other directive
 % - clause definitions:
 %   - test(Name) :- Body
@@ -40,8 +37,7 @@
 		declaration_end/1,        % declaration_end(+LoadFile)
 		handle_term/6,            % handle_term(+Term, +IsSingleTerm, +CallRequestId, +Stack, +Bindings, -Cont)
 		pred_definition_specs/1,  % pred_definition_specs(PredDefinitionSpecs)
-		term_response/1,          % term_response(JsonResponse)
-		test_definition_end/1     % test_definition_end(+LoadFile)
+		term_response/1           % term_response(JsonResponse)
 	]).
 
 	:- uses(debugger, [trace/0, notrace/0]).
@@ -76,36 +72,6 @@
 	% term_response(JsonResponse)
 	:- dynamic(term_response/1).
 
-	% test_definition_stream(TestDefinitionStream)
-	% TestDefinitionStream is a write stream if the current request contains a begin_tests request.
-	:- private(test_definition_stream/1).
-	:- dynamic(test_definition_stream/1).
-
-	test_file_base_name('jupyter_tests').
-
-
-% test_file_name(?Unit, -TestFileName)
-%
-% PL-Unit tests need to be defined in a file which is loaded.
-% Unit is the name of the test unit.
-% TestFileName is the name of the file to which test definitions are written.
-
-% In SWI-Prolog, the following causes an error:
-% - load a file defining a test unit U
-% - run the tests
-% - change the file so that test unit U is not defined anymore
-% - load the same file again
-% - run the tests
-% Therefore, the same test file name cannot be reused for several requests.
-% However, when a test unit was loaded from a file X, a test unit with the same name cannot be loaded from file Y afterwards.
-% Thus, every test unit is written to a file of which the name contains the unit name.
-% In SICStus Prolog, a file containing `plunit` test clauses defines the predicates `'unit body'/4` and `'unit test'/5`.
-% If test files with different names are loaded, these predicates are redefined and corresponding messages are output.
-% Therefore, the test file should always be called the same.
-test_file_name(_Unit, TestFileName) :-
-  test_file_base_name(TestFileBaseName),
-  atom_concat(TestFileBaseName, '.pl', TestFileName).
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -138,8 +104,7 @@ handle_term(Head, false, _CallRequestId, _Stack, Bindings, continue) :-
 
 % Directives
 
-% The directives begin_tests and end_tests are handled specially.
-% All other directives are called with jupyter_query_handling:call_with_output_to_file/3.
+% All directives are called with jupyter_query_handling:call_with_output_to_file/3.
 % The runtime of the exeuction and additional query data is not asserted as it is the case for queries.
 % Furthermore, a retry is not possible and a directive's variable bindings are not sent to the client.
 
@@ -152,21 +117,6 @@ handle_term(Head, false, _CallRequestId, _Stack, Bindings, continue) :-
 
 % handle_directive(+Term, +IsSingleTerm, +CallRequestId, +Stack, +Bindings, +Cont)
 %
-% begin_tests/1
-handle_directive((:- begin_tests(_Unit)), true, _CallRequestId, _Stack, _Bindings, continue) :- !,
-  handle_single_test_directive.
-handle_directive((:- begin_tests(Unit)), _IsSingleTerm, _CallRequestId, _Stack, Bindings, continue) :- !,
-  handle_begin_tests((:- begin_tests(Unit)), Unit, Bindings).
-% begin_tests/2
-handle_directive((:- begin_tests(_Unit, _Options)), true, _CallRequestId, _Stack, _Bindings, continue) :- !,
-  handle_single_test_directive.
-handle_directive((:- begin_tests(Unit, Options)), _IsSingleTerm, _CallRequestId, _Stack, Bindings, continue) :- !,
-  handle_begin_tests((:- begin_tests(Unit, Options)), Unit, Bindings).
-% end_tests/1
-handle_directive((:- end_tests(_Unit)), true,_CallRequestId, _Stack,  _Bindings, continue) :- !,
-  handle_single_test_directive.
-handle_directive((:- end_tests(Unit)), _IsSingleTerm, _CallRequestId, _Stack, _Bindings, continue) :- !,
-  handle_end_tests((:- end_tests(Unit))).
 handle_directive((:- Declaration), _IsSingleTerm, _CallRequestId, _Stack, _Bindings, continue) :-
   functor(Declaration, DeclarationName, DeclarationArity),
   declaration_name_arity(DeclarationName, DeclarationArity),
@@ -180,7 +130,6 @@ handle_directive((:- Directive), _IsSingleTerm, CallRequestId, Stack, Bindings, 
 % declaration_name_arity(-Name,-Arity)
 %
 % Name and Arity are the name and arity of any declaration listed by the Predicate Index website: https://sicstus.sics.se/sicstus/docs/4.7.1/html/sicstus.html/Predicate-Index.html
-% Since the begin_tests and end_tests directives are handled differently, they are not listed here.
 declaration_name_arity(attribute, 1).
 declaration_name_arity(block, 1).
 declaration_name_arity(chr_constraint, 1).
@@ -271,21 +220,6 @@ declaration_end(_LoadFile).
 % New clauses are added to the database with assertz/1.
 
 % handle_clause_definition_term(+Clause, +Bindings)
-%
-% Test definitions
-handle_clause_definition_term((test(Name) :- Body), Bindings) :-
-  test_definition_stream(TestDefinitionStream),
-  % If test_definition_stream/1 succeeds, there was a begin_tests directive
-  % In that case, this test definition belongs to the unit test and is written to the test definition file
-  !,
-  write_term_to_stream((test(Name) :- Body), Bindings, TestDefinitionStream).
-handle_clause_definition_term((test(Name, Options) :- Body), Bindings) :-
-  test_definition_stream(TestDefinitionStream),
-  % If test_definition_stream/1 succeeds, there was a begin_tests directive
-  % In that case, this test definition belongs to the unit test and is written to the test definition file
-  !,
-  write_term_to_stream((test(Name, Options) :- Body), Bindings, TestDefinitionStream).
-% Any other clause definition
 handle_clause_definition_term(Clause, _Bindings) :-
   handle_clause_definition(Clause).
 
@@ -539,13 +473,6 @@ handle_query_term_(jupyter:update_completion_data,
 handle_query_term_(jupyter:set_preference(Pref,Value), 
                    _IsDirective, _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_set_preference(Pref,Value).
-% run_tests
-handle_query_term_(run_tests, _IsDirective, CallRequestId, Stack, Bindings, _OriginalTermData, _LoopCont, Cont) :- !,
-  handle_run_tests(run_tests, CallRequestId, Stack, Bindings, Cont).
-handle_query_term_(run_tests(Spec), _IsDirective, CallRequestId, Stack, Bindings, _OriginalTermData, _LoopCont, Cont) :- !,
-  handle_run_tests(run_tests(Spec), CallRequestId, Stack, Bindings, Cont).
-handle_query_term_(run_tests(Spec, Options), _IsDirective, CallRequestId, Stack, Bindings, _OriginalTermData, _LoopCont, Cont) :- !,
-  handle_run_tests(run_tests(Spec, Options), CallRequestId, Stack, Bindings, Cont).
 % trace
 handle_query_term_(trace, _IsDirective, _CallRequestId, _Stack, 
                    _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
@@ -902,110 +829,10 @@ convert_to_atom_list(List, Bindings, AtomList) :-
 	findall(ElementAtom, (member(Element, List), write_term_to_atom(Element, Bindings, ElementAtom)), AtomList).
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% PlUnit tests
-
-% In order to use PlUnit tests with the SICStus JSON-RPC server, the tests need to be written to a file which can be loaded.
-% SICStus: When a the first begin_tests directive is encountered, a file is created and opened for writing.
-% SWI: For every unit, a file is created and opened for writing.
-% The corresponding stream is asserted as test_write_stream/1 so that it can be used to write test definitions test directives to the file.
-% Each following test/1 or test/2 clause (and in case of SICStus also begin_tests/end_tests directives) is written to the file.
-% When all terms of a request were handled or a run_tests query is encountered (additionally in case of SWI: a new begin_tests directive), the file is loaded.
-
-% SICStus: All tests which are to be run at the same time need to be defined by the same request. Otherwise, the definition is overwritten.
-
-% handle_single_test_directive
-handle_single_test_directive :-
-	assert_error_response(exception, message_data(error, jupyter(single_test_directive)), '', []).
-
-
-% handle_begin_tests(+Directive, +Unit +Bindings)
-%
-% Unit is the name of the test unit.
-:- if(swi).
-handle_begin_tests(Directive, Unit, Bindings) :-
-  % Create a new file for each test unit
-  % First load the previous test unit file if there is one
-  test_definition_end(true),
-  catch(retractall(test_definition_stream(_TestDefinitionStream)), _Exception, true),
-  begin_new_test_file(Directive, Unit, Bindings).
-:- else.
-handle_begin_tests(Directive, _Unit, Bindings) :-
-  test_definition_stream(TestDefinitionStream),
-  % Not the first begin_tests directive -> write to the existing file
-  !,
-  write_term_to_stream(Directive, Bindings, TestDefinitionStream).
-handle_begin_tests(Directive, Unit, Bindings) :-
-  % First begin_tests directive of the request or after a run_tests query -> create a new file
-  begin_new_test_file(Directive, Unit, Bindings).
-:- endif.
-
-
-% begin_new_test_file(+Directive, +Unit +Bindings)
-begin_new_test_file(Directive, Unit, Bindings) :-
-	test_file_name(Unit, TestFileName),
-	open(TestFileName, write, TestDefinitionStream),
-	assertz(test_definition_stream(TestDefinitionStream)),
-	% Load the module plunit in the file
-	% Otherwise, if the module was not loaded, the loading of the test definition file fails with an existence error because of user:begin_test/1
-	write_term(TestDefinitionStream, ':- use_module(library(plunit)).\n', []),
-	write_term_to_stream(Directive, Bindings, TestDefinitionStream).
-
-
-% handle_end_tests(+Directive)
-handle_end_tests(Directive) :-
-	test_definition_stream(TestDefinitionStream),
-	% Otherwise, there was no begin_tests directive -> there is no file to write to
-	write_term_to_stream(Directive, [], TestDefinitionStream).
-
-
-% handle_run_tests(+Term, +CallRequestId, +Stack, +Bindings, -Cont)
-%
-% If in the current query tests were defined, the test definition file is loaded.
-% Afterwards, this is handled the same as any other query.
-handle_run_tests(Term, CallRequestId, Stack, Bindings, Cont) :-
-	test_definition_end(true),
-	handle_query(Term, false, CallRequestId, Stack, Bindings, _OriginalTermData, cut, Cont).
-
-
 % write_term_to_stream(+Term, +Bindings, +TestDefinitionStream)
 write_term_to_stream(Term, Bindings, TestDefinitionStream) :-
 	write_term(TestDefinitionStream, Term, [variable_names(Bindings)]),
 	write_term(TestDefinitionStream, '.\n', []).
-
-
-% test_definition_end(+LoadFile)
-%
-% Closes and retracts the stream to which test definitions were written.
-% If LoadFile=true, loads the test definition file.
-test_definition_end(LoadFile) :-
-  test_definition_stream(TestDefinitionStream),
-  !,
-  close(TestDefinitionStream),
-  retractall(test_definition_stream(_)),
-  test_file_name(Unit, TestFileName),
-  % When loading the file, an exception or warning might be output
-  ( LoadFile==true ->
-    % When loading the file, an exception or warning might be output
-    jupyter_query_handling:call_with_output_to_file(user:load_files(TestFileName), Output, ErrorMessageData)
-  ; Output = ''
-  ),
-  delete_file(TestFileName),
-  ( nonvar(ErrorMessageData) ->
-    assert_error_response(exception, message_data(error, ErrorMessageData), Output, [])
-  ; ( nonvar(Unit) ->
-      % In case of SWI-Prolog, the Unit is bound
-      % Since each Unit is written to and loaded from a separate file, a message should be output for each file
-      format_to_codes('% Defined test unit ~w', [Unit], LoadMessageCodes),
-      atom_codes(LoadMessage, LoadMessageCodes),
-      atom_concat(Output, LoadMessage, OutputWithLoadMessage)
-    ; atom_concat(Output, '\n% Loaded the test file', OutputWithLoadMessage)
-    ),
-    assert_success_response(directive, [], OutputWithLoadMessage, [])
-  ).
-test_definition_end(_LoadFile).
-% The request did not contain any begin_tests directive -> there is no file or stream which has to be dealt with
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1017,7 +844,7 @@ test_definition_end(_LoadFile).
 
 % handle_trace(+TracePredSpec)
 handle_trace(TracePredSpec) :-
-  assert_error_response(exception, message_data(error, jupyter(trace_pred(TracePredSpec))), '', []).
+	assert_error_response(exception, message_data(error, jupyter(trace_pred(TracePredSpec))), '', []).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1031,15 +858,15 @@ handle_trace(TracePredSpec) :-
 % ResultsLists contains lists containing values for each variable in Bindings.
 % VarNames is the list of variable names from Bindings.
 findall_results_and_var_names(Goal, Bindings, JsonParsableResultsLists, VarNames) :-
-  var_names_and_values(Bindings, VarNames, Vars),
-  findall(Vars, Goal, ResultsLists),
-  json_parsable_results_lists(ResultsLists, VarNames, Bindings, JsonParsableResultsLists).
+	var_names_and_values(Bindings, VarNames, Vars),
+	findall(Vars, Goal, ResultsLists),
+	json_parsable_results_lists(ResultsLists, VarNames, Bindings, JsonParsableResultsLists).
 
 
 % var_names_and_values(+Bindings, -VarNames, -Vars)
 var_names_and_values([], [], []) :- !.
 var_names_and_values([VarName=Var|Bindings], [VarName|VarNames], [Var|Vars]) :-
-  var_names_and_values(Bindings, VarNames, Vars).
+	var_names_and_values(Bindings, VarNames, Vars).
 
 
 % json_parsable_results_lists(+ResultsLists, +VarNames, +Bindings, -JsonParsableResultsLists)
@@ -1050,22 +877,22 @@ var_names_and_values([VarName=Var|Bindings], [VarName|VarNames], [Var|Vars]) :-
 % Bindings is needed to preserve the variable names when converting a result to an atom.
 json_parsable_results_lists([], _VarNames, _Bindings, []) :- !.
 json_parsable_results_lists([Results|ResultsLists], VarNames, Bindings, [JsonParsableResults|JsonParsableResultsLists]) :-
-  json_parsable_results(Results, VarNames, Bindings, JsonParsableResults),
-  json_parsable_results_lists(ResultsLists, VarNames, Bindings, JsonParsableResultsLists).
+	json_parsable_results(Results, VarNames, Bindings, JsonParsableResults),
+	json_parsable_results_lists(ResultsLists, VarNames, Bindings, JsonParsableResultsLists).
 
 
 % json_parsable_results(+Results, +VarNames, +Bindings, -JsonParsableResult)
 json_parsable_results([], _VarNames, _Bindings, []) :- !.
 json_parsable_results([Result|Results], [VarName|VarNames], Bindings, [Result|JsonParsableResults]) :-
-  % If the result is a variable, unify it with its name
-  var(Result),
-  !,
-  Result = VarName,
-  json_parsable_results(Results, VarNames, Bindings, JsonParsableResults).
+	% If the result is a variable, unify it with its name
+	var(Result),
+	!,
+	Result = VarName,
+	json_parsable_results(Results, VarNames, Bindings, JsonParsableResults).
 json_parsable_results([Result|Results], [_VarName|VarNames], Bindings, [ResultAtom|JsonParsableResults]) :-
-  % Convert the value to an atom as it may be compound and cannot be parsed to JSON otherwise
-  write_term_to_atom(Result, Bindings, ResultAtom),
-  json_parsable_results(Results, VarNames, Bindings, JsonParsableResults).
+	% Convert the value to an atom as it may be compound and cannot be parsed to JSON otherwise
+	write_term_to_atom(Result, Bindings, ResultAtom),
+	json_parsable_results(Results, VarNames, Bindings, JsonParsableResults).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
