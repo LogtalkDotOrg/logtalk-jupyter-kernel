@@ -308,8 +308,8 @@ remove_output_lines(IsSicstusJupyterTrace, Lines, NewLines) :-
 	% In case debugging mode was on before trace mode was switched on, a clause remove_output_lines_for(trace_debugging_messages) exists
 	% In that case, the remaining first to lines are debugging messages of the exit ports of trace/0 and jupyter:switch_trace_mode_on/0
 	(	remove_output_lines_for(trace_debugging_messages) ->
-	 	retractall(remove_output_lines_for(trace_debugging_messages)),
-	 	LinesWithoutLastLines = [_ExitMessage1, _ExitMessage2|NewLines]
+		retractall(remove_output_lines_for(trace_debugging_messages)),
+		LinesWithoutLastLines = [_ExitMessage1, _ExitMessage2|NewLines]
 	;	NewLines = LinesWithoutLastLines
 	).
 remove_output_lines(_IsSicstusJupyterTrace, Lines, NewLines) :-

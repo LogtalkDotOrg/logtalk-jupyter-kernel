@@ -44,9 +44,11 @@
 		test_definition_end/1     % test_definition_end(+LoadFile)
 	]).
 
+	:- uses(debugger, [trace/0, notrace/0]).
 	:- uses(term_io, [write_term_to_codes/3, format_to_codes/3, read_term_from_codes/3]).
 	:- uses(format, [format/2]).
 	:- uses(list, [append/2, append/3, delete/3, length/2, reverse/2,  member/2, nth1/3]).
+	:- uses(user, [atomic_list_concat/2]).
 	:- uses(jupyter_logging, [log/1, log/2]).
 	:- uses(jupyter_query_handling, [call_with_output_to_file/3, call_query_with_output_to_file/7, redirect_output_to_file/0]).
 	:- uses(jupyter_jsonrpc, [send_error_reply/3]).
@@ -1201,21 +1203,21 @@ call_with_sld_failure_handling(Goal, BreakpointConditions, IsFailure) :-
 % Collects the data which was asserted as sld_data/3.
 % For each element (except the ones for the toplevel call and remove_breakpoints/1), an atom is created representing one of the lines of the file.
 sld_graph_file_content(GraphFileContentAtom) :-
-  findall(GoalCodes-Id-ParentId, sld_data(GoalCodes, Id, ParentId), SldData),
-  clean_sld_data(SldData, CleanSldData),
-  % Compute nodes content
-  sld_tree_node_atoms(CleanSldData, 'A', [], Nodes),
-  % Compute edges content
-  % The first element corresponds to a call from the toplevel
-  % SldDataWithoutToplevelCalls contains all elements from CleanSldData which do not correspond to teplevel calls with the same ParentId
-  CleanSldData = [_Goal-_CurrentId-ToplevelId|_],
-  delete_all_occurrences(CleanSldData, _G-_Id-ToplevelId, SldDataWithoutToplevelCalls),
-  sld_tree_edge_atoms(SldDataWithoutToplevelCalls, Edges),
-  % Build the file content atom
-  % Append elements to the list with which the remaining file content is added
-  append(Edges, ['}'], EdgesWithClosingBracket),
-  append(Nodes, EdgesWithClosingBracket, NodesAndEdgesWithClosingBracket),
-  atom_concat(['digraph {\n'|NodesAndEdgesWithClosingBracket], GraphFileContentAtom).
+	findall(GoalCodes-Id-ParentId, sld_data(GoalCodes, Id, ParentId), SldData),
+	clean_sld_data(SldData, CleanSldData),
+	% Compute nodes content
+	sld_tree_node_atoms(CleanSldData, 'A', [], Nodes),
+	% Compute edges content
+	% The first element corresponds to a call from the toplevel
+	% SldDataWithoutToplevelCalls contains all elements from CleanSldData which do not correspond to teplevel calls with the same ParentId
+	CleanSldData = [_Goal-_CurrentId-ToplevelId|_],
+	delete_all_occurrences(CleanSldData, _G-_Id-ToplevelId, SldDataWithoutToplevelCalls),
+	sld_tree_edge_atoms(SldDataWithoutToplevelCalls, Edges),
+	% Build the file content atom
+	% Append elements to the list with which the remaining file content is added
+	append(Edges, ['}'], EdgesWithClosingBracket),
+	append(Nodes, EdgesWithClosingBracket, NodesAndEdgesWithClosingBracket),
+	atomic_list_concat(['digraph {\n'|NodesAndEdgesWithClosingBracket], GraphFileContentAtom).
 
 
 % clean_sld_data(+SldData, -CleanSldData)
@@ -1224,7 +1226,7 @@ sld_graph_file_content(GraphFileContentAtom) :-
 :- if(swi).
 
 clean_sld_data(SldData, CleanSldData) :-
-  compute_unique_ids(SldData, 1, [], CleanSldData).
+	compute_unique_ids(SldData, 1, [], CleanSldData).
 
 
 % compute_unique_ids(+SldData, +CurrentId, +ActiveIds, -SldDataWithUniqueIds)
@@ -1276,30 +1278,30 @@ clean_sld_data(SldData, CleanSldData) :-
 % In order to keep the renaming consistent for all terms, VariableNameReplacements is a list with VarName=NameReplacement pairs for name replacements which were made for the previous terms.
 sld_tree_node_atoms([], _CurrentReplacementAtom, _VariableNameReplacements, []) :- !.
 sld_tree_node_atoms([GoalCodes-Current-_Parent|SldData], CurrentReplacementAtom, VariableNameReplacements, [Node|Nodes]) :-
-  % Read the goal term from the codes with the option variable_names/1 so that variable names can be replaced consistently
-  append(GoalCodes, [46], GoalCodesWithFullStop),
-  read_term_from_codes(GoalCodesWithFullStop, GoalTerm, [variable_names(VariableNames)]),
-  % Replace the variable names
-  replace_variable_names(VariableNames, CurrentReplacementAtom, VariableNameReplacements, NextReplacementAtom, NewVariableNameReplacements),
-  % Create the atom
-  format_to_codes('    \"~w\" [label=\"~w\"]~n', [Current, GoalTerm], NodeCodes),
-  atom_codes(Node, NodeCodes),
-  sld_tree_node_atoms(SldData, NextReplacementAtom, NewVariableNameReplacements, Nodes).
+	% Read the goal term from the codes with the option variable_names/1 so that variable names can be replaced consistently
+	append(GoalCodes, [46], GoalCodesWithFullStop),
+	read_term_from_codes(GoalCodesWithFullStop, GoalTerm, [variable_names(VariableNames)]),
+	% Replace the variable names
+	replace_variable_names(VariableNames, CurrentReplacementAtom, VariableNameReplacements, NextReplacementAtom, NewVariableNameReplacements),
+	% Create the atom
+	format_to_codes('    \"~w\" [label=\"~w\"]~n', [Current, GoalTerm], NodeCodes),
+	atom_codes(Node, NodeCodes),
+	sld_tree_node_atoms(SldData, NextReplacementAtom, NewVariableNameReplacements, Nodes).
 
 
 % replace_variable_names(+VariableNames, +CurrentReplacementAtom, +VariableNameReplacements, -NextReplacementAtom, -NewVariableNameReplacements)
 replace_variable_names([], CurrentReplacementAtom, VariableNameReplacements, CurrentReplacementAtom, VariableNameReplacements) :- !.
 replace_variable_names([Var=Name|VariableNames], CurrentReplacementAtom, VariableNameReplacements, NextReplacementAtom, NewVariableNameReplacements) :-
-  member(Var=ReplacementAtom, VariableNameReplacements),
-  !,
-  % The variable has already been assigned a new name
-  Name = ReplacementAtom,
-  replace_variable_names(VariableNames, CurrentReplacementAtom, VariableNameReplacements, NextReplacementAtom, NewVariableNameReplacements).
+	member(Var=ReplacementAtom, VariableNameReplacements),
+	!,
+	% The variable has already been assigned a new name
+	Name = ReplacementAtom,
+	replace_variable_names(VariableNames, CurrentReplacementAtom, VariableNameReplacements, NextReplacementAtom, NewVariableNameReplacements).
 replace_variable_names([Var=Name|VariableNames], CurrentReplacementAtom, VariableNameReplacements, OutputReplacementAtom, NewVariableNameReplacements) :-
-  % The variable has not been assigned a new name
-  Name = CurrentReplacementAtom,
-  next_replacement_atom(CurrentReplacementAtom, NextReplacementAtom),
-  replace_variable_names(VariableNames, NextReplacementAtom, [Var=CurrentReplacementAtom|VariableNameReplacements], OutputReplacementAtom, NewVariableNameReplacements).
+	% The variable has not been assigned a new name
+	Name = CurrentReplacementAtom,
+	next_replacement_atom(CurrentReplacementAtom, NextReplacementAtom),
+	replace_variable_names(VariableNames, NextReplacementAtom, [Var=CurrentReplacementAtom|VariableNameReplacements], OutputReplacementAtom, NewVariableNameReplacements).
 
 
 % next_replacement_atom(+CurrentReplacementAtom, -NextReplacementAtom)
@@ -1346,23 +1348,9 @@ delete_all_occurrences([Element|List], DeleteElement, [Element|NewList]) :-
 % For each of these elements, Edges contains an atom of the following form: '    "Parent" -> "Current"~n'
 sld_tree_edge_atoms([], []) :- !.
 sld_tree_edge_atoms([_GoalCodes-Current-Parent|SldData], [EdgeAtom|Edges]) :-
-  format_to_codes('    \"~w\" -> \"~w\"~n', [Parent, Current], EdgeCodes),
-  atom_codes(EdgeAtom, EdgeCodes),
-  sld_tree_edge_atoms(SldData, Edges).
-
-
-% atom_concat(+AtomList, -ResultAtom)
-%
-% ResultAtom is an atom which results from concatenating all atoms in the list AtomList.
-atom_concat(Atoms, ResultAtom) :-
-  reverse(Atoms, ReversedAtoms),
-  atom_concat_(ReversedAtoms, '', ResultAtom).
-
-% atom_concat(+AtomList, +AtomSoFar, -ResultAtom)
-atom_concat_([], AtomSoFar, AtomSoFar) :- !.
-atom_concat_([Atom|Atoms], AtomSoFar, ResultAtom) :-
-  atom_concat(Atom, AtomSoFar, NewAtomSoFar),
-  atom_concat_(Atoms, NewAtomSoFar, ResultAtom).
+	format_to_codes('    \"~w\" -> \"~w\"~n', [Parent, Current], EdgeCodes),
+	atom_codes(EdgeAtom, EdgeCodes),
+	sld_tree_edge_atoms(SldData, Edges).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1407,7 +1395,7 @@ handle_print_transition_graph(NodePredSpec, EdgePredSpec, FromIndex, ToIndex, La
   % Compute the graph file content
   transition_graph_edge_atoms(Results, FromIndex, ToIndex, LabelIndex, EdgeDescAtoms),
   append([NodeDescAtoms,EdgeDescAtoms, ['}']], EdgesWithClosingBracket),
-  atom_concat(['digraph {\n'|EdgesWithClosingBracket], GraphFileContentAtom),
+  atomic_list_concat(['digraph {\n'|EdgesWithClosingBracket], GraphFileContentAtom),
   % Assert the result response
   assert_success_response(query, [], '', [print_transition_graph=GraphFileContentAtom]).
 handle_print_transition_graph(_NodePredSpec,_EdgePredSpec, _FromIndex, _ToIndex, _LabelIndex).
