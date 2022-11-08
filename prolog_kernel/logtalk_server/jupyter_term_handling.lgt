@@ -6,8 +6,6 @@
 % - directives:
 %   - any other directive
 % - clause definitions:
-%   - test(Name) :- Body
-%   - test(Name, Options) :- Body
 %   - Head :- Body
 %   - Head --> Body
 %   - Head (if the request contains more than one term)
@@ -130,26 +128,19 @@ handle_directive((:- Directive), _IsSingleTerm, CallRequestId, Stack, Bindings, 
 % declaration_name_arity(-Name,-Arity)
 %
 % Name and Arity are the name and arity of any declaration listed by the Predicate Index website: https://sicstus.sics.se/sicstus/docs/4.7.1/html/sicstus.html/Predicate-Index.html
-declaration_name_arity(attribute, 1).
-declaration_name_arity(block, 1).
-declaration_name_arity(chr_constraint, 1).
-declaration_name_arity(chr_option, 2).
-declaration_name_arity(chr_type, 1).
 declaration_name_arity(discontiguous, 1).
 declaration_name_arity(dynamic, 1).
 declaration_name_arity(include, 1).
 declaration_name_arity(initialization, 1).
-declaration_name_arity(is, 2).
 declaration_name_arity(meta_predicate, 1).
-declaration_name_arity(mode, 1).
 declaration_name_arity(multifile, 1).
-declaration_name_arity(public, 1).
-declaration_name_arity(volatile, 1).
 
 
-:- dynamic(jupyter_discontiguous/1).  % jupyter_discontiguous(PredSpec)
-                                     % The predicate with predicate spec PredSpec was declared discontiguous
-                                     % As this predicate property cannot be retrieved with predicate_property (as is the case for SWI), a dynamic predicate needs to be used instead
+% jupyter_discontiguous(PredSpec)
+% The predicate with predicate spec PredSpec was declared discontiguous
+% As this predicate property cannot be retrieved with predicate_property (as is the case for SWI), a dynamic predicate needs to be used instead
+:- private(jupyter_discontiguous/1).
+:- dynamic(jupyter_discontiguous/1).
 
 
 declaration_file_name('jupyter_declaration.pl').

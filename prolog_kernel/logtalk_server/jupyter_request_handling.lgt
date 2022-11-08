@@ -23,7 +23,7 @@
 
 	:- public([loop/3]).  % loop(+ContIn, +Stack, -ContOut)
 
-	:- uses(term_io, [write_term_to_codes/3, format_to_codes/3]).
+	:- uses(term_io, [format_to_atom/3]).
 	:- uses(jupyter_logging, [create_log_file/1, log/1, log/2]).
 	:- uses(jupyter_jsonrpc, [send_success_reply/2, send_error_reply/3, next_jsonrpc_message/1, parse_json_terms_request/3]).
 	:- uses(jupyter_term_handling, [handle_term/6, declaration_end/1, pred_definition_specs/1, term_response/1]).
@@ -188,9 +188,8 @@
 		).
 	dispatch_request(dialect, Message, _Stack, continue) :-
 		!,
-		% Send the SICStus version to the client
 		Message = request(_Method,CallRequestId,_Params,_RPC),
-		current_prolog_flag(dialect, Dialect),
+		current_logtalk_flag(prolog_dialect, Dialect),
 		jupyter_jsonrpc::send_success_reply(CallRequestId, Dialect).
 	dispatch_request(enable_logging, Message, _Stack, continue) :-
 		!,
@@ -202,9 +201,8 @@
 		!,
 		% Send the backend version to the client
 		Message = request(_Method,CallRequestId,_Params,_RPC),
-		current_logtalk_flag(prolog_version, v(Major,Minor,Revision)),
-		format_to_codes('~d.~d.~d', [Major, Minor, Revision], VersionCodes),
-		atom_codes(VersionAtom, VersionCodes),
+		current_logtalk_flag(prolog_version, v(Major,Minor,Patch)),
+		format_to_atom('~d.~d.~d', [Major, Minor, Patch], VersionAtom),
 		jupyter_jsonrpc::send_success_reply(CallRequestId, VersionAtom).
 	dispatch_request(jupyter_predicate_docs, Message, _Stack, continue) :-
 		% Retrieve the docs of the predicates in the module jupyter and send them to the client
