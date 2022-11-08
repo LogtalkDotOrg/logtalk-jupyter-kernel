@@ -268,13 +268,17 @@
 	% terms_from_codes(+Codes, -TermsAndVariables, -ParsingErrorMessageData)
 	terms_from_codes(Codes, TermsAndVariables, ParsingErrorMessageData) :-
 		open_codes_stream(Codes, Stream),
-		catch(
-			call_cleanup(read_terms_and_vars(Stream, TermsAndVariables), close(Stream)),
-			Exception,
-			ParsingErrorMessageData = message_data(error, Exception)
+		(	catch(
+				read_terms_and_vars(Stream, TermsAndVariables),
+				Exception,
+				(close(Stream), ParsingErrorMessageData = message_data(error, Exception))
+			) ->
+			close(Stream)
+		;	close(Stream),
+			fail
 		).
-	
-	
+
+
 	% read_terms_and_vars(+Stream, -TermsAndVariables)
 	read_terms_and_vars(Stream, NewTermsAndVariables) :-
 		read_term(Stream, Term, [variable_names(Variables)]),
