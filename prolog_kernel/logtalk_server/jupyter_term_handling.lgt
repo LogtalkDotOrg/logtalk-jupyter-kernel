@@ -281,16 +281,8 @@ retract_previous_clauses(MPredSpec, RetractedClausesJson, Output) :-
 % discontiguous_pred(+MPredSpec)
 %
 % Succeeds if the predicate with pred spec MPredSpec was declared discontiguous.
-:- if(swi).
-discontiguous_pred(Module:PredName/PredArity) :-
-  functor(PredTerm, PredName, PredArity),
-  predicate_property(Module:PredTerm, discontiguous).
-:- else.
-discontiguous_pred(Module:PredName/PredArity) :-
-  jupyter_discontiguous(Module:PredName/PredArity).
-discontiguous_pred(_Module:PredName/PredArity) :-
+discontiguous_pred(PredName/PredArity) :-
   jupyter_discontiguous(PredName/PredArity).
-:- endif.
 
 
 % current_pred_definition_specs(-PredDefinitionSpecs)
@@ -472,27 +464,27 @@ handle_query_term_(jupyter::set_preference(Pref,Value),
 handle_query_term_(trace, _IsDirective, _CallRequestId, _Stack, 
                    _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_trace(trace/0).
-:- if(swi).
-handle_query_term_(trace(_Pred), _IsDirective, _CallRequestId, _Stack,
-                   _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-  handle_trace(trace/1).
-handle_query_term_(trace(_Pred, _Ports), _IsDirective, _CallRequestId, _Stack,
-                   _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-  handle_trace(trace/2).
-:- endif.
+%:- if(swi).
+%handle_query_term_(trace(_Pred), _IsDirective, _CallRequestId, _Stack,
+%                   _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+%  handle_trace(trace/1).
+%handle_query_term_(trace(_Pred, _Ports), _IsDirective, _CallRequestId, _Stack,
+%                   _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+%  handle_trace(trace/2).
+%:- endif.
 % leash/1
 handle_query_term_(leash(_Ports), _IsDirective, _CallRequestId, _Stack,
                     _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   assert_error_response(exception, message_data(error, jupyter(leash_pred)), '', []).
-:- if(sicstus).
-% abolish
-handle_query_term_(abolish(Predicates), _IsDirective, CallRequestId, _Stack,
-                   _Bindings, OriginalTermData, _LoopCont, continue) :- !,
-  handle_abolish(abolish(Predicates), CallRequestId, OriginalTermData).
-handle_query_term_(abolish(Predicates, Options), _IsDirective, CallRequestId, _Stack,
-                   _Bindings, OriginalTermData, _LoopCont, continus) :- !,
-  handle_abolish(abolish(Predicates, Options), CallRequestId, OriginalTermData).
-:- endif.
+%:- if(sicstus).
+%% abolish
+%handle_query_term_(abolish(Predicates), _IsDirective, CallRequestId, _Stack,
+%                   _Bindings, OriginalTermData, _LoopCont, continue) :- !,
+%  handle_abolish(abolish(Predicates), CallRequestId, OriginalTermData).
+%handle_query_term_(abolish(Predicates, Options), _IsDirective, CallRequestId, _Stack,
+%                   _Bindings, OriginalTermData, _LoopCont, continus) :- !,
+%  handle_abolish(abolish(Predicates, Options), CallRequestId, OriginalTermData).
+%:- endif.
 % Any other query
 handle_query_term_(Query, IsDirective, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont) :-
   handle_query(Query, IsDirective, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont).
@@ -1421,58 +1413,59 @@ gen_atom(Atom,In,Out) :- format_to_codes('~w',Atom,Codes), append(Codes,Out,In).
 % The client expects these to be part of the result as 'predicate_atoms'.
 
 
-handle_update_completion_data :-
-  % Find all callable (built-in and exported) predicates and send them to the client
-  findall(Pred, generate_built_in_pred(Pred), BuiltInPreds),
-  findall(Pred, generate_exported_pred(Pred), ExportedPreds),
-  append(ExportedPreds, BuiltInPreds, CurrentPreds),
-  % convert the predicates into atoms so that they are JSON parsable
-  findall(PredAtom, (member(CurPred, CurrentPreds), predicate_atom(CurPred, PredAtom)), PredAtoms),
-  assert_success_response(query, [], '', [predicate_atoms=PredAtoms]).
+handle_update_completion_data.
+%handle_update_completion_data :-
+%  % Find all callable (built-in and exported) predicates and send them to the client
+%  findall(Pred, generate_built_in_pred(Pred), BuiltInPreds),
+%  findall(Pred, generate_exported_pred(Pred), ExportedPreds),
+%  append(ExportedPreds, BuiltInPreds, CurrentPreds),
+%  % convert the predicates into atoms so that they are JSON parsable
+%  findall(PredAtom, (member(CurPred, CurrentPreds), predicate_atom(CurPred, PredAtom)), PredAtoms),
+%  assert_success_response(query, [], '', [predicate_atoms=PredAtoms]).
 
 
-% generate_built_in_pred(-PredicateHead)
-:- if(swi).
-generate_built_in_pred(Head) :-
-  predicate_property(system:Head, built_in),
-  functor(Head, Name, _Arity),
-  % Exclude reserved names
-  \+ sub_atom(Name, 0, _, _, $).
-:- else.
-generate_built_in_pred(Head) :-
-  predicate_property(Head, built_in),
-  functor(Head, Name, _Arity),
-  % Exclude the 255 call predicates
-  Name \= call.
-generate_built_in_pred(call(_)).
-:- endif.
+%% generate_built_in_pred(-PredicateHead)
+%:- if(swi).
+%generate_built_in_pred(Head) :-
+%  predicate_property(system:Head, built_in),
+%  functor(Head, Name, _Arity),
+%  % Exclude reserved names
+%  \+ sub_atom(Name, 0, _, _, $).
+%:- else.
+%generate_built_in_pred(Head) :-
+%  predicate_property(Head, built_in),
+%  functor(Head, Name, _Arity),
+%  % Exclude the 255 call predicates
+%  Name \= call.
+%generate_built_in_pred(call(_)).
+%:- endif.
 
 
-	% generate_exported_pred(-ModuleNameExpandedPredicateHead)
-	generate_exported_pred(Module:Pred) :-
-		ServerModules = [jupyter_jsonrpc, jupyter_logging, jupyter_query_handling, jupyter_request_handling, jupyter_server, jupyter_term_handling, jupyter_variable_bindings],
-		predicate_property(Module:Pred, exported),
-		% Exclude exported predicates from any of the modules used for this server except for 'jupyter'
-		\+ member(Module, ServerModules).
+%	% generate_exported_pred(-ModuleNameExpandedPredicateHead)
+%	generate_exported_pred(Module:Pred) :-
+%		ServerModules = [jupyter_jsonrpc, jupyter_logging, jupyter_query_handling, jupyter_request_handling, jupyter_server, jupyter_term_handling, jupyter_variable_bindings],
+%		predicate_property(Module:Pred, exported),
+%		% Exclude exported predicates from any of the modules used for this server except for 'jupyter'
+%		\+ member(Module, ServerModules).
 
 
-	% predicate_atom(+Predicate, -PredicateAtom)
-	%
-	% PredicateAtom is an atom created from Predicate by replacing all variables in it with atoms starting from 'A'.
-	predicate_atom(Predicate, PredicateAtom) :-
-		% Create a Name=Var pairs list as can be used for write_term_to_codes/3
-		term_variables(Predicate, Variables),
-		name_var_pairs(Variables, 65, Bindings), % 65 is the ASCII code for 'A'
-		write_term_to_codes(Predicate, PredicateCodes, [variable_names(Bindings)]),
-		atom_codes(PredicateAtom, PredicateCodes).
+%	% predicate_atom(+Predicate, -PredicateAtom)
+%	%
+%	% PredicateAtom is an atom created from Predicate by replacing all variables in it with atoms starting from 'A'.
+%	predicate_atom(Predicate, PredicateAtom) :-
+%		% Create a Name=Var pairs list as can be used for write_term_to_codes/3
+%		term_variables(Predicate, Variables),
+%		name_var_pairs(Variables, 65, Bindings), % 65 is the ASCII code for 'A'
+%		write_term_to_codes(Predicate, PredicateCodes, [variable_names(Bindings)]),
+%		atom_codes(PredicateAtom, PredicateCodes).
 
 
-	% name_var_pairs(+Variables, +CurrentCharacterCode, -Bindings)
-	name_var_pairs([], _CurrentCharacterCode, []) :- !.
-	name_var_pairs([Variable|Variables], CurrentCharacterCode, [NameAtom=Variable|Bindings]) :-
-		atom_codes(NameAtom, [CurrentCharacterCode]),
-		NextCharacterCode is CurrentCharacterCode + 1,
-		name_var_pairs(Variables, NextCharacterCode, Bindings).
+%	% name_var_pairs(+Variables, +CurrentCharacterCode, -Bindings)
+%	name_var_pairs([], _CurrentCharacterCode, []) :- !.
+%	name_var_pairs([Variable|Variables], CurrentCharacterCode, [NameAtom=Variable|Bindings]) :-
+%		atom_codes(NameAtom, [CurrentCharacterCode]),
+%		NextCharacterCode is CurrentCharacterCode + 1,
+%		name_var_pairs(Variables, NextCharacterCode, Bindings).
 
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1508,41 +1501,41 @@ generate_built_in_pred(call(_)).
 % As this is not the case for SICStus Prolog, the dynamic predicate jupyter_discontiguous(PredSpec) is used instead.
 % PredSpec is the predicate spec of a predicate which was declared discontiguous.
 
-% When removing a predicate from the dataase with abolish, its properties are removed as well.
+% When removing a predicate from the database with abolish, its properties are removed as well.
 % In that case, the corresponding jupyter_discontiguous/1 clause also needs to be removed.
 % In order for this to work, abolish needs to be called as the single goal of a query.
 
-:- if(sicstus).
-% handle_abolish(+Goal, +CallRequestId, +Stack, +Bindings, +OriginalTermData, +LoopCont)
-handle_abolish(Goal, CallRequestId, OriginalTermData) :-
-  add_user_module_prefix_if_necessary(Goal,MGoal),
-  call_query_with_output_to_file(MGoal, CallRequestId, [], OriginalTermData, Output, ErrorMessageData, IsFailure),
-  % Exception, failure or success from Goal
-  ( nonvar(ErrorMessageData) -> % Exception
-    !,
-    assert_error_response(exception, ErrorMessageData, Output, [])
-  ; IsFailure == true -> % Failure
-    !,
-    assert_error_response(failure, ErrorMessageData, Output, [])
-  ; % Success
-    Goal =.. [abolish, Predicates|_Options],
-    retract_jupyter_discontiguous(Predicates),
-    assert_success_response(query, [], Output, [])
-  ).
-
-
-% retract_jupyter_discontiguous(+Predicates)
+%:- if(sicstus).
+%% handle_abolish(+Goal, +CallRequestId, +Stack, +Bindings, +OriginalTermData, +LoopCont)
+%handle_abolish(Goal, CallRequestId, OriginalTermData) :-
+%  add_user_module_prefix_if_necessary(Goal,MGoal),
+%  call_query_with_output_to_file(MGoal, CallRequestId, [], OriginalTermData, Output, ErrorMessageData, IsFailure),
+%  % Exception, failure or success from Goal
+%  ( nonvar(ErrorMessageData) -> % Exception
+%    !,
+%    assert_error_response(exception, ErrorMessageData, Output, [])
+%  ; IsFailure == true -> % Failure
+%    !,
+%    assert_error_response(failure, ErrorMessageData, Output, [])
+%  ; % Success
+%    Goal =.. [abolish, Predicates|_Options],
+%    retract_jupyter_discontiguous(Predicates),
+%    assert_success_response(query, [], Output, [])
+%  ).
 %
-% Predicates is a predicate specification or a list of such.
-retract_jupyter_discontiguous(Module:Name/Arity) :- !,
-  catch(retractall(jupyter_discontiguous(Module:Name/Arity)), _Exception, true).
-retract_jupyter_discontiguous(Name/Arity) :- !,
-  catch(retractall(jupyter_discontiguous(Name/Arity)), _Exception, true).
-retract_jupyter_discontiguous([]) :- !.
-retract_jupyter_discontiguous([PredSpec|PredSpecs]) :-
-  retract_jupyter_discontiguous(PredSpec),
-  retract_jupyter_discontiguous(PredSpecs).
-:- endif.
+%
+%% retract_jupyter_discontiguous(+Predicates)
+%%
+%% Predicates is a predicate specification or a list of such.
+%retract_jupyter_discontiguous(Module:Name/Arity) :- !,
+%  catch(retractall(jupyter_discontiguous(Module:Name/Arity)), _Exception, true).
+%retract_jupyter_discontiguous(Name/Arity) :- !,
+%  catch(retractall(jupyter_discontiguous(Name/Arity)), _Exception, true).
+%retract_jupyter_discontiguous([]) :- !.
+%retract_jupyter_discontiguous([PredSpec|PredSpecs]) :-
+%  retract_jupyter_discontiguous(PredSpec),
+%  retract_jupyter_discontiguous(PredSpecs).
+%:- endif.
 
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
