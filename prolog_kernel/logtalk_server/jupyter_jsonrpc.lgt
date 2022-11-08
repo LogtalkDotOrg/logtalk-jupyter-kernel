@@ -32,7 +32,8 @@
 		json(codes)::parse(stream(Stream), Object),
 		(	Object == {} ->
 			Pairs = []
-		;	conjunction_to_list(Conjunction, Pairs)
+		;	Object = {Conjunction},
+			conjunction_to_list(Conjunction, Pairs)
 		).
 
 	list_to_conjunction([], Pair, Pair).
@@ -211,11 +212,12 @@
 		catch(json_write(NullStream, JSON), Exception, true),
 		close(NullStream),
 		(	nonvar(Exception) ->
-			send_error_reply(@(null), invalid_json_response, '')
+			term_io::write_to_atom(JSON, Atom),
+			send_error_reply(@(null), invalid_json_response, Atom)
 		;	current_output(Out),
 			json_write(Out, JSON),
 			% Terminate the line (assuming single-line output).
-%			nl(Out),
+			nl(Out),
 			flush_output(Out)
 		).
 
