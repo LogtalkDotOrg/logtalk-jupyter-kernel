@@ -402,22 +402,17 @@ handle_query_term(Term, IsDirective, CallRequestId, Stack, Bindings, LoopCont, C
 
 
 % replace_previous_variable_bindings(+Term, +Bindings, -UpdatedTerm, -UpdatedBindings, -Exception)
-:- if(swi).
 replace_previous_variable_bindings(Term, Bindings, UpdatedTerm, UpdatedBindings, Exception) :-
-  catch(toplevel_variables:expand_query(Term, UpdatedTerm, Bindings, UpdatedBindings), Exception, true).
-:- else.
-replace_previous_variable_bindings(Term, Bindings, UpdatedTerm, UpdatedBindings, Exception) :-
-  catch(jupyter_variable_bindings:term_with_stored_var_bindings(Term, Bindings, UpdatedTerm, UpdatedBindings), Exception, true).
-:- endif.
+	catch(jupyter_variable_bindings::term_with_stored_var_bindings(Term, Bindings, UpdatedTerm, UpdatedBindings), Exception, true).
 
-is_query_alias(retry,jupyter:retry).
-is_query_alias(cut,jupyter:cut).
-is_query_alias(halt,jupyter:halt).
-is_query_alias(swi,jupyter:set_prolog_impl(swi)) :- \+ current_predicate(user:swi/0).
-is_query_alias(sicstus,jupyter:set_prolog_impl(sicstus)) :-  \+ current_predicate(user:sicstus/0).
-is_query_alias(show_graph(Nodes,Edges),jupyter:show_graph(Nodes,Edges)) :-  \+ current_predicate(user:show_graph/2).
-is_query_alias(print_queries,jupyter:print_queries) :-  \+ current_predicate(user:print_queries/0).
-is_query_alias(print_queries(L),jupyter:print_queries(L)) :-  \+ current_predicate(user:print_queries/1).
+is_query_alias(retry,jupyter::retry).
+is_query_alias(cut,jupyter::cut).
+is_query_alias(halt,jupyter::halt).
+is_query_alias(swi,jupyter::set_prolog_impl(swi)) :- \+ user::current_predicate(swi/0).
+is_query_alias(sicstus,jupyter::set_prolog_impl(sicstus)) :-  \+ user::current_predicate(sicstus/0).
+is_query_alias(show_graph(Nodes,Edges),jupyter::show_graph(Nodes,Edges)) :-  \+ user::current_predicate(show_graph/2).
+is_query_alias(print_queries,jupyter::print_queries) :-  \+ user::current_predicate(print_queries/0).
+is_query_alias(print_queries(L),jupyter::print_queries(L)) :-  \+ user::current_predicate(print_queries/1).
 
 
 % handle_query_term_(+Query, +IsDirective, +CallRequestId, +Stack, +Bindings, +OriginalTermData, +LoopCont, -Cont)
