@@ -654,80 +654,80 @@ json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName=VarAtom|J
 	json_parsable_vars(RemainingBindings, Bindings, JsonParsableBindings).
 
 
-% same_var(+BindingsWithoutSingletons, +Var)
-%
-% BindingsWithoutSingletons is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the term currently being handled.
-% Fails if BindingsWithoutSingletons does not contain any elenent VarName=Var1 where Var1 and Var are identical (==).
-same_var([], _Var) :- fail.
-same_var([_VarName=Var1|_BindingsWithoutSingletons], Var2) :-
-	Var1 == Var2, !.
-same_var([_Binding|BindingsWithoutSingletons], Var) :-
-	same_var(BindingsWithoutSingletons, Var).
+	% same_var(+BindingsWithoutSingletons, +Var)
+	%
+	% BindingsWithoutSingletons is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the term currently being handled.
+	% Fails if BindingsWithoutSingletons does not contain any elenent VarName=Var1 where Var1 and Var are identical (==).
+	same_var([], _Var) :- fail.
+	same_var([_VarName=Var1|_BindingsWithoutSingletons], Var2) :-
+		Var1 == Var2, !.
+	same_var([_Binding|BindingsWithoutSingletons], Var) :-
+		same_var(BindingsWithoutSingletons, Var).
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Handling the different types of queries
+	% Handling the different types of queries
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Retry
+	% Retry
 
-% If there is no active goal, an error message is sent to the client.
-% Otherwise, in order to retry an active previous goal, fails into the caller (jupyter_query_handling:call_query_with_output_to_file/7).
-% The goal which is retried is output.
+	% If there is no active goal, an error message is sent to the client.
+	% Otherwise, in order to retry an active previous goal, fails into the caller (jupyter_query_handling:call_query_with_output_to_file/7).
+	% The goal which is retried is output.
 
-% handle_retry(+CallRequestId, +Stack)
-handle_retry(Stack) :-
-	(	Stack = [_ActiveGoal|_RemainingStack] ->
-		% Tell caller that the current query is a retry
-		asserta(is_retry(true)),
-		% Redirect all output to a file and call statistics/2 to compute the runtime as would normally be done before calling a query
-		jupyter_query_handling::redirect_output_to_file,
-		statistics(walltime, _Value),
-		fail
-	;	% No active call
-		assert_error_response(no_active_call, null, '', [])
-	).
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% Cut
-
-% If there is no active goal, an error message is sent to the client.
-% Otherwise, Cont=cut causes possible choice points of jupyter_query_handling:call_query_with_output_to_file/7 in handle_query/8 to be cut.
-% A message informing the user about the new active query is displayed.
-
-% handle_cut(+Stack, -Cont)
-handle_cut(Stack, Cont) :-
-	(	Stack = [_Active|RemainingStack] ->
-		cut_message(RemainingStack, CutMessage),
-		assert_success_response(query, [], CutMessage, []),
-		Cont = cut
-	;	% No active call
-		assert_error_response(no_active_call, null, '', []),
-		Cont = continue
-	).
+	% handle_retry(+CallRequestId, +Stack)
+	handle_retry(Stack) :-
+		(	Stack = [_ActiveGoal|_RemainingStack] ->
+			% Tell caller that the current query is a retry
+			asserta(is_retry(true)),
+			% Redirect all output to a file and call statistics/2 to compute the runtime as would normally be done before calling a query
+			jupyter_query_handling::redirect_output_to_file,
+			statistics(walltime, _Value),
+			fail
+		;	% No active call
+			assert_error_response(no_active_call, null, '', [])
+		).
 
 
-% cut_message(+RemainingStack, -CutMessage)
-cut_message([], '% There is no previous active goal') :- !.
-cut_message([ActiveGoalAtom|_RemainingStack], CutMessage) :-
-	format_to_codes('% The new active goal is: ~w', [ActiveGoalAtom], MessageCodes),
-	atom_codes(CutMessage, MessageCodes).
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+	% Cut
+
+	% If there is no active goal, an error message is sent to the client.
+	% Otherwise, Cont=cut causes possible choice points of jupyter_query_handling:call_query_with_output_to_file/7 in handle_query/8 to be cut.
+	% A message informing the user about the new active query is displayed.
+
+	% handle_cut(+Stack, -Cont)
+	handle_cut(Stack, Cont) :-
+		(	Stack = [_Active|RemainingStack] ->
+			cut_message(RemainingStack, CutMessage),
+			assert_success_response(query, [], CutMessage, []),
+			Cont = cut
+		;	% No active call
+			assert_error_response(no_active_call, null, '', []),
+			Cont = continue
+		).
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% cut_message(+RemainingStack, -CutMessage)
+	cut_message([], '% There is no previous active goal') :- !.
+	cut_message([ActiveGoalAtom|_RemainingStack], CutMessage) :-
+		format_to_codes('% The new active goal is: ~w', [ActiveGoalAtom], MessageCodes),
+		atom_codes(CutMessage, MessageCodes).
 
-% Halt
 
-% If the server is to be halted, the loop reading and handling messages is stopped so that the server process is stopped.
-% The type of the success reply sent to the client indicates that the server was halted and needs to be restarted for the next execution request.
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-handle_halt :-
-	assertz(term_response(json([status=halt]))).
+	% Halt
+
+	% If the server is to be halted, the loop reading and handling messages is stopped so that the server process is stopped.
+	% The type of the success reply sent to the client indicates that the server was halted and needs to be restarted for the next execution request.
+
+	handle_halt :-
+		assertz(term_response(json([status=halt]))).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -954,8 +954,6 @@ handle_print_sld_tree(Goal, Bindings) :-
   ).
 
 
-:- if(swi).
-
 % call_with_sld_data_collection(+Goal, -Exception -IsFailure)
 call_with_sld_data_collection(Goal, Exception, IsFailure) :-
   module_name_expanded(Goal, MGoal),
@@ -971,39 +969,6 @@ call_with_sld_failure_handling(Goal, IsFailure) :-
   ; notrace,
     IsFailure = true
   ).
-
-:- else.
-
-% call_with_sld_data_collection(+Goal, -Exception -IsFailure)
-call_with_sld_data_collection(Goal, Exception, IsFailure) :-
-  module_name_expanded(Goal, MGoal),
-  BreakpointConditions = [call]-[proceed, goal(Module:DebuggerGoal), inv(Inv), parent_inv(ParentInv), true(assert_sld_data(call, Module:DebuggerGoal, Inv, ParentInv))],
-  % Make sure that when the output is read in, some informational messages are removed
-  jupyter_query_handling::assertz(remove_output_lines_for(sld_tree_breakpoint_messages)),
-  % Calling debug/0 makes sure that an informational message is always output which can then be removed
-  debug,
-  catch(
-    call_with_sld_failure_handling(MGoal, BreakpointConditions, IsFailure),
-    Exception,
-    % In case of an exception, first turn of tracing so that no more data is asserted
-    % Then, remove the created breakpoint
-    ( notrace, current_breakpoint(BreakpointConditions, BID, _Status, _Kind, _Type), remove_breakpoints([BID]) )
-  ).
-
-
-% call_with_sld_failure_handling(+Goal, +BreakpointConditions, -IsFailure)
-%
-% Adds a breakpoint which collects data, calls the goal and removes the breakpoint.
-call_with_sld_failure_handling(Goal, BreakpointConditions, IsFailure) :-
-  add_breakpoint(BreakpointConditions, BID),
-  ( call(Goal) ->
-    remove_breakpoints([BID]),
-    IsFailure = false
-  ; remove_breakpoints([BID]),
-    IsFailure = true
-  ).
-
-:- endif.
 
 
 % sld_graph_file_content(-GraphFileContentAtom)
@@ -1032,7 +997,6 @@ sld_graph_file_content(GraphFileContentAtom) :-
 % clean_sld_data(+SldData, -CleanSldData)
 %
 % For SIW- and SICStus Prolog, the list of SLD tree data needs to be handled differently before it can be used to compute graph file content.
-:- if(swi).
 
 clean_sld_data(SldData, CleanSldData) :-
 	compute_unique_ids(SldData, 1, [], CleanSldData).
@@ -1068,14 +1032,6 @@ compute_unique_ids([GoalCodes-CurrentFrame-ParentFrame|SldData], CurrentId, Acti
 	),
 	NextId is CurrentId + 1,
 	compute_unique_ids(SldData, NextId, NewActiveIds, SldDataWithUniqueIds).
-
-:- else.
-
-clean_sld_data(SldData, CleanSldData) :-
-	% Remove the last element because it corresponds to the call of remove_breakpoints/1
-	append(CleanSldData, [_RemoveBreakpointsData], SldData).
-
-:- endif.
 
 
 % sld_tree_node_atoms(+SldData, +CurrentReplacementAtom +VariableNameReplacements, -NodeAtoms)
