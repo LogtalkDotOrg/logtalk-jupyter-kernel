@@ -91,12 +91,14 @@
 		atom_codes(GoalAtom, GoalCodes),
 		prepare_call_with_output_to_file,
 		% Call the goal Goal and compute the runtime
-		statistics(walltime, _Value),
-		(	call_with_exception_handling(Goal, ErrorMessageData)
+		wall_time(WallTime0),
+		(	call_with_exception_handling(Goal, ErrorMessageData),
+			wall_time(WallTime1)
 		;	% Goal failed
 			IsFailure = true
 		),
-		assert_query_data(CallRequestId, term_data(GoalAtom, Bindings), OriginalTermData),
+		WallTime is WallTime1 - WallTime0,
+		assert_query_data(CallRequestId, WallTime, term_data(GoalAtom, Bindings), OriginalTermData),
 		cleanup_and_read_output_from_file(Goal, Output).
 
 
@@ -128,12 +130,11 @@
 	debug_mode_for_breakpoints.
 
 
-	% assert_query_data(+CallRequestId, +TermData, +OriginalTermData)
-	assert_query_data(0, _TermData, _OriginalTermData) :- !.
+	% assert_query_data(+CallRequestId,  +Runtime, +TermData, +OriginalTermData)
+	assert_query_data(0, _Runtime, _TermData, _OriginalTermData) :- !.
 	% Do not assert query data for requests with ID 0
 	% With requests with this ID, the kernel can request additional data (e.g. for inspection in the case of SWI-Prolog)
-	assert_query_data(CallRequestId, TermData, OriginalTermData) :-
-		statistics(walltime, [_Time, Runtime]),
+	assert_query_data(CallRequestId, Runtime, TermData, OriginalTermData) :-
 		nonvar(OriginalTermData),
 		!,
 		% Remember all queries' IDs, goal and runtime so that it can be accessed by jupyter:print_query_time/0 and jupyter:print_queries/1
@@ -144,7 +145,7 @@
 		),
 		% Assert the data with assertz/1 so that they can be accessed in the correct order with jupyter:print_queries/1
 		assertz(query_data(CallRequestId, Runtime, TermData, StoreOriginalTermData)).
-	assert_query_data(_CallRequestId, _TermData, _OriginalTermData).
+	assert_query_data(_CallRequestId, _Runtime, _TermData, _OriginalTermData).
 
 
 	% cleanup_and_read_output_from_file(+Goal, -Output)
@@ -219,21 +220,14 @@
 	:- endif.
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Read from a file
+	% Read from a file
 
-% read_output_from_file(+OutputFileName, +Goal, -Output)
-:- if(sicstus).
-read_output_from_file(OutputFileName, jupyter::trace(_), Output) :-
-  !,
-  % In case of a jupyter:trace/1 goal, the last line of the output contains the debugging message of nodebug/0
-  % Therefore, it is deleted before creating the atom Output
-  read_atom_from_file(OutputFileName, true, Output).
-:- endif.
-read_output_from_file(OutputFileName, _, Output) :-
-  read_atom_from_file(OutputFileName, false, Output).
+	% read_output_from_file(+OutputFileName, +Goal, -Output)
+	read_output_from_file(OutputFileName, _, Output) :-
+		read_atom_from_file(OutputFileName, false, Output).
 
 
 	% read_atom_from_file(+FileName, +IsSicstusJupyterTrace, -FileContent)

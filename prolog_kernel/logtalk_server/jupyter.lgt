@@ -296,11 +296,11 @@ jupyter:update_completion_data :-
 
 	% print_query_time
 	%
-	% Prints the latest previous query and its runtime in milliseconds.
+	% Prints the latest previous query and its runtime in seconds.
 	print_query_time :-
 		findall(Goal-Runtime, jupyter_query_handling::query_data(_CallRequestId, Runtime, term_data(Goal, _NameVarPairs), _OriginalTermData), GoalRuntimes),
 		append(_PreviousGoalRuntimes, [Goal-Runtime], GoalRuntimes),
-		format('Query:   ~w~nRuntime: ~w ms~n', [Goal, Runtime]).
+		format('Query:   ~w~nRuntime: ~w s~n', [Goal, Runtime]).
 	print_query_time :-
 		format('* There is no previous query', []),
 		fail.

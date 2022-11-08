@@ -683,9 +683,8 @@ json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName=VarAtom|J
 		(	Stack = [_ActiveGoal|_RemainingStack] ->
 			% Tell caller that the current query is a retry
 			asserta(is_retry(true)),
-			% Redirect all output to a file and call statistics/2 to compute the runtime as would normally be done before calling a query
+			% Redirect all output to a file
 			jupyter_query_handling::redirect_output_to_file,
-			statistics(walltime, _Value),
 			fail
 		;	% No active call
 			assert_error_response(no_active_call, null, '', [])
