@@ -16,7 +16,7 @@
 
 	:- uses(list, [append/3, member/2]).
 	:- uses(os, [null_device_path/1]).
-	:- uses(user, [open(File,read,Stream) as open_codes_stream(File,Stream)]).
+	:- uses(term_io, [read_term_from_codes/3]).
 	:- uses(jupyter_query_handling, [retrieve_message/2]).
 	:- uses(jupyter_logging, [log/1, log/2]).
 
@@ -254,9 +254,8 @@
 
 	% terms_from_codes(+Codes, -TermsAndVariables, -ParsingErrorMessageData)
 	terms_from_codes(Codes, TermsAndVariables, ParsingErrorMessageData) :-
-		open_codes_stream(Codes, Stream),
 		(	catch(
-				read_terms_and_vars(Stream, TermsAndVariables),
+				read_terms_and_vars(Codes, TermsAndVariables),
 				Exception,
 				(close(Stream), ParsingErrorMessageData = message_data(error, Exception))
 			) ->
@@ -266,9 +265,9 @@
 		).
 
 
-	% read_terms_and_vars(+Stream, -TermsAndVariables)
-	read_terms_and_vars(Stream, NewTermsAndVariables) :-
-		read_term(Stream, Term, [variable_names(Variables)]),
+	% read_terms_and_vars(+Codes, -TermsAndVariables)
+	read_terms_and_vars(Codes, NewTermsAndVariables) :-
+		read_term_from_codes(Codes, Term, [variable_names(Variables)]),
 		(	Term == end_of_file ->
 			NewTermsAndVariables = []
 		;	NewTermsAndVariables = [Term-Variables|TermsAndVariables],
