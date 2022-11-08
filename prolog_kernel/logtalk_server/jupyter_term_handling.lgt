@@ -83,20 +83,20 @@
 % Term can be either a directive, a clause definition (which might be a DCG rule), or a query
 % Directives
 handle_term((:- Directive), IsSingleTerm, CallRequestId, Stack, Bindings, Cont) :- !,
-  handle_directive((:- Directive), IsSingleTerm, CallRequestId, Stack, Bindings, Cont).
+	handle_directive((:- Directive), IsSingleTerm, CallRequestId, Stack, Bindings, Cont).
 % Clause definitions
 handle_term((Head :- Body), _IsSingleTerm, _CallRequestId, _Stack, Bindings, continue) :- !,
-  handle_clause_definition_term((Head :- Body), Bindings).
+	handle_clause_definition_term((Head :- Body), Bindings).
 handle_term((Head --> Body), _IsSingleTerm, _CallRequestId, _Stack, _Bindings, continue) :- !,
-  handle_dcg((Head --> Body)).
+	handle_dcg((Head --> Body)).
 % Queries
 handle_term(?-(Query), _IsSingleTerm, CallRequestId, Stack, Bindings, Cont) :- !,
-  handle_query_term(Query, false, CallRequestId, Stack, Bindings, continue, Cont).
+	handle_query_term(Query, false, CallRequestId, Stack, Bindings, continue, Cont).
 handle_term(Query, true, CallRequestId, Stack, Bindings, Cont) :-
-  handle_query_term(Query, false, CallRequestId, Stack, Bindings, continue, Cont).
+	handle_query_term(Query, false, CallRequestId, Stack, Bindings, continue, Cont).
 % Clause definitions
 handle_term(Head, false, _CallRequestId, _Stack, Bindings, continue) :-
-  handle_clause_definition_term(Head, Bindings).
+	handle_clause_definition_term(Head, Bindings).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -118,13 +118,13 @@ handle_term(Head, false, _CallRequestId, _Stack, Bindings, continue) :-
 % handle_directive(+Term, +IsSingleTerm, +CallRequestId, +Stack, +Bindings, +Cont)
 %
 handle_directive((:- Declaration), _IsSingleTerm, _CallRequestId, _Stack, _Bindings, continue) :-
-  functor(Declaration, DeclarationName, DeclarationArity),
-  declaration_name_arity(DeclarationName, DeclarationArity),
-  !,
-  handle_declaration_directive(DeclarationName, (:- Declaration)).
+	functor(Declaration, DeclarationName, DeclarationArity),
+	declaration_name_arity(DeclarationName, DeclarationArity),
+	!,
+	handle_declaration_directive(DeclarationName, (:- Declaration)).
 % Any other directive
 handle_directive((:- Directive), _IsSingleTerm, CallRequestId, Stack, Bindings, Cont) :- !,
-  handle_query_term(Directive, true, CallRequestId, Stack, Bindings, cut, Cont).
+	handle_query_term(Directive, true, CallRequestId, Stack, Bindings, cut, Cont).
 
 
 % declaration_name_arity(-Name,-Arity)
@@ -221,21 +221,21 @@ declaration_end(_LoadFile).
 
 % handle_clause_definition_term(+Clause, +Bindings)
 handle_clause_definition_term(Clause, _Bindings) :-
-  handle_clause_definition(Clause).
+	handle_clause_definition(Clause).
 
 
 % handle_clause_definition(+Clause)
 handle_clause_definition(Clause) :-
-  module_name_expanded(Clause, Module:ClauseWithoutModule),
-  clause_head(ClauseWithoutModule, Head),
-  functor(Head, PredName, PredArity),
-  retract_previous_clauses(Module:PredName/PredArity, RetractedClauses, Output),
-  % Assert the clause and check if it was successful
-  catch(assertz(Module:ClauseWithoutModule), Exception, true),
-  ( nonvar(Exception) ->
-    assert_error_response(exception, message_data(error, Exception), Output, [retracted_clauses=RetractedClauses])
-  ; assert_success_response(clause_definition, [], Output, [retracted_clauses=RetractedClauses])
-  ).
+	module_name_expanded(Clause, Module:ClauseWithoutModule),
+	clause_head(ClauseWithoutModule, Head),
+	functor(Head, PredName, PredArity),
+	retract_previous_clauses(Module:PredName/PredArity, RetractedClauses, Output),
+	% Assert the clause and check if it was successful
+	catch(assertz(Module:ClauseWithoutModule), Exception, true),
+	(	nonvar(Exception) ->
+		assert_error_response(exception, message_data(error, Exception), Output, [retracted_clauses=RetractedClauses])
+	;	assert_success_response(clause_definition, [], Output, [retracted_clauses=RetractedClauses])
+	).
 
 
 % module_name_expanded(+Term, -MTerm)
@@ -348,13 +348,13 @@ retract_previous_clauses(PredSpec, PredDefinitionSpecs, [PredSpec|PredDefinition
 
 % compute_assert_message(+MPredSpec, -AssertMessage)
 compute_assert_message(PredSpec, AssertMessage) :-
-  format_to_atom('% Asserting clauses for ~w~n', [PredSpec], AssertMessage).
+	format_to_atom('% Asserting clauses for ~w~n', [PredSpec], AssertMessage).
 
 format_to_atom(_,_,Atom) :-  get_preference(verbosity,L), L<2,!, 
-  Atom=''.
+	Atom=''.
 format_to_atom(Msg,Args,Atom) :- 
-  format_to_codes(Msg, Args, Codes),
-  atom_codes(Atom, Codes).
+	format_to_codes(Msg, Args, Codes),
+	atom_codes(Atom, Codes).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -364,12 +364,12 @@ format_to_atom(Msg,Args,Atom) :-
 
 % handle_dcg(+DCG)
 handle_dcg(DCG) :-
-  expand_dcg_term(DCG, ExpandedDCG),
-  handle_clause_definition(ExpandedDCG).
+	expand_dcg_term(DCG, ExpandedDCG),
+	handle_clause_definition(ExpandedDCG).
 
 
 expand_dcg_term(DCG, ExpandedDCG) :-
-  expand_term(DCG, ExpandedDCG).
+	expand_term(DCG, ExpandedDCG).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -386,20 +386,19 @@ expand_dcg_term(DCG, ExpandedDCG) :-
 
 % handle_query_term(+Term, +IsDirective, +CallRequestId, +Stack, +Bindings, +LoopCont, -Cont)
 handle_query_term(Term, IsDirective, CallRequestId, Stack, Bindings, LoopCont, Cont) :-
-  % Before executing a query, replace any of its subterms of the form $Var by the latest value of the variable Var from a previous query.
-  replace_previous_variable_bindings(Term, Bindings, UpdatedTerm, UpdatedBindings, Exception),
-  ( nonvar(Exception) ->
-    assert_error_response(exception, message_data(error, Exception), '', []),
-    Cont = continue
-  ; % Create a term_data(TermAtom, Bindings) term.
-    % If the term is a query, the term_data term is used to assert the original term data in case terms of the form $Var were replaced.
-    % The term data is needed when accessing previous queries (e.g. with jupyter:print_queries/1).
-    % Bindings needs to be copied so that the term can be read from the atom without any of the variables being instantiated by calling the term.
-    copy_term(Bindings, BindingsCopy),
-    write_term_to_atom(Term, Bindings, TermAtom),
-    handle_query_term_(UpdatedTerm, IsDirective, CallRequestId, Stack, UpdatedBindings,
-                        term_data(TermAtom, BindingsCopy), LoopCont, Cont)
-  ).
+	% Before executing a query, replace any of its subterms of the form $Var by the latest value of the variable Var from a previous query.
+	replace_previous_variable_bindings(Term, Bindings, UpdatedTerm, UpdatedBindings, Exception),
+	(	nonvar(Exception) ->
+		assert_error_response(exception, message_data(error, Exception), '', []),
+		Cont = continue
+	;	% Create a term_data(TermAtom, Bindings) term.
+		% If the term is a query, the term_data term is used to assert the original term data in case terms of the form $Var were replaced.
+		% The term data is needed when accessing previous queries (e.g. with jupyter:print_queries/1).
+		% Bindings needs to be copied so that the term can be read from the atom without any of the variables being instantiated by calling the term.
+		copy_term(Bindings, BindingsCopy),
+		write_term_to_atom(Term, Bindings, TermAtom),
+		handle_query_term_(UpdatedTerm, IsDirective, CallRequestId, Stack, UpdatedBindings, term_data(TermAtom, BindingsCopy), LoopCont, Cont)
+	).
 
 
 % replace_previous_variable_bindings(+Term, +Bindings, -UpdatedTerm, -UpdatedBindings, -Exception)
@@ -517,42 +516,42 @@ handle_query_term_(Query, IsDirective, CallRequestId, Stack, Bindings, OriginalT
 %  If LoopCont = cut, the recurse loop (jupyter_request_handling:loop/3) will exit right away without making retrys of a term possible.
 % Cont will be processed by jupyter_request_handling:loop/3.
 handle_query(Goal, IsDirective, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont) :-
-  % In order to send the goal to the client, it has to be converted to an atom
-  % This has to be done before calling it causes variables to be bound
-  write_term_to_atom(Goal, Bindings, GoalAtom),
-  RecStack = [GoalAtom|Stack],
-  retractall(is_retry(_)),
-  asserta(is_retry(false)),
-  add_user_module_prefix_if_necessary(Goal,MGoal), % add user prefix; important for use_module, ...
-  % Call the goal Goal
-  call_query_with_output_to_file(MGoal, CallRequestId, Bindings, OriginalTermData, Output, ErrorMessageData, IsFailure),
-  retry_message_and_output(GoalAtom, Output, RetryMessageAndOutput),
-  % Exception, failure or success from Goal
-  ( nonvar(ErrorMessageData) -> % Exception
-    !,
-    assert_error_response(exception, ErrorMessageData, RetryMessageAndOutput, []),
-    Cont = continue
-  ; IsFailure == true -> % Failure
-    !,
-    % Also happens when 'retry' message requested a new solution and found none.
-    assert_query_failure_response(IsDirective, GoalAtom, RetryMessageAndOutput),
-    Cont = continue
-  ; % Success
-    handle_result_variable_bindings(Bindings, ResultBindings),
-    assert_query_success_response(IsDirective, ResultBindings, RetryMessageAndOutput),
-    % Start a new recursive loop so that the current goal can be retried
-    % The loop will
-    % - exit right away if LoopCont=cut
-    % - fail if it receives a request to retry Goal
-    jupyter_request_handling::loop(LoopCont, RecStack, RecCont),
-    ( RecCont = cut,
-      !,
-      Cont = continue
-    ; % Possibly 'done'
-      Cont = RecCont
-    )
-  ),
-  !.
+	% In order to send the goal to the client, it has to be converted to an atom
+	% This has to be done before calling it causes variables to be bound
+	write_term_to_atom(Goal, Bindings, GoalAtom),
+	RecStack = [GoalAtom|Stack],
+	retractall(is_retry(_)),
+	asserta(is_retry(false)),
+	add_user_module_prefix_if_necessary(Goal,MGoal), % add user prefix; important for use_module, ...
+	% Call the goal Goal
+	call_query_with_output_to_file(MGoal, CallRequestId, Bindings, OriginalTermData, Output, ErrorMessageData, IsFailure),
+	retry_message_and_output(GoalAtom, Output, RetryMessageAndOutput),
+	% Exception, failure or success from Goal
+	(	nonvar(ErrorMessageData) -> % Exception
+		!,
+		assert_error_response(exception, ErrorMessageData, RetryMessageAndOutput, []),
+		Cont = continue
+	;	IsFailure == true -> % Failure
+		!,
+		% Also happens when 'retry' message requested a new solution and found none.
+		assert_query_failure_response(IsDirective, GoalAtom, RetryMessageAndOutput),
+		Cont = continue
+	;	% Success
+		handle_result_variable_bindings(Bindings, ResultBindings),
+		assert_query_success_response(IsDirective, ResultBindings, RetryMessageAndOutput),
+		% Start a new recursive loop so that the current goal can be retried
+		% The loop will
+		% - exit right away if LoopCont=cut
+		% - fail if it receives a request to retry Goal
+		jupyter_request_handling::loop(LoopCont, RecStack, RecCont),
+		(	RecCont = cut,
+			!,
+			Cont = continue
+		;	% Possibly 'done'
+			Cont = RecCont
+		)
+	),
+	!.
 % add_user_module_prefix_if_necessary(+Goal, -MGoal)
 % add user module prefix used by Jupyter for user-defined predicates and for queries
 % it is important use_module(library(clpfd)), ... are executed in the user: scope so that operators are visible
@@ -561,18 +560,18 @@ add_user_module_prefix_if_necessary(Goal, user:Goal). % note: also ok if Goal is
 
 % assert_query_failure_response(+IsDirective, +GoalAtom, +Output)
 assert_query_failure_response(true, GoalAtom, Output) :-
-  % For directives, output an error message displaying the failure
-  !,
-  assert_error_response(failure, message_data(warning, jupyter(goal_failed(GoalAtom))), Output, []).
+	% For directives, output an error message displaying the failure
+	!,
+	assert_error_response(failure, message_data(warning, jupyter(goal_failed(GoalAtom))), Output, []).
 assert_query_failure_response(_IsDirective, _GoalAtom, Output) :-
-  assert_error_response(failure, null, Output, []).
+	assert_error_response(failure, null, Output, []).
 
 
 % output_and_failure_message(+Output, +FailureMessage, -OutputAndFailureMessage)
 output_and_failure_message('', FailureMessage, FailureMessage) :- !.
 output_and_failure_message(Output, FailureMessage, OutputAndFailureMessage) :-
-  atom_concat('\n', FailureMessage, FailureMessageWithNl),
-  atom_concat(Output, FailureMessageWithNl, OutputAndFailureMessage).
+	atom_concat('\n', FailureMessage, FailureMessageWithNl),
+	atom_concat(Output, FailureMessageWithNl, OutputAndFailureMessage).
 
 
 	% assert_query_success_response(+IsDirective, +ResultBindings, +Output)
@@ -640,36 +639,23 @@ output_and_failure_message(Output, FailureMessage, OutputAndFailureMessage) :-
 % In case of domain variables with bounded domains (lower and upper bound exist) which are not bound to a single value,
 %  the value returned to the client is a list of lists where each of those lists contains a lower and upper bound of a range the variable can be in.
 json_parsable_vars([], _Variables, []) :- !.
-json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName=json([dom=DomAtom])|JsonParsableBindings]) :-
-  var(Var),
-  % Check if the predicate clpfd:fd_dom/2 exists
-  % If it does not, the library clpfd has not been loaded
-  % In that case, there cannot be any domain variables
-  current_predicate(clpfd:fd_dom/2),
-  clpfd:fd_dom(Var, Dom),
-  write_term_to_atom(Dom, [], DomAtom),
-  DomAtom \= 'inf..sup',
-  % cannot compare the term unless loading the library
-  !,
-  % The variable is a domain variable with a bounded domain (lower and upper bound exist)
-  json_parsable_vars(RemainingBindings, Bindings, JsonParsableBindings).
 json_parsable_vars([VarName=Var|RemainingBindings], Bindings, JsonParsableBindings) :-
-  var(Var),
-  same_var(RemainingBindings, Var),
-  !,
-  % The list of Name=Var pairs contains at least one element OtherName=Var where Var is uninstantiated
-  % Unify the variable Var with VarName
-  Var=VarName,
-  json_parsable_vars(RemainingBindings, Bindings, JsonParsableBindings).
+	var(Var),
+	same_var(RemainingBindings, Var),
+	!,
+	% The list of Name=Var pairs contains at least one element OtherName=Var where Var is uninstantiated
+	% Unify the variable Var with VarName
+	Var=VarName,
+	json_parsable_vars(RemainingBindings, Bindings, JsonParsableBindings).
 json_parsable_vars([_VarName=Var|RemainingBindings], Bindings, JsonParsableBindings) :-
-  var(Var),
-  !,
-  % The variable is uninstantiated and therefore not included in the result list
-  json_parsable_vars(RemainingBindings, Bindings, JsonParsableBindings).
+	var(Var),
+	!,
+	% The variable is uninstantiated and therefore not included in the result list
+	json_parsable_vars(RemainingBindings, Bindings, JsonParsableBindings).
 json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName=VarAtom|JsonParsableBindings]) :-
-  % Convert the value to an atom as it may be compound and cannot be parsed to JSON otherwise
-  write_term_to_atom(Var, Bindings, VarAtom),
-  json_parsable_vars(RemainingBindings, Bindings, JsonParsableBindings).
+	% Convert the value to an atom as it may be compound and cannot be parsed to JSON otherwise
+	write_term_to_atom(Var, Bindings, VarAtom),
+	json_parsable_vars(RemainingBindings, Bindings, JsonParsableBindings).
 
 
 % same_var(+BindingsWithoutSingletons, +Var)
@@ -678,9 +664,9 @@ json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName=VarAtom|J
 % Fails if BindingsWithoutSingletons does not contain any elenent VarName=Var1 where Var1 and Var are identical (==).
 same_var([], _Var) :- fail.
 same_var([_VarName=Var1|_BindingsWithoutSingletons], Var2) :-
-  Var1 == Var2, !.
+	Var1 == Var2, !.
 same_var([_Binding|BindingsWithoutSingletons], Var) :-
-  same_var(BindingsWithoutSingletons, Var).
+	same_var(BindingsWithoutSingletons, Var).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -699,14 +685,14 @@ same_var([_Binding|BindingsWithoutSingletons], Var) :-
 % handle_retry(+CallRequestId, +Stack)
 handle_retry(Stack) :-
 	(	Stack = [_ActiveGoal|_RemainingStack] ->
-	 	% Tell caller that the current query is a retry
-	 	asserta(is_retry(true)),
-	 	% Redirect all output to a file and call statistics/2 to compute the runtime as would normally be done before calling a query
-	 	jupyter_query_handling:redirect_output_to_file,
-	 	statistics(walltime, _Value),
-	 	fail
+		% Tell caller that the current query is a retry
+		asserta(is_retry(true)),
+		% Redirect all output to a file and call statistics/2 to compute the runtime as would normally be done before calling a query
+		jupyter_query_handling:redirect_output_to_file,
+		statistics(walltime, _Value),
+		fail
 	;	% No active call
-	 	assert_error_response(no_active_call, null, '', [])
+		assert_error_response(no_active_call, null, '', [])
 	).
 
 
@@ -721,12 +707,12 @@ handle_retry(Stack) :-
 % handle_cut(+Stack, -Cont)
 handle_cut(Stack, Cont) :-
 	(	Stack = [_Active|RemainingStack] ->
-	 	cut_message(RemainingStack, CutMessage),
-	 	assert_success_response(query, [], CutMessage, []),
-	 	Cont = cut
+		cut_message(RemainingStack, CutMessage),
+		assert_success_response(query, [], CutMessage, []),
+		Cont = cut
 	;	% No active call
-	 	assert_error_response(no_active_call, null, '', []),
-	 	Cont = continue
+		assert_error_response(no_active_call, null, '', []),
+		Cont = continue
 	).
 
 
@@ -767,17 +753,17 @@ handle_halt :-
 % Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the goal Goal.
 handle_print_table_with_findall(Bindings, Goal) :-
 	(	jupyter_query_handling::call_with_output_to_file(jupyter_term_handling::findall_results_and_var_names(Goal, Bindings, Results, VarNames), Output, ErrorMessageData),
-	 	% Success or exception from findall_results_and_var_names/4
-	 	(	nonvar(ErrorMessageData) ->
-	 	 	!,
-	 	 	assert_error_response(exception, ErrorMessageData, '', [])
-	 	;	% success
-	 	 	% Return the additional 'print_table' data
-	 	 	assert_success_response(query, [], Output, [print_table=json(['ValuesLists'=Results, 'VariableNames'=VarNames])])
-	 	),
-	 	!
+		% Success or exception from findall_results_and_var_names/4
+		(	nonvar(ErrorMessageData) ->
+			!,
+			assert_error_response(exception, ErrorMessageData, '', [])
+		;	% success
+			% Return the additional 'print_table' data
+			assert_success_response(query, [], Output, [print_table=json(['ValuesLists'=Results, 'VariableNames'=VarNames])])
+		),
+		!
 	;	% findall_results_and_var_names/4 failed
-	 	assert_error_response(failure, null, '', [])
+		assert_error_response(failure, null, '', [])
 	).
 
 
@@ -794,17 +780,17 @@ handle_print_table(Bindings, ValuesLists, VariableNames) :-
 	ValuesLists = [ValuesList|RemainingValuesLists],
 	length(ValuesList, Length),
 	(	forall(member(List, RemainingValuesLists), length(List, Length)) ->
-	 	% Make sure that VariableNames is valid
-	 	(	table_variable_names(VariableNames, Length, TableVariableNames) ->
-	 	 	% As not all of the values can be parsed to JSON (e.g. uninstantiated variables and compounds), they need to be made JSON parsable first by converting them to atoms
-	 	 	findall(ValuesAtomList, (member(Values, ValuesLists), convert_to_atom_list(Values, Bindings, ValuesAtomList)), JsonParsableValuesLists),
-	 	 	% Return the additional 'print_table' data
-	 	 	assert_success_response(query, [], '', [print_table=json(['ValuesLists'=JsonParsableValuesLists, 'VariableNames'=TableVariableNames])])
-	 	;	% The variable names are invalid
-	 	 	assert_error_response(exception, message_data(error, jupyter(invalid_table_variable_names)), '', [])
-	 	)
+		% Make sure that VariableNames is valid
+		(	table_variable_names(VariableNames, Length, TableVariableNames) ->
+			% As not all of the values can be parsed to JSON (e.g. uninstantiated variables and compounds), they need to be made JSON parsable first by converting them to atoms
+			findall(ValuesAtomList, (member(Values, ValuesLists), convert_to_atom_list(Values, Bindings, ValuesAtomList)), JsonParsableValuesLists),
+			% Return the additional 'print_table' data
+			assert_success_response(query, [], '', [print_table=json(['ValuesLists'=JsonParsableValuesLists, 'VariableNames'=TableVariableNames])])
+		;	% The variable names are invalid
+			assert_error_response(exception, message_data(error, jupyter(invalid_table_variable_names)), '', [])
+		)
 	;	% Not all lists in ValuesLists are of the same length
-	 	assert_error_response(exception, message_data(error, jupyter(invalid_table_values_lists_length)), '', [])
+		assert_error_response(exception, message_data(error, jupyter(invalid_table_values_lists_length)), '', [])
 	).
 
 
@@ -1071,27 +1057,27 @@ clean_sld_data(SldData, CleanSldData) :-
 % SldDataWithUniqueIds contains GoalCodes-CurrentId-ParentId elements.
 compute_unique_ids([], _CurrentId, _ActiveIds, []).
 compute_unique_ids([GoalCodes-CurrentFrame-ParentFrame|SldData], CurrentId, ActiveIds, [GoalCodes-CurrentId-ParentId|SldDataWithUniqueIds]) :-
-  ( member(CurrentFrame-PreviousId, ActiveIds) ->
-    % A goal on the same level was already encountered
-    % The corresponding element needs to be replaced in the active ID list
-    delete(ActiveIds, CurrentFrame-PreviousId, ReaminingActiveIds),
-    NewActiveIds = [CurrentFrame-CurrentId|ReaminingActiveIds]
-  ; NewActiveIds = [CurrentFrame-CurrentId|ActiveIds]
-  ),
-  % Retrieve the parent's ID
-  ( member(ParentFrame-Id, ActiveIds) ->
-    ParentId = Id
-  ; % For the toplevel calls, there is no parent ID
-    ParentId = 0
-  ),
-  NextId is CurrentId + 1,
-  compute_unique_ids(SldData, NextId, NewActiveIds, SldDataWithUniqueIds).
+	(	member(CurrentFrame-PreviousId, ActiveIds) ->
+		% A goal on the same level was already encountered
+		% The corresponding element needs to be replaced in the active ID list
+		delete(ActiveIds, CurrentFrame-PreviousId, ReaminingActiveIds),
+		NewActiveIds = [CurrentFrame-CurrentId|ReaminingActiveIds]
+	;	NewActiveIds = [CurrentFrame-CurrentId|ActiveIds]
+	),
+	% Retrieve the parent's ID
+	(	member(ParentFrame-Id, ActiveIds) ->
+		ParentId = Id
+	;	% For the toplevel calls, there is no parent ID
+		ParentId = 0
+	),
+	NextId is CurrentId + 1,
+	compute_unique_ids(SldData, NextId, NewActiveIds, SldDataWithUniqueIds).
 
 :- else.
 
 clean_sld_data(SldData, CleanSldData) :-
-  % Remove the last element because it corresponds to the call of remove_breakpoints/1
-  append(CleanSldData, [_RemoveBreakpointsData], SldData).
+	% Remove the last element because it corresponds to the call of remove_breakpoints/1
+	append(CleanSldData, [_RemoveBreakpointsData], SldData).
 
 :- endif.
 
@@ -1137,22 +1123,22 @@ replace_variable_names([Var=Name|VariableNames], CurrentReplacementAtom, Variabl
 % If the last code does not equal 90 (i.e. 'Z'), the code is increased and the codes are converted into NextReplacementAtom.
 % Otherwise, the code cannot be increased further, so a new character code for 'A' is added to the list.
 next_replacement_atom(CurrentReplacementAtom, NextReplacementAtom) :-
-  atom_codes(CurrentReplacementAtom, CurrentCodes),
-  append(PrecedingCodes, [LastCode], CurrentCodes),
-  % Compute the next last code(s)
-  ( LastCode == 90 ->
-    % The code 90 corresponds to 'Z' and cannot simply be increased
-    % Instead, an additional character code needs to be added
-    NextCodeList = [90, 65]
-  ; NextCode is LastCode + 1,
-    NextCodeList = [NextCode]
-  ),
-  % Compute the new code list and atom
-  ( PrecedingCodes == [] ->
-    NextReplacementCodes = NextCodeList
-  ; append(PrecedingCodes, NextCodeList, NextReplacementCodes)
-  ),
-  atom_codes(NextReplacementAtom, NextReplacementCodes).
+	atom_codes(CurrentReplacementAtom, CurrentCodes),
+	append(PrecedingCodes, [LastCode], CurrentCodes),
+	% Compute the next last code(s)
+	(	LastCode == 90 ->
+		% The code 90 corresponds to 'Z' and cannot simply be increased
+		% Instead, an additional character code needs to be added
+		NextCodeList = [90, 65]
+	;	NextCode is LastCode + 1,
+		NextCodeList = [NextCode]
+	),
+	% Compute the new code list and atom
+	(	PrecedingCodes == [] ->
+		NextReplacementCodes = NextCodeList
+	;	append(PrecedingCodes, NextCodeList, NextReplacementCodes)
+	),
+	atom_codes(NextReplacementAtom, NextReplacementCodes).
 
 
 % delete_all_occurrences(+List, +DeleteElement, -NewList)
@@ -1161,12 +1147,12 @@ next_replacement_atom(CurrentReplacementAtom, NextReplacementAtom) :-
 % In order to not bind any variables, copy_term/2 is used.
 delete_all_occurrences([], _DeleteElement, []) :- !.
 delete_all_occurrences([Element|List], DeleteElement, NewList) :-
-  copy_term(DeleteElement, CopyDeleteElement),
-  Element = CopyDeleteElement,
-  !,
-  delete_all_occurrences(List, DeleteElement, NewList).
+	copy_term(DeleteElement, CopyDeleteElement),
+	Element = CopyDeleteElement,
+	!,
+	delete_all_occurrences(List, DeleteElement, NewList).
 delete_all_occurrences([Element|List], DeleteElement, [Element|NewList]) :-
-  delete_all_occurrences(List, DeleteElement, NewList).
+	delete_all_occurrences(List, DeleteElement, NewList).
 
 
 % sld_tree_edge_atoms(+SldData, -Edges)
@@ -1251,11 +1237,13 @@ get_transition_graph_node_atom(NodePredSpec,NodeName,NodeDotDesc) :-
 % provide a default version of the command which automatically sets from,to and label index.
 % e.g. we can call jupyter:print_transition_graph(edge/2).
 handle_print_transition_graph(NodePredSpec,EdgePredSpec) :-
-  module_name_expanded_pred_spec(EdgePredSpec, _Module:_PredName/PredArity,_),
-  FromIndex=1, ToIndex=PredArity,
-  (PredArity =< 2 -> LabelIndex=0
-   ; LabelIndex=2),
-  handle_print_transition_graph(NodePredSpec,EdgePredSpec, FromIndex, ToIndex, LabelIndex).
+	module_name_expanded_pred_spec(EdgePredSpec, _Module:_PredName/PredArity,_),
+	FromIndex=1, ToIndex=PredArity,
+	(	PredArity =< 2 ->
+		LabelIndex=0
+	;	LabelIndex=2
+	),
+	handle_print_transition_graph(NodePredSpec,EdgePredSpec, FromIndex, ToIndex, LabelIndex).
 
 % expand module name to determine arity and provide a predicate call
 % can be called with M:p/n or p/n or M:p or M:p(arg1,...)
@@ -1263,35 +1251,35 @@ handle_print_transition_graph(NodePredSpec,EdgePredSpec) :-
 % TODO: maybe get rid of this using meta_predicate annotations
 % module_name_expanded_pred_spec(+PredSpec, -MPredSpec)
 module_name_expanded_pred_spec(PredSpec, Module:PredName/PredArity,PredCall) :- 
-   get_module(PredSpec,Module,PredName/PredArity),!,
-   functor(PredCall,PredName,PredArity).
+	get_module(PredSpec,Module,PredName/PredArity),!,
+	functor(PredCall,PredName,PredArity).
 module_name_expanded_pred_spec(PredSpec, Module:PredName/PredArity,PredCall) :-
-   get_module(PredSpec,Module,PredName),
-   atom(PredName),  % just predicate name w/o arity
-   current_predicate(Module:PredName/Arity),!,
-   PredArity=Arity,
-   functor(PredCall,PredName,PredArity).
+	get_module(PredSpec,Module,PredName),
+	atom(PredName),  % just predicate name w/o arity
+	current_predicate(Module:PredName/Arity),!,
+	PredArity=Arity,
+	functor(PredCall,PredName,PredArity).
 module_name_expanded_pred_spec(PredSpec, Module:PredName/PredArity,PredCall) :-
-   get_module(PredSpec,Module,PredCall),
-   functor(PredCall,PredName,PredArity),
-   PredArity>0,!.
+	get_module(PredSpec,Module,PredCall),
+	functor(PredCall,PredName,PredArity),
+	PredArity>0,!.
 module_name_expanded_pred_spec(PredSpec, _ , _) :-
-   assert_error_response(exception, message_data(error, jupyter(print_transition_graph_pred_spec(PredSpec))), '', []),
-   fail.
+	assert_error_response(exception, message_data(error, jupyter(print_transition_graph_pred_spec(PredSpec))), '', []),
+	fail.
 
 get_module(Module:Term,M,T) :- !, M=Module,T=Term.
 get_module(Term,user,Term).
 
 % check_indices(+PredArity, +FromIndex, +ToIndex, +LabelIndex)
 check_indices(PredArity, FromIndex, ToIndex, LabelIndex) :-
-  % All indices need to be less or equal to the predicate arity
-  integer(FromIndex), FromIndex =< PredArity,
-  integer(ToIndex), ToIndex =< PredArity,
-  (atom(LabelIndex) -> true ; integer(LabelIndex), LabelIndex >= 0, LabelIndex =< PredArity),
-  !.
+	% All indices need to be less or equal to the predicate arity
+	integer(FromIndex), FromIndex =< PredArity,
+	integer(ToIndex), ToIndex =< PredArity,
+	(atom(LabelIndex) -> true ; integer(LabelIndex), LabelIndex >= 0, LabelIndex =< PredArity),
+	!.
 check_indices(PredArity, _FromIndex, _ToIndex, _LabelIndex) :-
-  assert_error_response(exception, message_data(error, jupyter(print_transition_graph_indices(PredArity))), '', []),
-  fail.
+	assert_error_response(exception, message_data(error, jupyter(print_transition_graph_indices(PredArity))), '', []),
+	fail.
 
 
 % transition_graph_edge_atoms(+Results, +FromIndex, +ToIndex, +LabelIndex, -EdgeAtoms)
@@ -1323,21 +1311,21 @@ transition_graph_edge_atoms([Result|Results], FromIndex, ToIndex, LabelIndex, [E
 % edg(b,[label/j, color/chartreuse, style/solid], c).
 get_label(0,_,_) :- !, fail.
 get_label(LabelIndex,_,Label) :- atom(LabelIndex),!, % allows one to use an atom as label index
-  Label=LabelIndex.
+	Label=LabelIndex.
 get_label(List,_,Label) :- List=[_|_], !, get_line_label(List,Label).
 get_label(LabelIndex,Result,Label) :-
-   nth1(LabelIndex, Result, ArgVal),
-   (get_line_label(ArgVal,ListLabel) -> Label=ListLabel ; Label=ArgVal).
+	nth1(LabelIndex, Result, ArgVal),
+	(get_line_label(ArgVal,ListLabel) -> Label=ListLabel ; Label=ArgVal).
 
 get_line_label(List,Label) :- bind_member(label,Label,List).
 
 get_line_colour_style(List,_,Col,Style) :- List=[_|_], !, % style list provided directly in jupyter call
-   get_line_colour(List,Col),
-   get_line_style(List,Style).
+	get_line_colour(List,Col),
+	get_line_style(List,Style).
 get_line_colour_style(LabelIndex,Result,Col,Style) :- integer(LabelIndex),
-   nth1(LabelIndex, Result, List), % the LabelIndex argument is a list containing dot/graphviz infos
-   get_line_colour(List,Col),
-   get_line_style(List,Style).
+	nth1(LabelIndex, Result, List), % the LabelIndex argument is a list containing dot/graphviz infos
+	get_line_colour(List,Col),
+	get_line_style(List,Style).
 
 get_line_colour(List,Col) :- bind_member(colour,C,List),!,Col=C.
 get_line_colour(List,Col) :- bind_member(color,C,List),!,Col=C.
@@ -1355,14 +1343,18 @@ valid_dot_line_style(solid).
 %get_shape(List,Style) :- bind_member(Style,C,List),!,Style=C.
 %get_shape(_,'none').
 
-bind_member(Label,Value,List) :- member(Binding,List), binding(Binding,Label,Value).
+bind_member(Label,Value,List) :-
+	member(Binding,List),
+	binding(Binding,Label,Value).
+
 % we accept various ways to specify bindings:
 binding('='(Label,Value),Label,Value).
 binding('/'(Label,Value),Label,Value).
 binding('-'(Label,Value),Label,Value).
 
-get_dot_node_attribute(Attr2,Value,List) :- bind_member(Attr,Value,List),
-   valid_dot_node_attribute(Attr,Attr2).
+get_dot_node_attribute(Attr2,Value,List) :-
+	bind_member(Attr,Value,List),
+	valid_dot_node_attribute(Attr,Attr2).
 
 valid_dot_node_attribute(label,label).
 valid_dot_node_attribute(color,color).

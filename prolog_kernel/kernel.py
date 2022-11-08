@@ -75,12 +75,16 @@ class PrologKernel(Kernel):
     # The ID of the Prolog implementation with which the server is started.
     # It is required that the implementation_data dictionary contains an item with this key.
     implementation_id = Unicode('swi').tag(config=True)
+#    implementation_id = Unicode('swilgt').tag(config=True)
 
-    # The default program argutments for SWI- and SICStus Prolog
+    # The default program arguments for SWI- and SICStus Prolog
     default_program_arguments = {
         "swi": ["swipl",
                 "-l", "prolog_server/jupyter_server.pl",
                 "-t", "jupyter_server_start"],
+        "swilgt": ["swilgt",
+                "-g", "logtalk_load('logtalk_server/loader.lgt')",
+                "-g", "'::'(jupyter_server,jupyter_server_start)"],
         "sicstus": ["sicstus",
                     "-l", "prolog_server/jupyter_server.pl",
                     "--goal", "jupyter_server_start;halt.",
@@ -107,6 +111,13 @@ class PrologKernel(Kernel):
             "failure_response": "false",
             "success_response": "true",
             "error_prefix": "ERROR: ",
+            "informational_prefix": "% ",
+            "program_arguments": "default"
+        },
+        "swilgt": {
+            "failure_response": "false",
+            "success_response": "true",
+            "error_prefix": "! ",
             "informational_prefix": "% ",
             "program_arguments": "default"
         },
