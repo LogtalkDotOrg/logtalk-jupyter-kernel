@@ -212,8 +212,7 @@
 		catch(json_write(NullStream, JSON), Exception, true),
 		close(NullStream),
 		(	nonvar(Exception) ->
-			term_io::write_to_atom(JSON, Atom),
-			send_error_reply(@(null), invalid_json_response, Atom)
+			send_error_reply(@(null), invalid_json_response, '')
 		;	current_output(Out),
 			json_write(Out, JSON),
 			% Terminate the line (assuming single-line output).
