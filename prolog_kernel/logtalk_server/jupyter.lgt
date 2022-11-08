@@ -10,6 +10,7 @@
 		cut/0,
 		%halt/0,
 		help/0,
+		predicate_docs/1,
 		print_queries/0,
 		print_queries/1,           % print_queries(+Ids)
 		print_query_time/0,        % print_query_time
