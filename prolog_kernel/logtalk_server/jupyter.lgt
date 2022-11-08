@@ -116,68 +116,68 @@ jupyter:update_completion_data :-
 		format('~w~n~n--------------------------------------------------------------------------------~n~n', [Doc]),
 		print_pred_docs(PredDocs).
 
-	predicate_doc('jupyter:cut/0', Doc) :-
+	predicate_doc('jupyter::cut/0', Doc) :-
 		atomic_list_concat([
-			'jupyter:cut or cut',
+			'jupyter::cut or cut',
 			'\n\n    Cuts off the choicepoints of the latest active query.',
 			'\n\n    In general, the previous query is the active one.',
 			'\n    However, the previous active query can be activated again.',
-			'\n    This can be done by cutting off choicepoints with jupyter:cut/0.',
+			'\n    This can be done by cutting off choicepoints with jupyter::cut/0.',
 			'\n    This is also the case if a retry/0 encounters no further solutions.',
 			'\n\n    A further retry/0 call causes backtracking of the previous active goal.',
 			'\n\n    Needs to be the only goal of a query.'
 		], Doc).
-	predicate_doc('jupyter:halt/0', Doc) :-
+	predicate_doc('jupyter::halt/0', Doc) :-
 		atomic_list_concat([
-			'jupyter:halt or halt',
+			'jupyter::halt or halt',
 			'\n\n    Shuts down the running Prolog process.',
 			'\n\n    The next time code is to be executed, a new process is started.',
 			'\n    Everything defined in the database before does not exist anymore.',
 			'\n\n    Corresponds to the functionality of halt/0.',
 			'\n    Has the same effect as interrupting or restarting the Jupyter kernel.'
 		], Doc).
-	predicate_doc('jupyter:help/0', Doc) :-
+	predicate_doc('jupyter::help/0', Doc) :-
 		atomic_list_concat([
-			'jupyter:help',
+			'jupyter::help',
 			'\n\n    Outputs the documentation for all predicates from module jupyter.'
 		], Doc).
-	predicate_doc('jupyter:print_query_time', Doc) :-
+	predicate_doc('jupyter::print_query_time', Doc) :-
 		atomic_list_concat([
-			'jupyter:print_query_time',
+			'jupyter::print_query_time',
 			'\n\n    Prints the latest previous query and its runtime in milliseconds.'
 		], Doc).
-	predicate_doc('jupyter:print_queries/1', Doc) :-
+	predicate_doc('jupyter::print_queries/1', Doc) :-
 		atomic_list_concat([
-			'jupyter:print_queries(+Ids)',
+			'jupyter::print_queries(+Ids)',
 			'\n\n    Prints previous queries which were executed in requests with IDs in Ids.',
 			'\n\n    Any $Var terms might be replaced by the variable\'s name.',
 			'\n    This is the case if a previous query with ID in Ids contains Var.',
 			'\n    Otherwise, $Var is not replaced.'
 		], Doc).
-	predicate_doc('jupyter:print_sld_tree/1', Doc) :-
+	predicate_doc('jupyter::print_sld_tree/1', Doc) :-
 		atomic_list_concat([
-			'jupyter:print_sld_tree(+Goal)',
+			'jupyter::print_sld_tree(+Goal)',
 			'\n\n    Executes the goal Goal and prints a graph resembling its SLD tree.',
 			'\n\n    Needs to be the only goal of a query.'
 		], Doc).
-	predicate_doc('jupyter:print_stack/0', Doc) :-
+	predicate_doc('jupyter::print_stack/0', Doc) :-
 		atomic_list_concat([
-			'jupyter:print_stack',
-			'\n\n    Prints the current stack used for jupyter:retry/0 and jupyter:cut/0.',
+			'jupyter::print_stack',
+			'\n\n    Prints the current stack used for jupyter::retry/0 and jupyter::cut/0.',
 			'\n    The active goal is marked by a preceding \'->\'.',
 			'\n\n    Needs to be the only goal of a query.'
 		], Doc).
-	predicate_doc('jupyter:print_table/1', Doc) :-
+	predicate_doc('jupyter::print_table/1', Doc) :-
 		atomic_list_concat([
-			'jupyter:print_table(+Goal)',
+			'jupyter::print_table(+Goal)',
 			'\n\n    Computes all results of the goal Goal with findall/3.',
 			'\n    These are printed in a table.',
 			'\n\n    Needs to be the only goal of a query.',
-			'\n\n    Example: jupyter:print_table(prolog_flag(FlagName, Value)).'
+			'\n\n    Example: jupyter::print_table(current_prolog_flag(FlagName, Value)).'
 		], Doc).
-	predicate_doc('jupyter:print_table/2', Doc) :-
+	predicate_doc('jupyter::print_table/2', Doc) :-
 		atomic_list_concat([
-			'jupyter:print_table(+ValuesLists, +VariableNames)',
+			'jupyter::print_table(+ValuesLists, +VariableNames)',
 			'\n\n    Prints a table of the values in ValuesLists.',
 			'\n\n    ValuesLists is a list of lists of the same length.',
 			'\n    Each list corresponds to one line of the table.',
@@ -189,12 +189,12 @@ jupyter:update_completion_data :-
 			'\n\n    Can be used with a predicate like findall/3, but not directly.',
 			'\n    Instead, a previous binding can be accessed with a $Var term.',
 			'\n\n    Examples:',
-			'\n        jupyter:print_table([[10,100],[20,400],[30,900]], [\'X\', \'Y\']).',
-			'\n        jupyter:print_table($ResultLists, []).'
+			'\n        jupyter::print_table([[10,100],[20,400],[30,900]], [\'X\', \'Y\']).',
+			'\n        jupyter::print_table($ResultLists, []).'
 		], Doc).
-	predicate_doc('jupyter:print_transition_graph/4', Doc) :-
+	predicate_doc('jupyter::print_transition_graph/4', Doc) :-
 		atomic_list_concat([
-			'jupyter:print_transition_graph(+PredSpec, +FromIndex, +ToIndex, +LabelIndex)',
+			'jupyter::print_transition_graph(+PredSpec, +FromIndex, +ToIndex, +LabelIndex)',
 			'\n\n    Finds all solutions of the predicate with specification PredSpec.',
 			'\n    Prints a graph interpreting the solutions as transitions.',
 			'\n\n    PredSpec needs to be of the form PredName/PredArity.',
@@ -204,43 +204,43 @@ jupyter:update_completion_data :-
 			'\n    If LabelIndex=0, no label is shown.',
 			'\n\n    Needs to be the only goal of a query.'
 		], Doc).
-	predicate_doc('jupyter:print_variable_bindings/0', Doc) :-
+	predicate_doc('jupyter::print_variable_bindings/0', Doc) :-
 		atomic_list_concat([
-			'jupyter:print_variable_bindings',
+			'jupyter::print_variable_bindings',
 			'\n\n    Prints variable bindings from previous queries.',
 			'\n    For each variable, the latest value it was bound to is shown.',
 			'\n\n    The variable value can be accessed with a $Var term by any query.',
 			'\n    In that case, the term is replaced by the value.',
 			'\n    If there is no previous value, an error message is printed.'
 		], Doc).
-	predicate_doc('jupyter:retry/0', Doc) :-
+	predicate_doc('jupyter::retry/0', Doc) :-
 		atomic_list_concat([
-			'jupyter:retry or retry',
+			'jupyter::retry or retry',
 			'\n\n    Causes backtracking of the latest active query.',
 			'\n\n    In general, the previous query is the active one.',
 			'\n    However, the previous active query can be activated again.',
-			'\n    This can be done by cutting off choicepoints with jupyter:cut/0.',
+			'\n    This can be done by cutting off choicepoints with jupyter::cut/0.',
 			'\n    This is also the case if a retry/0 encounters no further solutions.',
 			'\n\n    Needs to be the only goal of a query.'
 		], Doc).
-	predicate_doc('jupyter:set_prolog_impl/1', Doc) :-
+	predicate_doc('jupyter::set_prolog_impl/1', Doc) :-
 		atomic_list_concat([
-			'jupyter:set_prolog_impl(+PrologImplementationID)',
+			'jupyter::set_prolog_impl(+PrologImplementationID)',
 			'\n\n    Activates the Prolog implementation with ID PrologImplementationID.',
 			'\n\n    Code in the same cell is executed with the previous implementation.',
 			'\n\n    Needs to be the only goal of a query.'
 		], Doc).
-	predicate_doc('jupyter:trace/1', Doc) :-
+	predicate_doc('jupyter::trace/1', Doc) :-
 		atomic_list_concat([
-			'jupyter:trace(+Goal)',
+			'jupyter::trace(+Goal)',
 			'\n\n    Prints the trace of the goal Goal.',
 			'\n\n    By default, no port is leashed so that no user interaction is requested.',
 			'\n    All previously set breakpoints are still active.',
 			'\n\n    Needs to be the only goal of a query in order to work as expected.'
 		], Doc).
-	predicate_doc('jupyter:update_completion_data/0', Doc) :-
+	predicate_doc('jupyter::update_completion_data/0', Doc) :-
 		atomic_list_concat([
-			'jupyter:update_completion_data',
+			'jupyter::update_completion_data',
 			'\n\n    Updates the predicate data used for code completion using Tab.',
 			'\n\n    This is done by retrieving all built-in and exported predicates.',
 			'\n    Needed to use completion for predicates from a newly loaded module.',
