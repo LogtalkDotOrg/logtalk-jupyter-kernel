@@ -12,12 +12,12 @@
 		jupyter_logging,
 		jupyter_preferences,
 		jupyter_variable_bindings,
-		jupyter_term_handling,
 		jupyter_query_handling,
-		jupyter_request_handling,
 		jupyter_jsonrpc,
-		jupyter_server,
-		jupyter
+		jupyter_request_handling,
+		jupyter_term_handling,
+		jupyter,
+		jupyter_server
 	], [
 		portability(warning)
 	])
