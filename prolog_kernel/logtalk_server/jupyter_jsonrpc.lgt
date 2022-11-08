@@ -14,7 +14,7 @@
 		send_success_reply/2         % send_success_reply(+Id, +Result)
 	]).
 
-	:- uses(list, [append/3, memberchk/2]).
+	:- uses(list, [append/3, member/2]).
 	:- uses(os, [null_device_path/1]).
 	:- uses(user, [open(File,read,Stream) as open_codes_stream(File,Stream)]).
 	:- uses(jupyter_query_handling, [retrieve_message/2]).
@@ -195,7 +195,7 @@
 		;	current_output(Out),
 			json_write(Out, JSON),
 			% Terminate the line (assuming single-line output).
-			nl(Out),
+%			nl(Out),
 			flush_output(Out)
 		).
 
@@ -286,7 +286,7 @@
 	json_member(Object, Name, Value) :-
 		nonvar(Object),
 		Object = json(Members),
-		memberchk(Name-V, Members),
+		member(Name-V, Members),
 		!,
 		Value = V.
 
@@ -297,7 +297,7 @@
 	json_member(Object, Name, _Default, Value) :-
 		nonvar(Object),
 		Object = json(Members),
-		memberchk(Name-V, Members),
+		member(Name-V, Members),
 		!,
 		Value = V.
 	json_member(_Object, _Name, Default, Value) :-

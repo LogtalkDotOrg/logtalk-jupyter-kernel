@@ -9,6 +9,7 @@ For further information, see 'kernel.py'.
 
 
 import json
+import logging
 import os
 import subprocess
 
@@ -30,6 +31,8 @@ class PrologKernelBaseImplementation:
         self.kernel = kernel
 
         self.logger = kernel.logger
+        self.logger.setLevel(logging.DEBUG)
+
         self.implementation_id = kernel.implementation_id
         self.implementation_data = kernel.active_implementation_data
 
