@@ -20,10 +20,30 @@
 	:- uses(jupyter_query_handling, [retrieve_message/2]).
 	:- uses(jupyter_logging, [log/1, log/2]).
 
-	:- uses(json(codes), [
-		generate(stream(Stream),Term) as json_write(Stream,Term),
-		parse(stream(Stream),Term) as json_read(Stream,Term)
-	]).
+	json_write(Stream, json([Pair| Pairs])) :-
+		!,
+		list_to_conjunction(Pairs, Pair, Conjunction),
+		json(codes)::generate(stream(Stream),{Conjunction}).
+	json_write(Stream, json([])) :-
+		!,
+		json(codes)::generate(stream(Stream),{}).
+
+	json_read(Stream, json(Pairs)) :-
+		json(codes)::parse(stream(Stream), Object),
+		(	Object == {} ->
+			Pairs = []
+		;	conjunction_to_list(Conjunction, Pairs)
+		).
+
+	list_to_conjunction([], Pair, Pair).
+	list_to_conjunction([Next| Pairs], Pair, (Pair, Conjunction)) :-
+		list_to_conjunction(Pairs, Next, Conjunction).
+
+	conjunction_to_list((Pair, Pairs), [Pair| Tail]) :-
+		!,
+		conjunction_to_list(Pairs, Tail).
+	conjunction_to_list(Pair, [Pair]).
+
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
