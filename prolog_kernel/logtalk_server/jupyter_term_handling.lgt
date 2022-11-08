@@ -370,7 +370,7 @@ expand_dcg_term(DCG, ExpandedDCG) :-
 
 % Queries
 
-% In case of any other query not handled by any of the predicates defined above, the query is called by jupyter_query_handling:call_query_with_output_to_file/7.
+% In case of any other query not handled by any of the predicates defined above, the query is called by jupyter_query_handling::call_query_with_output_to_file/7.
 % Before calling it, any $Var terms are replaced by corresponding values from previous queries.
 % Additionally, the output of the goal and debugging messages are redirected to a file so that it can be read in and sent to the client.
 
@@ -905,11 +905,11 @@ json_parsable_results([Result|Results], [_VarName|VarNames], Bindings, [ResultAt
 % For SICStus Prolog, Current and Parent are invocation numbers of the current invovation and the parent invocation.
 % For SWI-Prolog, Current and Parent are integer references to the frame.
 assert_sld_data(call, MGoal, Current, Parent) :-
-	collect_sld_data, % SLD data is to be colleted
+	collect_sld_data, % SLD data is to be collected
 	!,
 	% If the goal is module name expanded with the user module, remove the module expansion
 	(	MGoal = user:Goal ->
-	 	true
+		true
 	;	Goal = MGoal
 	),
 	% Assert the goal as character codes so that the variable names can be preserved and replaced consistently
@@ -921,45 +921,45 @@ assert_sld_data(_Port, _MGoal, _Current, _Parent) :-
 
 % handle_print_sld_tree(+Goal, +Bindings)
 handle_print_sld_tree(Goal, Bindings) :-
-  % Assert collect_sld_data/0 so that SLD data is collected during tracing (needed for SWI-Prolog)
-  assertz(collect_sld_data),
-  % Retract previous data
-  catch(retractall(sld_data(_GoalCodes, _Inv, _ParentInv)), _GoalInvDataException, true),
-  % Call the goal and collect the needed data
-  call_query_with_output_to_file(
-       jupyter_term_handling::call_with_sld_data_collection(Goal, Exception, IsFailure), 0, Bindings,
-                                                   _OriginalTermData, Output, _ExceptionMessage, _IsFailure),
-  retractall(collect_sld_data),
-  % Compute the graph file content
-  sld_graph_file_content(GraphFileContentAtom),
-  % Assert the result response
-  ( nonvar(Exception) -> % Exception
-    !,
-    assert_error_response(exception, message_data(error, Exception), Output, [print_sld_tree-GraphFileContentAtom])
-  ; IsFailure == true -> % Failure
-    !,
-    assert_error_response(failure, null, Output, [print_sld_tree-GraphFileContentAtom])
-  ; % Success
-    handle_result_variable_bindings(Bindings, ResultBindings),
-    assert_success_response(query, ResultBindings, Output, [print_sld_tree-GraphFileContentAtom])
-  ).
+	% Assert collect_sld_data/0 so that SLD data is collected during tracing (needed for SWI-Prolog)
+	assertz(collect_sld_data),
+	% Retract previous data
+	catch(retractall(sld_data(_GoalCodes, _Inv, _ParentInv)), _GoalInvDataException, true),
+	% Call the goal and collect the needed data
+	call_query_with_output_to_file(
+	     jupyter_term_handling::call_with_sld_data_collection(Goal, Exception, IsFailure), 0, Bindings,
+	                                                 _OriginalTermData, Output, _ExceptionMessage, _IsFailure),
+	retractall(collect_sld_data),
+	% Compute the graph file content
+	sld_graph_file_content(GraphFileContentAtom),
+	% Assert the result response
+	(	nonvar(Exception) -> % Exception
+		!,
+		assert_error_response(exception, message_data(error, Exception), Output, [print_sld_tree-GraphFileContentAtom])
+	;	IsFailure == true -> % Failure
+		!,
+		assert_error_response(failure, null, Output, [print_sld_tree-GraphFileContentAtom])
+	;	% Success
+		handle_result_variable_bindings(Bindings, ResultBindings),
+		assert_success_response(query, ResultBindings, Output, [print_sld_tree-GraphFileContentAtom])
+	).
 
 
-% call_with_sld_data_collection(+Goal, -Exception -IsFailure)
-call_with_sld_data_collection(Goal, Exception, IsFailure) :-
-  module_name_expanded(Goal, MGoal),
-  catch(call_with_sld_failure_handling(MGoal, IsFailure), Exception, notrace).
+	% call_with_sld_data_collection(+Goal, -Exception -IsFailure)
+	call_with_sld_data_collection(Goal, Exception, IsFailure) :-
+		module_name_expanded(Goal, MGoal),
+		catch(call_with_sld_failure_handling(MGoal, IsFailure), Exception, notrace).
 
 
-% call_with_sld_failure_handling(+Goal, -IsFailure)
-call_with_sld_failure_handling(Goal, IsFailure) :-
-  trace,
-  ( call(Goal) ->
-    notrace,
-    IsFailure = false
-  ; notrace,
-    IsFailure = true
-  ).
+	% call_with_sld_failure_handling(+Goal, -IsFailure)
+	call_with_sld_failure_handling(Goal, IsFailure) :-
+		trace,
+		(	call(Goal) ->
+			notrace,
+			IsFailure = false
+		;	notrace,
+			IsFailure = true
+		).
 
 
 % sld_graph_file_content(-GraphFileContentAtom)
@@ -1130,32 +1130,32 @@ sld_tree_edge_atoms([_GoalCodes-Current-Parent|SldData], [EdgeAtom|Edges]) :-
 % LabelIndex points to the argument providing a label for an edge.
 % If LabelIndex=0, the edges are not labelled.
 handle_print_transition_graph(NodePredSpec, EdgePredSpec, FromIndex, ToIndex, LabelIndex) :-
-  % Check that the predicate specification and indices are correct
-  module_name_expanded_pred_spec(EdgePredSpec, Module:PredName/PredArity,PredTerm),
-  check_indices(PredArity, FromIndex, ToIndex, LabelIndex),
-  !,
-  PredTerm =.. [PredName|ArgList],
-  % compute all possible nodes
-  (NodePredSpec=true
-    -> EdgeCall = Module:PredTerm
-    ;  findall(node(NodeName,NodeDotDesc),get_transition_graph_node_atom(NodePredSpec,NodeName,NodeDotDesc),Nodes),
-       sort(Nodes,SNodes),
-       maplist(get_node_desc,SNodes,NodeDescAtoms),
-       nth1(FromIndex, ArgList, FromNode),
-       nth1(ToIndex, ArgList, ToNode),
-       EdgeCall = (member(node(FromNode,_),SNodes),Module:PredTerm,member(node(ToNode,_),SNodes)) 
-       % only take nodes into account which are declared, % TO DO: we could only apply restriction to FromNode
-  ),
-  % Compute all possible transitions
-  findall(ArgList, EdgeCall, Results),
-  % Compute the graph file content
-  transition_graph_edge_atoms(Results, FromIndex, ToIndex, LabelIndex, EdgeDescAtoms),
-  append([NodeDescAtoms,EdgeDescAtoms, ['}']], EdgesWithClosingBracket),
-  atomic_list_concat(['digraph {\n'|EdgesWithClosingBracket], GraphFileContentAtom),
-  % Assert the result response
-  assert_success_response(query, [], '', [print_transition_graph=GraphFileContentAtom]).
+	% Check that the predicate specification and indices are correct
+	module_name_expanded_pred_spec(EdgePredSpec, Module:PredName/PredArity,PredTerm),
+	check_indices(PredArity, FromIndex, ToIndex, LabelIndex),
+	!,
+	PredTerm =.. [PredName|ArgList],
+	% compute all possible nodes
+	(	NodePredSpec=true
+	->	EdgeCall = Module:PredTerm
+	;	findall(node(NodeName,NodeDotDesc),get_transition_graph_node_atom(NodePredSpec,NodeName,NodeDotDesc),Nodes),
+		sort(Nodes,SNodes),
+		maplist(get_node_desc,SNodes,NodeDescAtoms),
+		nth1(FromIndex, ArgList, FromNode),
+		nth1(ToIndex, ArgList, ToNode),
+		EdgeCall = (member(node(FromNode,_),SNodes),Module:PredTerm,member(node(ToNode,_),SNodes)) 
+		% only take nodes into account which are declared, % TO DO: we could only apply restriction to FromNode
+	),
+	% Compute all possible transitions
+	findall(ArgList, EdgeCall, Results),
+	% Compute the graph file content
+	transition_graph_edge_atoms(Results, FromIndex, ToIndex, LabelIndex, EdgeDescAtoms),
+	append([NodeDescAtoms,EdgeDescAtoms, ['}']], EdgesWithClosingBracket),
+	atomic_list_concat(['digraph {\n'|EdgesWithClosingBracket], GraphFileContentAtom),
+	% Assert the result response
+	assert_success_response(query, [], '', [print_transition_graph-GraphFileContentAtom]).
 handle_print_transition_graph(_NodePredSpec,_EdgePredSpec, _FromIndex, _ToIndex, _LabelIndex).
-  % If some requirements are not fulfilled, the first clause asserts an error response and fails
+% If some requirements are not fulfilled, the first clause asserts an error response and fails
 
 get_node_desc(node(_,Desc),Desc).
 
@@ -1163,17 +1163,17 @@ get_node_desc(node(_,Desc),Desc).
 % example fact for NodePredSpec:
 % node(a,[label/'A',shape/rect, style/filled, fillcolor/yellow]).
 get_transition_graph_node_atom(NodePredSpec,NodeName,NodeDotDesc) :-
-  module_name_expanded_pred_spec(NodePredSpec, Module:PredName/_PredArity, NodeCall),
-  NodeCall =.. [PredName|ArgList],
-  ArgList = [NodeName|ArgTail], % first argument is the identifier/name of the node
-  call(Module:NodeCall), % generate solutions for the node predicate
-  (ArgTail = [DotList|_], % we have a potential argument with infos about the style, label, ...
-   findall(dot_attr(Attr,Val),get_dot_node_attribute(Attr,Val,DotList),Attrs),
-   Attrs = [_|_] % we have found at least one attribute
-   -> phrase(gen_dot_node_desc(NodeName,Attrs),Codes),
-      atom_codes(NodeDotDesc,Codes)
-   ; NodeDotDesc = ''
-  ).
+	module_name_expanded_pred_spec(NodePredSpec, Module:PredName/_PredArity, NodeCall),
+	NodeCall =.. [PredName|ArgList],
+	ArgList = [NodeName|ArgTail], % first argument is the identifier/name of the node
+	call(Module:NodeCall), % generate solutions for the node predicate
+	(	ArgTail = [DotList|_], % we have a potential argument with infos about the style, label, ...
+		findall(dot_attr(Attr,Val),get_dot_node_attribute(Attr,Val,DotList),Attrs),
+		Attrs = [_|_] % we have found at least one attribute
+	->	phrase(gen_dot_node_desc(NodeName,Attrs),Codes),
+		atom_codes(NodeDotDesc,Codes)
+	;	NodeDotDesc = ''
+	).
 
 
 
@@ -1234,20 +1234,20 @@ check_indices(PredArity, _FromIndex, _ToIndex, _LabelIndex) :-
 % Otherwise, the atoms are of the following form:                  '    "From" -> "To" [label="Label"]~n'
 transition_graph_edge_atoms([], _FromIndex, _ToIndex, _LabelIndex, []) :- !.
 transition_graph_edge_atoms([Result|Results], FromIndex, ToIndex, LabelIndex, [EdgeAtom|EdgeAtoms]) :-
-  nth1(FromIndex, Result, From),
-  nth1(ToIndex, Result, To),
-  (get_label(LabelIndex, Result, Label) ->
-      (get_line_colour_style(LabelIndex, Result, Color,Style)
-       -> format_to_codes('    \"~w\" -> \"~w\" [label=\"~w\", color=\"~w\", style=\"~w\"]~n',
-                          [From, To, Label, Color, Style], EdgeCodes)
-        ; format_to_codes('    \"~w\" -> \"~w\" [label=\"~w\"]~n', [From, To, Label], EdgeCodes)
-      )
-   ;  %Label=0 -> do not show any label
-      format_to_codes('    \"~w\" -> \"~w\"~n', [From, To], EdgeCodes)
-  ),
-  %TODO: we should probably escape the labels, ...
-  atom_codes(EdgeAtom, EdgeCodes),
-  transition_graph_edge_atoms(Results, FromIndex, ToIndex, LabelIndex, EdgeAtoms).
+	nth1(FromIndex, Result, From),
+	nth1(ToIndex, Result, To),
+	(	get_label(LabelIndex, Result, Label) ->
+		(	get_line_colour_style(LabelIndex, Result, Color,Style)
+		->	format_to_codes('    \"~w\" -> \"~w\" [label=\"~w\", color=\"~w\", style=\"~w\"]~n',
+		                    [From, To, Label, Color, Style], EdgeCodes)
+		;	format_to_codes('    \"~w\" -> \"~w\" [label=\"~w\"]~n', [From, To, Label], EdgeCodes)
+		)
+	;	%Label=0 -> do not show any label
+		format_to_codes('    \"~w\" -> \"~w\"~n', [From, To], EdgeCodes)
+	),
+	%TODO: we should probably escape the labels, ...
+	atom_codes(EdgeAtom, EdgeCodes),
+	transition_graph_edge_atoms(Results, FromIndex, ToIndex, LabelIndex, EdgeAtoms).
 
 % we also accept graph definitions of the following form, where LabelIndex=2
 % edg(a,[label/i, color/red, style/dotted],b).

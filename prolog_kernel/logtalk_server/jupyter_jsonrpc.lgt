@@ -22,7 +22,6 @@
 
 	:- uses(json(codes), [
 		generate(stream(Stream),Term) as json_write(Stream,Term),
-		generate(stream(Stream),Term) as json_write(Stream,Term,_),	% FIXME: options not handled!
 		parse(stream(Stream),Term) as json_read(Stream,Term)
 	]).
 
@@ -189,28 +188,16 @@
 		% Otherwise, send the JSON message to the client.
 		null_device_path(NullPath),
 		open(NullPath, write, NullStream),
-		% open_null_stream(NullStream),
-		% Get the options with which to write the JSON object
-		% These should include the option for single-line output so that the client to read each reply as a single line.
-		json_write_options(WriteOptions),
-		catch(json_write(NullStream, JSON, WriteOptions), Exception, true),
+		catch(json_write(NullStream, JSON), Exception, true),
 		close(NullStream),
 		(	nonvar(Exception) ->
 			send_error_reply(@(null), invalid_json_response, '')
 		;	current_output(Out),
-			json_write(Out, JSON, WriteOptions),
+			json_write(Out, JSON),
 			% Terminate the line (assuming single-line output).
 			nl(Out),
 			flush_output(Out)
 		).
-
-
-	%:- if(swi).
-	%json_write_options([width(0)]).
-	%:- else.
-	%json_write_options([compact(true)]).
-	%:- endif.
-	json_write_options([]).
 
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -299,7 +286,7 @@
 	json_member(Object, Name, Value) :-
 		nonvar(Object),
 		Object = json(Members),
-		memberchk(Name=V, Members),
+		memberchk(Name-V, Members),
 		!,
 		Value = V.
 

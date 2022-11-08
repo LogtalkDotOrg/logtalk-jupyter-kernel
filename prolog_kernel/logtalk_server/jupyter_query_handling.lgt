@@ -69,7 +69,7 @@
 	% This is done by creating a file which is set as the current output and error stream.
 	% Calls the goal Goal and reads its output Output (and debugging messages) from the file.
 	% If an exception is thrown when calling the goal, ErrorMessageData is a term of the form message_data(Kind, Term) so that the acutal error message can be retrieved with print_message(Kind, Term).
-	% If Goal=jupyter:trace(TraceGoal), debug mode has to be switched off afterwards.
+	% If Goal=jupyter::trace(TraceGoal), debug mode has to be switched off afterwards.
 	call_with_output_to_file(Goal, Output, ErrorMessageData) :-
 		prepare_call_with_output_to_file,
 		% Call the goal Goal and compute the runtime
