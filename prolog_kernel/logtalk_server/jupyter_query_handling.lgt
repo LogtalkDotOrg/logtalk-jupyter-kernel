@@ -224,17 +224,21 @@ debug_mode_for_breakpoints.
 		!.
 
 
-% redirect_output_to_stream(+StreamAlias, +Stream)
-:- if(swi).
-redirect_output_to_stream(StreamAlias, Stream) :-
-  set_stream(Stream, alias(StreamAlias)).
-:- else.
-redirect_output_to_stream(current_output, Stream) :-
-  !,
-  set_output(Stream).
-redirect_output_to_stream(StreamAlias, Stream) :-
-  set_prolog_flag(StreamAlias, Stream).
-:- endif.
+	% redirect_output_to_stream(+StreamAlias, +Stream)
+	:- if(predicate_property(set_stream(_,_), built_in)).
+
+		redirect_output_to_stream(StreamAlias, Stream) :-
+			set_stream(Stream, alias(StreamAlias)).
+
+	:- elif(current_logtalk_flag(prolog_dialect, sicstus)).
+
+		redirect_output_to_stream(current_output, Stream) :-
+			!,
+			set_output(Stream).
+		redirect_output_to_stream(StreamAlias, Stream) :-
+			set_prolog_flag(StreamAlias, Stream).
+
+	:- endif.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
