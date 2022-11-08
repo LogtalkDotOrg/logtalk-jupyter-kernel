@@ -12,17 +12,17 @@
 %   - Head --> Body
 %   - Head (if the request contains more than one term)
 % - queries (including terms following '?-'):
-%   - retry or jupyter:retry
-%   - cut or jupyter:cut
-%   - halt or jupyter:halt
+%   - retry or jupyter::retry
+%   - cut or jupyter::cut
+%   - halt or jupyter::halt
 %   - a call of a special jupyter predicate:
-%     - jupyter:print_table/1 or jupyter:print_table/2
-%     - jupyter:print_sld_tree/1
-%     - jupyter:print_transition_graph/1,3,4
-%     - jupyter:show_graph/2  % alternative name for print_transition_graph with Node and Edge predicate
-%     - jupyter:set_prolog_impl/1
-%     - jupyter:update_completion_data/0
-%     - jupyter:print_stack/0
+%     - jupyter::print_table/1 or jupyter:print_table/2
+%     - jupyter::print_sld_tree/1
+%     - jupyter::print_transition_graph/1,3,4
+%     - jupyter::show_graph/2  % alternative name for print_transition_graph with Node and Edge predicate
+%     - jupyter::set_prolog_impl/1
+%     - jupyter::update_completion_data/0
+%     - jupyter::print_stack/0
 %   - a call of run_tests: run_tests/0, run_tests/1 or run_tests/2
 %   - a call of trace: trace/0, trace/1 or trace/2
 %   - a call of leash/1
@@ -40,7 +40,7 @@
 		term_response/1           % term_response(JsonResponse)
 	]).
 
-	:- uses(debugger, [trace/0, notrace/0]).
+	:- uses(debugger, [debug/0, trace/0, notrace/0]).
 	:- uses(term_io, [write_term_to_codes/3, format_to_codes/3, read_term_from_codes/3]).
 	:- uses(format, [format/2]).
 	:- uses(list, [append/2, append/3, delete/3, length/2, reverse/2,  member/2, nth1/3]).
@@ -157,7 +157,7 @@ declaration_file_name('jupyter_declaration.pl').
 
 % handle_declaration_directive(+DeclarationName, +Declaration)
 handle_declaration_directive(discontiguous, (:- Declaration)) :-
-  Declaration =.. [discontiguous, PredSpec],
+  Declaration = discontiguous(PredSpec),
   assertz(jupyter_discontiguous(PredSpec)),
   handle_declaration_directive((:- Declaration)).
 handle_declaration_directive(_DeclarationName, DeclarationDirective) :-
@@ -189,20 +189,21 @@ declaration_end(LoadFile) :-
 	retractall(declaration_stream(_)),
 	declaration_file_name(DeclarationFileName),
 	% When loading the file, an exception or warning might be output
-	(	LoadFile==true ->
-	 	% Disable the printing of informational messages so that the messages of the following form are not printed:
-	 	% "% compiling cwd/jupyter_declaration.pl...""
-	 	% "% compiled cwd/jupyter_declaration.pl in module user, 0 msec 112 bytes"
-	 	prolog_flag(informational, PreviousInformationalValue, off),
-	 	% When loading the file, an exception or warning might be output
-	 	jupyter_query_handling::call_with_output_to_file(load_files(DeclarationFileName), Output, ErrorMessageData),
-	 	% Reset the value of the Prolog flag 'informational'
-	 	prolog_flag(informational, _, PreviousInformationalValue)
+	(	LoadFile == true ->
+		% Disable the printing of informational messages so that the messages of the following form are not printed:
+		% "% compiling cwd/jupyter_declaration.pl...""
+		% "% compiled cwd/jupyter_declaration.pl in module user, 0 msec 112 bytes"
+		current_logtalk_flag(report, PreviousInformationalValue),
+		set_logtalk_flag(report, warnings),
+		% When loading the file, an exception or warning might be output
+		jupyter_query_handling::call_with_output_to_file(load_files(DeclarationFileName), Output, ErrorMessageData),
+		% Reset the value of the Prolog flag 'informational'
+		set_logtalk_flag(report, PreviousInformationalValue)
 	;	Output = ''
 	),
 	delete_file(DeclarationFileName),
 	(	nonvar(ErrorMessageData) ->
-	 	assert_error_response(exception, message_data(error, ErrorMessageData), Output, [])
+		assert_error_response(exception, message_data(error, ErrorMessageData), Output, [])
 	;	atom_concat(Output, '\n% Loaded the declaration file', OutputWithLoadMessage),
 		assert_success_response(directive, [], OutputWithLoadMessage, [])
 	).
@@ -393,7 +394,7 @@ handle_query_term(Term, IsDirective, CallRequestId, Stack, Bindings, LoopCont, C
 		Cont = continue
 	;	% Create a term_data(TermAtom, Bindings) term.
 		% If the term is a query, the term_data term is used to assert the original term data in case terms of the form $Var were replaced.
-		% The term data is needed when accessing previous queries (e.g. with jupyter:print_queries/1).
+		% The term data is needed when accessing previous queries (e.g. with jupyter::print_queries/1).
 		% Bindings needs to be copied so that the term can be read from the atom without any of the variables being instantiated by calling the term.
 		copy_term(Bindings, BindingsCopy),
 		write_term_to_atom(Term, Bindings, TermAtom),
@@ -424,11 +425,11 @@ handle_query_term_(Call, IsDirective, CallRequestId, Stack,
   handle_query_term_(Alias, IsDirective, CallRequestId, Stack,
                    Bindings, OriginalTermData, LoopCont, Cont).
 % retry
-handle_query_term_(jupyter:retry, _IsDirective, _CallRequestId, Stack,
+handle_query_term_(jupyter::retry, _IsDirective, _CallRequestId, Stack,
                    _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_retry(Stack).
 % cut
-handle_query_term_(jupyter:cut, _IsDirective, _CallRequestId, Stack,
+handle_query_term_(jupyter::cut, _IsDirective, _CallRequestId, Stack,
                    _Bindings, _OriginalTermData, _LoopCont, Cont) :- !,
   handle_cut(Stack, Cont).
 % halt
@@ -437,34 +438,34 @@ handle_query_term_(jupyter:halt, _IsDirective, _CallRequestId, _Stack,
   % By unifying Cont=done, the loop reading and handling messages is stopped
   handle_halt.
 % jupyter predicates
-handle_query_term_(jupyter:print_sld_tree(Goal), _IsDirective, _CallRequestId, _Stack, 
+handle_query_term_(jupyter::print_sld_tree(Goal), _IsDirective, _CallRequestId, _Stack, 
                    Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_print_sld_tree(Goal, Bindings).
-handle_query_term_(jupyter:print_stack, _IsDirective, CallRequestId, Stack, 
+handle_query_term_(jupyter::print_stack, _IsDirective, CallRequestId, Stack, 
                    _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_print_stack(Stack, CallRequestId).
-handle_query_term_(jupyter:print_table(Goal), _IsDirective, _CallRequestId, _Stack,
+handle_query_term_(jupyter::print_table(Goal), _IsDirective, _CallRequestId, _Stack,
                     Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_print_table_with_findall(Bindings, Goal).
-handle_query_term_(jupyter:print_table(ValuesLists, VariableNames), _IsDirective, _CallRequestId, _Stack, 
+handle_query_term_(jupyter::print_table(ValuesLists, VariableNames), _IsDirective, _CallRequestId, _Stack, 
                    Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_print_table(Bindings, ValuesLists, VariableNames).
-handle_query_term_(jupyter:print_transition_graph(PredSpec, FromIndex, ToIndex, LabelIndex),
+handle_query_term_(jupyter::print_transition_graph(PredSpec, FromIndex, ToIndex, LabelIndex),
                    _IsDirective, _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_print_transition_graph(true,PredSpec, FromIndex, ToIndex, LabelIndex).
-handle_query_term_(jupyter:print_transition_graph(PredSpec, FromIndex, ToIndex),
+handle_query_term_(jupyter::print_transition_graph(PredSpec, FromIndex, ToIndex),
                   _IsDirective, _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_print_transition_graph(true,PredSpec, FromIndex, ToIndex, 0).
-handle_query_term_(jupyter:show_graph(NodeSpec,PredSpec),
+handle_query_term_(jupyter::show_graph(NodeSpec,PredSpec),
                   _IsDirective, _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_print_transition_graph(NodeSpec,PredSpec).
-handle_query_term_(jupyter:set_prolog_impl(PrologImplementationID), _IsDirective, _CallRequestId, _Stack,
+handle_query_term_(jupyter::set_prolog_impl(PrologImplementationID), _IsDirective, _CallRequestId, _Stack,
                    _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_set_prolog_impl(PrologImplementationID).
-handle_query_term_(jupyter:update_completion_data, 
+handle_query_term_(jupyter::update_completion_data, 
                    _IsDirective, _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_update_completion_data.
-handle_query_term_(jupyter:set_preference(Pref,Value), 
+handle_query_term_(jupyter::set_preference(Pref,Value), 
                    _IsDirective, _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_set_preference(Pref,Value).
 % trace
@@ -509,7 +510,7 @@ handle_query_term_(Query, IsDirective, CallRequestId, Stack, Bindings, OriginalT
 % Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the goal Goal.
 % LoopCont is one of continue and cut.
 %  If LoopCont = cut, the recurse loop (jupyter_request_handling:loop/3) will exit right away without making retrys of a term possible.
-% Cont will be processed by jupyter_request_handling:loop/3.
+% Cont will be processed by jupyter_request_handling::loop/3.
 handle_query(Goal, IsDirective, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont) :-
 	% In order to send the goal to the client, it has to be converted to an atom
 	% This has to be done before calling it causes variables to be bound
@@ -683,7 +684,7 @@ handle_retry(Stack) :-
 		% Tell caller that the current query is a retry
 		asserta(is_retry(true)),
 		% Redirect all output to a file and call statistics/2 to compute the runtime as would normally be done before calling a query
-		jupyter_query_handling:redirect_output_to_file,
+		jupyter_query_handling::redirect_output_to_file,
 		statistics(walltime, _Value),
 		fail
 	;	% No active call
@@ -821,7 +822,7 @@ write_term_to_stream(Term, Bindings, TestDefinitionStream) :-
 % trace
 
 % trace/0, trace/1 and trace/2 cannot be used with this server, because the debugging messages are not printed in a way that they can be read in and sent to the client.
-% Instead, jupyter:trace(Goal) can be used to print the trace of the goal Goal.
+% Instead, jupyter::trace(Goal) can be used to print the trace of the goal Goal.
 
 % handle_trace(+TracePredSpec)
 handle_trace(TracePredSpec) :-
@@ -978,7 +979,7 @@ call_with_sld_data_collection(Goal, Exception, IsFailure) :-
   module_name_expanded(Goal, MGoal),
   BreakpointConditions = [call]-[proceed, goal(Module:DebuggerGoal), inv(Inv), parent_inv(ParentInv), true(assert_sld_data(call, Module:DebuggerGoal, Inv, ParentInv))],
   % Make sure that when the output is read in, some informational messages are removed
-  assertz(jupyter_query_handling:remove_output_lines_for(sld_tree_breakpoint_messages)),
+  jupyter_query_handling::assertz(remove_output_lines_for(sld_tree_breakpoint_messages)),
   % Calling debug/0 makes sure that an informational message is always output which can then be removed
   debug,
   catch(
@@ -1222,7 +1223,7 @@ get_transition_graph_node_atom(NodePredSpec,NodeName,NodeDotDesc) :-
   (ArgTail = [DotList|_], % we have a potential argument with infos about the style, label, ...
    findall(dot_attr(Attr,Val),get_dot_node_attribute(Attr,Val,DotList),Attrs),
    Attrs = [_|_] % we have found at least one attribute
-   -> gen_dot_node_desc(NodeName,Attrs,Codes,[]),
+   -> phrase(gen_dot_node_desc(NodeName,Attrs),Codes),
       atom_codes(NodeDotDesc,Codes)
    ; NodeDotDesc = ''
   ).
@@ -1230,7 +1231,7 @@ get_transition_graph_node_atom(NodePredSpec,NodeName,NodeDotDesc) :-
 
 
 % provide a default version of the command which automatically sets from,to and label index.
-% e.g. we can call jupyter:print_transition_graph(edge/2).
+% e.g. we can call jupyter::print_transition_graph(edge/2).
 handle_print_transition_graph(NodePredSpec,EdgePredSpec) :-
 	module_name_expanded_pred_spec(EdgePredSpec, _Module:_PredName/PredArity,_),
 	FromIndex=1, ToIndex=PredArity,
@@ -1523,7 +1524,7 @@ generate_built_in_pred(call(_)).
 
 	% Print stack
 
-	% Prints the stack used for juypter:retry/0 and jupyter:cut/0.
+	% Prints the stack used for juypter:retry/0 and jupyter::cut/0.
 	% The currently active query is printed at the top and indicated by a preceding '->'.
 
 	% handle_print_stack(+Stack, +CallRequestId)

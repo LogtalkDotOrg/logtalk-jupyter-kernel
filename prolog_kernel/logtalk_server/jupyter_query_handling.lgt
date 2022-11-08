@@ -117,37 +117,15 @@
 		redirect_output_to_stream(user_error, OutputStream).
 
 
-% call_with_exception_handling(+MGoal, -ErrorMessageData)
-:- if(swi).
-call_with_exception_handling(MGoal, ErrorMessageData) :-
-  catch(call(MGoal),
-        Exception,
-        % In case of an exception, switch debug mode off so that no more debugging messages are printed
-        (notrace, ErrorMessageData = message_data(error, Exception))).
-:- else.
-call_with_exception_handling(jupyter::trace(Goal), ErrorMessageData) :-
-  !,
-  % In case of a call of jupyter:trace/1, the debugger needs to switched off in case of an exception
-  % Since in this case, the message "% The debugger is switched off" is output, this is not done for all goals
-  % The message is removed from the output before sending it to the client
-  catch(call(jupyter::trace(Goal)),
-        Exception,
-        % In case of an exception, switch the debug mode off so that no more debugging messages are printed
-        % If there are breakpoints, switch the debug mode back on
-        % Otherwise, no debugging messages are output for those breakpoints
-        (nodebug, debug_mode_for_breakpoints, ErrorMessageData = message_data(error, Exception))).
-call_with_exception_handling(MGoal, ErrorMessageData) :-
-  catch(call(MGoal),
-        Exception,
-        ErrorMessageData = message_data(error, Exception)).
-
-debug_mode_for_breakpoints :-
-	% If there are any breakpoints, switch debug mode on
-	user::current_breakpoint(_Conditions, _BID, _Status, _Kind, _Type),
-	debug,
-	!.
-:- endif.
-debug_mode_for_breakpoints.
+	% call_with_exception_handling(+MGoal, -ErrorMessageData)
+	call_with_exception_handling(MGoal, ErrorMessageData) :-
+		catch(
+			call(MGoal),
+			Exception,
+			% In case of an exception, switch debug mode off so that no more debugging messages are printed
+			(notrace, ErrorMessageData = message_data(error, Exception))
+		).
+	debug_mode_for_breakpoints.
 
 
 	% assert_query_data(+CallRequestId, +TermData, +OriginalTermData)
@@ -160,7 +138,7 @@ debug_mode_for_breakpoints.
 		!,
 		% Remember all queries' IDs, goal and runtime so that it can be accessed by jupyter:print_query_time/0 and jupyter:print_queries/1
 		(	TermData = OriginalTermData ->
-		 	StoreOriginalTermData = same
+			StoreOriginalTermData = same
 		;	% there was a replacement of $Var terms in the original term -> store both terms data
 			StoreOriginalTermData = OriginalTermData
 		),
