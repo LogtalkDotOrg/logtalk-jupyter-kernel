@@ -379,10 +379,10 @@ jupyter:update_completion_data :-
 		!,
 		% Get the name of the variable
 		var_name(NameVarPairs, Var, Name),
-		( member(Name=_VarValue, PreviousNameVarPairs) ->
-		  % The variable occurred in one of the previous queries
-		  ExpandedTerm = Name
-		; ExpandedTerm = $(Name)
+		(	member(Name=_VarValue, PreviousNameVarPairs) ->
+			% The variable occurred in one of the previous queries
+			ExpandedTerm = Name
+		;	ExpandedTerm = $(Name)
 		).
 	expand_term(Term, NameVarPairs, PreviousNameVarPairs, ExpandedTerm) :-
 		functor(Term, Name, Arity),

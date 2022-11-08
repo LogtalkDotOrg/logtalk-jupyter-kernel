@@ -19,7 +19,7 @@
 	:- uses(jupyter_preferences, [set_preference/2]).
 
 	jupyter_server_start :-
-		jupyter_server_start(1).
+		jupyter_server_start(10).
 
 	jupyter_server_start(JupyterKernelVerbosityLevel) :-
 		setup,

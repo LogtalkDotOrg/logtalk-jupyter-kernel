@@ -20,7 +20,7 @@
 	:- uses(jupyter_query_handling, [retrieve_message/2]).
 	:- uses(jupyter_logging, [log/1, log/2]).
 
-	:- uses(json, [
+	:- uses(json(codes), [
 		generate(stream(Stream),Term) as json_write(Stream,Term),
 		generate(stream(Stream),Term) as json_write(Stream,Term,_),	% FIXME: options not handled!
 		parse(stream(Stream),Term) as json_read(Stream,Term)

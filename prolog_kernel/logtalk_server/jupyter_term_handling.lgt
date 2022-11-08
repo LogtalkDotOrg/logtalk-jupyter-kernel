@@ -234,8 +234,8 @@ handle_clause_definition(Clause) :-
 	% Assert the clause and check if it was successful
 	catch(assertz(Module:ClauseWithoutModule), Exception, true),
 	(	nonvar(Exception) ->
-		assert_error_response(exception, message_data(error, Exception), Output, [retracted_clauses=RetractedClauses])
-	;	assert_success_response(clause_definition, [], Output, [retracted_clauses=RetractedClauses])
+		assert_error_response(exception, message_data(error, Exception), Output, [retracted_clauses-RetractedClauses])
+	;	assert_success_response(clause_definition, [], Output, [retracted_clauses-RetractedClauses])
 	).
 
 
@@ -321,7 +321,7 @@ retract_previous_clauses(Module:PredName/PredArity, PredDefinitionSpecs, PredDef
   % The predicate is not dynamic -> no clauses can be asserted
   % Try asserting anyway so that the corresponding error reply is sent to the client
   !.
-retract_previous_clauses(Module:PredName/PredArity, PredDefinitionSpecs, [Module:PredName/PredArity|PredDefinitionSpecs], MPredSpecAtom=ListingOutput, AssertMessage) :-
+retract_previous_clauses(Module:PredName/PredArity, PredDefinitionSpecs, [Module:PredName/PredArity|PredDefinitionSpecs], MPredSpecAtom-ListingOutput, AssertMessage) :-
   functor(Head, PredName, PredArity),
   clause(Module:Head, _Body),
   % Use listing/1 to get all the clauses that are to be retracted.
@@ -640,7 +640,7 @@ json_parsable_vars([_VarName=Var|RemainingBindings], Bindings, JsonParsableBindi
 	!,
 	% The variable is uninstantiated and therefore not included in the result list
 	json_parsable_vars(RemainingBindings, Bindings, JsonParsableBindings).
-json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName=VarAtom|JsonParsableBindings]) :-
+json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName-VarAtom|JsonParsableBindings]) :-
 	% Convert the value to an atom as it may be compound and cannot be parsed to JSON otherwise
 	write_term_to_atom(Var, Bindings, VarAtom),
 	json_parsable_vars(RemainingBindings, Bindings, JsonParsableBindings).
@@ -718,7 +718,7 @@ json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName=VarAtom|J
 	% The type of the success reply sent to the client indicates that the server was halted and needs to be restarted for the next execution request.
 
 	handle_halt :-
-		assertz(term_response(json([status=halt]))).
+		assertz(term_response(json([status-halt]))).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -746,7 +746,7 @@ handle_print_table_with_findall(Bindings, Goal) :-
 			assert_error_response(exception, ErrorMessageData, '', [])
 		;	% success
 			% Return the additional 'print_table' data
-			assert_success_response(query, [], Output, [print_table=json(['ValuesLists'=Results, 'VariableNames'=VarNames])])
+			assert_success_response(query, [], Output, [print_table-json(['ValuesLists'-Results, 'VariableNames'-VarNames])])
 		),
 		!
 	;	% findall_results_and_var_names/4 failed
@@ -761,7 +761,7 @@ handle_print_table_with_findall(Bindings, Goal) :-
 % It contains the data which is to be printed in the table.
 % VariableNames is [] or a list of ground terms which need to be of the same length as the values lists.
 handle_print_table(_Bindings, [], VariableNames) :- !,
-	assert_success_response(query, [], '', [print_table=json(['ValuesLists'=[], 'VariableNames'=VariableNames])]).
+	assert_success_response(query, [], '', [print_table-json(['ValuesLists'-[], 'VariableNames'-VariableNames])]).
 handle_print_table(Bindings, ValuesLists, VariableNames) :-
 	% Get the length of the first list and make sure that all other lists have the same length
 	ValuesLists = [ValuesList|RemainingValuesLists],
@@ -772,7 +772,7 @@ handle_print_table(Bindings, ValuesLists, VariableNames) :-
 			% As not all of the values can be parsed to JSON (e.g. uninstantiated variables and compounds), they need to be made JSON parsable first by converting them to atoms
 			findall(ValuesAtomList, (member(Values, ValuesLists), convert_to_atom_list(Values, Bindings, ValuesAtomList)), JsonParsableValuesLists),
 			% Return the additional 'print_table' data
-			assert_success_response(query, [], '', [print_table=json(['ValuesLists'=JsonParsableValuesLists, 'VariableNames'=TableVariableNames])])
+			assert_success_response(query, [], '', [print_table-json(['ValuesLists'-JsonParsableValuesLists, 'VariableNames'-TableVariableNames])])
 		;	% The variable names are invalid
 			assert_error_response(exception, message_data(error, jupyter(invalid_table_variable_names)), '', [])
 		)
@@ -935,13 +935,13 @@ handle_print_sld_tree(Goal, Bindings) :-
   % Assert the result response
   ( nonvar(Exception) -> % Exception
     !,
-    assert_error_response(exception, message_data(error, Exception), Output, [print_sld_tree=GraphFileContentAtom])
+    assert_error_response(exception, message_data(error, Exception), Output, [print_sld_tree-GraphFileContentAtom])
   ; IsFailure == true -> % Failure
     !,
-    assert_error_response(failure, null, Output, [print_sld_tree=GraphFileContentAtom])
+    assert_error_response(failure, null, Output, [print_sld_tree-GraphFileContentAtom])
   ; % Success
     handle_result_variable_bindings(Bindings, ResultBindings),
-    assert_success_response(query, ResultBindings, Output, [print_sld_tree=GraphFileContentAtom])
+    assert_success_response(query, ResultBindings, Output, [print_sld_tree-GraphFileContentAtom])
   ).
 
 
@@ -1555,7 +1555,7 @@ handle_update_completion_data.
 	% AdditionalData is a list containing Key=Value pairs providing additional data for the client.
 	assert_success_response(Type, Bindings, Output, AdditionalData) :-
 		%format(user_error,'Success ~w:~n ~w~n~w~n ~w~n',[Type,Bindings,Output,AdditionalData]),
-		assertz(term_response(json([status=success, type=Type, bindings=json(Bindings), output=Output|AdditionalData]))).
+		assertz(term_response(json([status-success, type-Type, bindings-json(Bindings), output-Output|AdditionalData]))).
 
 
 	% assert_error_response(+ErrorCode, +ErrorMessageData, +Output, +AdditionalData)
@@ -1567,7 +1567,7 @@ handle_update_completion_data.
 	assert_error_response(ErrorCode, ErrorMessageData, Output, AdditionalData) :-
 		%format(user_error,'ERROR ~w:~n ~w~n~w~n ~w~n',[ErrorCode,ErrorMessageData,Output,AdditionalData]),
 		jupyter_jsonrpc::json_error_term(ErrorCode, ErrorMessageData, Output, AdditionalData, ErrorData),
-		assertz(term_response(json([status=error, error=ErrorData]))).
+		assertz(term_response(json([status-error, error-ErrorData]))).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

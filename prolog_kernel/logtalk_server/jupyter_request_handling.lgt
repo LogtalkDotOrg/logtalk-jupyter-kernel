@@ -127,7 +127,7 @@
 
 
 	% term_responses(+CurrentNum, -TermResponses)
-	term_responses(Num, [NumAtom=Response|TermResponses]) :-
+	term_responses(Num, [NumAtom-Response|TermResponses]) :-
 		term_response(Response),
 		retract(term_response(Response)),
 		!,

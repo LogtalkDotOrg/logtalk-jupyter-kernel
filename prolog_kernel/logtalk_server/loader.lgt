@@ -19,6 +19,7 @@
 		jupyter,
 		jupyter_server
 	], [
+		debug(on),
 		portability(warning)
 	])
 )).
