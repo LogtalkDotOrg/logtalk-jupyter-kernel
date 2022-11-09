@@ -7,7 +7,7 @@
 	logtalk_load(os(loader)),
 	logtalk_load(reader(loader)),
 	logtalk_load(term_io(loader)),
-%	logtalk_load(debugger(loader)),
+	logtalk_load(debugger(loader)),
 	logtalk_load([
 		jupyter_logging,
 		jupyter_preferences,
