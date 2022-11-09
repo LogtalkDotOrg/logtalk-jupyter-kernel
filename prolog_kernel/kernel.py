@@ -82,15 +82,19 @@ class PrologKernel(Kernel):
     # The default program arguments for supported Prolog backends
     default_program_arguments = {
         "lvmlgt": ["lvmlgt",
+                "-q",
                 "-g", "logtalk_load('logtalk_server/loader.lgt').",
                 "-g", "'::'(jupyter_server,jupyter_server_start)."],
         "lvmlgt.sh": ["lvmlgt.sh",
+                "-q",
                 "-g", "logtalk_load('logtalk_server/loader.lgt').",
                 "-g", "'::'(jupyter_server,jupyter_server_start)."],
         "swilgt": ["swilgt",
+                "-q",
                 "-g", "logtalk_load('logtalk_server/loader.lgt')",
                 "-t", "'::'(jupyter_server,jupyter_server_start)"],
         "swilgt.sh": ["swilgt.sh",
+                "-q",
                 "-g", "logtalk_load('logtalk_server/loader.lgt')",
                 "-t", "'::'(jupyter_server,jupyter_server_start)"]
     }
@@ -115,6 +119,13 @@ class PrologKernel(Kernel):
             "failure_response": "false",
             "success_response": "true",
             "error_prefix": "ERROR: ",
+            "informational_prefix": "% ",
+            "program_arguments": "default"
+        },
+        "lvmlgt": {
+            "failure_response": "false",
+            "success_response": "true",
+            "error_prefix": "! ",
             "informational_prefix": "% ",
             "program_arguments": "default"
         },
