@@ -287,6 +287,7 @@ class PrologKernelBaseImplementation:
             request = json.dumps({'jsonrpc':'2.0', 'id':id, 'method':method})
         else:
             request = json.dumps({'jsonrpc':'2.0', 'id':id, 'method':method, 'params':params})
+        self.logger.debug('The Request object is: ' + str(request))
 
         # Send the request to the Prolog server
         self.prolog_proc.stdin.write(request)
