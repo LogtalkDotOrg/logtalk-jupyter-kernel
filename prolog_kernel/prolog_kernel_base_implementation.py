@@ -124,7 +124,7 @@ class PrologKernelBaseImplementation:
         """Requests information from the Prolog server which is needed for code completion and inspection."""
         try:
             # The currently defined predicates are used for code completion
-            response_dict = self.server_request(0, 'call', {'code':'jupyter:update_completion_data.'}, log_response=False)
+            response_dict = self.server_request(0, 'call', {'code':'jupyter::update_completion_data.'}, log_response=False)
             self.current_predicates = response_dict['result']['1']['predicate_atoms']
 
             # Retrieve the documentation texts which are shown when a predicate provided by the Prolog server in the module 'jupyter' is inspected
@@ -291,6 +291,7 @@ class PrologKernelBaseImplementation:
 
         # Send the request to the Prolog server
         self.prolog_proc.stdin.write(request)
+        self.prolog_proc.stdin.write('\n')
         self.prolog_proc.stdin.flush()
 
         # Read the JSON-RCP Response object (http://www.jsonrpc.org/specification#response_object)
