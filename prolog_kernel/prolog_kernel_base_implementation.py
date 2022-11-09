@@ -46,7 +46,7 @@ class PrologKernelBaseImplementation:
         self.start_prolog_server()
 
         self.configure_token_splitters()
-        self.retrieve_predicate_information()
+        #self.retrieve_predicate_information()
 
 
     def start_prolog_server(self):
