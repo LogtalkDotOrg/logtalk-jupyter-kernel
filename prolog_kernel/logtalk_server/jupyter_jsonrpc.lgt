@@ -19,31 +19,10 @@
 	:- uses(term_io, [read_term_from_codes/4]).
 	:- uses(jupyter_query_handling, [retrieve_message/2]).
 	:- uses(jupyter_logging, [log/1, log/2]).
-
-	json_write(Stream, json([Pair| Pairs])) :-
-		!,
-		list_to_conjunction(Pairs, Pair, Conjunction),
-		json(atom)::generate(stream(Stream),{Conjunction}).
-	json_write(Stream, json([])) :-
-		!,
-		json(atom)::generate(stream(Stream),{}).
-
-	json_read(Stream, json(Pairs)) :-
-		json(atom)::parse(line(Stream), Object),
-		(	Object == {} ->
-			Pairs = []
-		;	Object = {Conjunction},
-			conjunction_to_list(Conjunction, Pairs)
-		).
-
-	list_to_conjunction([], Pair, Pair).
-	list_to_conjunction([Next| Pairs], Pair, (Pair, Conjunction)) :-
-		list_to_conjunction(Pairs, Next, Conjunction).
-
-	conjunction_to_list((Pair, Pairs), [Pair| Tail]) :-
-		!,
-		conjunction_to_list(Pairs, Tail).
-	conjunction_to_list(Pair, [Pair]).
+	:- uses(json(list,atom), [
+		generate(stream(Stream),JSON) as json_write(Stream,JSON),
+		parse(line(Stream),JSON) as json_read(Stream,JSON)
+	]).
 
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -275,14 +254,10 @@
 
 	% terms_from_codes(+Codes, -TermsAndVariables, -ParsingErrorMessageData)
 	terms_from_codes(Codes, TermsAndVariables, ParsingErrorMessageData) :-
-		(	catch(
-				read_terms_and_vars(Codes, TermsAndVariables),
-				Exception,
-				(close(Stream), ParsingErrorMessageData = message_data(error, Exception))
-			) ->
-			close(Stream)
-		;	close(Stream),
-			fail
+		catch(
+			read_terms_and_vars(Codes, TermsAndVariables),
+			Exception,
+			ParsingErrorMessageData = message_data(error, Exception)
 		).
 
 
