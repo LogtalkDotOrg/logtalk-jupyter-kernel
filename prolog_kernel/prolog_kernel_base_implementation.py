@@ -59,7 +59,7 @@ class PrologKernelBaseImplementation:
             program_arguments = self.kernel.default_program_arguments[self.implementation_id]
             # The third element of the list is the path to the Prolog source code relative to the directory this file is located in
             # In order for it to be found, the path needs to be extended by the location of this file
-            program_arguments[2] = os.path.join(path, program_arguments[2])
+            program_arguments[2] = program_arguments[2].replace("logtalk_server/loader.lgt", os.path.join(path, "logtalk_server/loader.lgt"))
 
         # Log the program arguments and the directory from which the program is tried to be started
         self.logger.debug('Trying to start the Prolog server from ' + str(os.getcwd()) + ' with arguments: ' + str(program_arguments))
