@@ -83,19 +83,19 @@ class PrologKernel(Kernel):
     default_program_arguments = {
         "lvmlgt": ["lvmlgt",
                 "-q",
-                "-g", "logtalk_load('logtalk_server/loader.lgt').",
+                "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt').",
                 "-g", "'::'(jupyter_server,jupyter_server_start)."],
         "lvmlgt.sh": ["lvmlgt.sh",
                 "-q",
-                "-g", "logtalk_load('logtalk_server/loader.lgt').",
+                "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt').",
                 "-g", "'::'(jupyter_server,jupyter_server_start)."],
         "swilgt": ["swilgt",
                 "-q",
-                "-g", "logtalk_load('logtalk_server/loader.lgt')",
+                "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt')",
                 "-t", "'::'(jupyter_server,jupyter_server_start)"],
         "swilgt.sh": ["swilgt.sh",
                 "-q",
-                "-g", "logtalk_load('logtalk_server/loader.lgt')",
+                "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt')",
                 "-t", "'::'(jupyter_server,jupyter_server_start)"]
     }
 
