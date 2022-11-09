@@ -29,7 +29,7 @@
 		json(atom)::generate(stream(Stream),{}).
 
 	json_read(Stream, json(Pairs)) :-
-		json(atom)::parse(stream(Stream), Object),
+		json(atom)::parse(line(Stream), Object),
 		(	Object == {} ->
 			Pairs = []
 		;	Object = {Conjunction},
