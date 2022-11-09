@@ -23,13 +23,13 @@
 	json_write(Stream, json([Pair| Pairs])) :-
 		!,
 		list_to_conjunction(Pairs, Pair, Conjunction),
-		json(codes)::generate(stream(Stream),{Conjunction}).
+		json(atom)::generate(stream(Stream),{Conjunction}).
 	json_write(Stream, json([])) :-
 		!,
-		json(codes)::generate(stream(Stream),{}).
+		json(atom)::generate(stream(Stream),{}).
 
 	json_read(Stream, json(Pairs)) :-
-		json(codes)::parse(stream(Stream), Object),
+		json(atom)::parse(stream(Stream), Object),
 		(	Object == {} ->
 			Pairs = []
 		;	Object = {Conjunction},
