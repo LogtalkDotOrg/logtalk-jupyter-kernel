@@ -92,11 +92,11 @@
 		prepare_call_with_output_to_file,
 		% Call the goal Goal and compute the runtime
 		wall_time(WallTime0),
-		(	call_with_exception_handling(Goal, ErrorMessageData),
-			wall_time(WallTime1)
+		(	call_with_exception_handling(Goal, ErrorMessageData)
 		;	% Goal failed
 			IsFailure = true
 		),
+		wall_time(WallTime1),
 		WallTime is WallTime1 - WallTime0,
 		assert_query_data(CallRequestId, WallTime, term_data(GoalAtom, Bindings), OriginalTermData),
 		cleanup_and_read_output_from_file(Goal, Output).
@@ -122,11 +122,12 @@
 	% call_with_exception_handling(+MGoal, -ErrorMessageData)
 	call_with_exception_handling(MGoal, ErrorMessageData) :-
 		catch(
-			call(MGoal),
+			MGoal,
 			Exception,
 			% In case of an exception, switch debug mode off so that no more debugging messages are printed
 			(notrace, ErrorMessageData = message_data(error, Exception))
 		).
+
 	debug_mode_for_breakpoints.
 
 
