@@ -10,7 +10,16 @@ c = get_config()
 
 ## The ID of the Prolog implementation with which the server is started.
 # Default:
+#c.PrologKernel.implementation_id = "lvmlgt"
+#c.PrologKernel.implementation_id = "lvmlgt.sh"
+#c.PrologKernel.implementation_id = "sicstuslgt"
+#c.PrologKernel.implementation_id = "sicstuslgt.sh"
 c.PrologKernel.implementation_id = "swilgt"
+#c.PrologKernel.implementation_id = "swilgt.sh"
+#c.PrologKernel.implementation_id = "tplgt"
+#c.PrologKernel.implementation_id = "tplgt.sh"
+#c.PrologKernel.implementation_id = "yaplgt"
+#c.PrologKernel.implementation_id = "yaplgt.sh"
 
 ## The implementation specific data which is needed to run the Prolog server for code execution.
 ## This is required to be a dictionary containing at least an entry for the configured implementation_id.

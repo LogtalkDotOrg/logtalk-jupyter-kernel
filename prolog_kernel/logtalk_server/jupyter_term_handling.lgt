@@ -416,7 +416,7 @@ handle_query_term_(jupyter::cut, _IsDirective, _CallRequestId, Stack,
                    _Bindings, _OriginalTermData, _LoopCont, Cont) :- !,
   handle_cut(Stack, Cont).
 % halt
-handle_query_term_(jupyter:halt, _IsDirective, _CallRequestId, _Stack, 
+handle_query_term_(jupyter::halt, _IsDirective, _CallRequestId, _Stack, 
                    _Bindings, _OriginalTermData, _LoopCont, done) :- !,
   % By unifying Cont=done, the loop reading and handling messages is stopped
   handle_halt.

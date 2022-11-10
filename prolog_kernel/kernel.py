@@ -56,10 +56,10 @@ class PrologKernel(Kernel):
     implementation = kernel_name
     implementation_version = '1.0'
     language_info = {
-        'name': 'Prolog',
-        'file_extension': '.pl',
-        'mimetype': 'text/x-prolog',
-        'codemirror_mode': 'prolog',
+        'name': 'Logtalk',
+        'file_extension': '.lgt',
+        'mimetype': 'text/x-logtalk',
+        'codemirror_mode': 'logtalk',
     }
     banner = kernel_name
 
@@ -76,27 +76,49 @@ class PrologKernel(Kernel):
     # It is required that the implementation_data dictionary contains an item with this key.
     #implementation_id = Unicode('lvmlgt').tag(config=True)
     #implementation_id = Unicode('lvmlgt.sh').tag(config=True)
+    #implementation_id = Unicode('sicstuslgt').tag(config=True)
+    #implementation_id = Unicode('sicstuslgt.sh').tag(config=True)
     implementation_id = Unicode('swilgt').tag(config=True)
     #implementation_id = Unicode('swilgt.sh').tag(config=True)
+    #implementation_id = Unicode('tplgt').tag(config=True)
+    #implementation_id = Unicode('tplgt.sh').tag(config=True)
+    #implementation_id = Unicode('yaplgt').tag(config=True)
+    #implementation_id = Unicode('yaplgt.sh').tag(config=True)
 
     # The default program arguments for supported Prolog backends
     default_program_arguments = {
         "lvmlgt": ["lvmlgt",
                 "-q",
-                "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt').",
-                "-g", "'::'(jupyter_server,jupyter_server_start)."],
+                "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,jupyter_server_start);halt."],
         "lvmlgt.sh": ["lvmlgt.sh",
                 "-q",
-                "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt').",
-                "-g", "'::'(jupyter_server,jupyter_server_start)."],
+                "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,jupyter_server_start);halt."],
+        "sicstuslgt": ["sicstuslgt",
+                "--noinfo",
+                "--goal", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,jupyter_server_start);halt.",
+                "--nologo"],
+        "sicstuslgt.sh": ["sicstuslgt.sh",
+                "--noinfo",
+                "--goal", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,jupyter_server_start);halt.",
+                "--nologo"],
         "swilgt": ["swilgt",
                 "-q",
-                "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt')",
-                "-t", "'::'(jupyter_server,jupyter_server_start)"],
+                "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,jupyter_server_start);halt"],
         "swilgt.sh": ["swilgt.sh",
                 "-q",
-                "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt')",
-                "-t", "'::'(jupyter_server,jupyter_server_start)"]
+                "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,jupyter_server_start);halt"],
+        "tplgt": ["tplgt",
+                "-q",
+                "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,jupyter_server_start);halt"],
+        "tplgt.sh": ["tplgt.sh",
+                "-q",
+                "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,jupyter_server_start);halt"],
+        "yaplgt": ["yaplgt",
+                "-q",
+                "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,jupyter_server_start);halt"],
+        "yaplgt.sh": ["yaplgt.sh",
+                "-q",
+                "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,jupyter_server_start);halt"]
     }
 
     # The implementation specific data which is needed to run the Prolog server for code execution.
@@ -115,16 +137,30 @@ class PrologKernel(Kernel):
     # The corresponding module is required to define a subclass of PrologKernelBaseImplementation named PrologKernelImplementation.
     # This can be used to override some of the kernel's basic behavior.
     implementation_data = Dict({
-        "swi": {
-            "failure_response": "false",
-            "success_response": "true",
-            "error_prefix": "ERROR: ",
-            "informational_prefix": "% ",
-            "program_arguments": "default"
-        },
         "lvmlgt": {
             "failure_response": "false",
             "success_response": "true",
+            "error_prefix": "! ",
+            "informational_prefix": "% ",
+            "program_arguments": "default"
+        },
+        "lvmlgt.sh": {
+            "failure_response": "false",
+            "success_response": "true",
+            "error_prefix": "! ",
+            "informational_prefix": "% ",
+            "program_arguments": "default"
+        },
+        "sicstuslgt": {
+            "failure_response": "no",
+            "success_response": "yes",
+            "error_prefix": "! ",
+            "informational_prefix": "% ",
+            "program_arguments": "default"
+        },
+        "sicstuslgt.sh": {
+            "failure_response": "no",
+            "success_response": "yes",
             "error_prefix": "! ",
             "informational_prefix": "% ",
             "program_arguments": "default"
@@ -136,7 +172,35 @@ class PrologKernel(Kernel):
             "informational_prefix": "% ",
             "program_arguments": "default"
         },
-        "sicstus": {
+        "swilgt.sh": {
+            "failure_response": "false",
+            "success_response": "true",
+            "error_prefix": "! ",
+            "informational_prefix": "% ",
+            "program_arguments": "default"
+        },
+        "tplgt": {
+            "failure_response": "false",
+            "success_response": "true",
+            "error_prefix": "! ",
+            "informational_prefix": "% ",
+            "program_arguments": "default"
+        },
+        "tplgt.sh": {
+            "failure_response": "false",
+            "success_response": "true",
+            "error_prefix": "! ",
+            "informational_prefix": "% ",
+            "program_arguments": "default"
+        },
+        "yaplgt": {
+            "failure_response": "no",
+            "success_response": "yes",
+            "error_prefix": "! ",
+            "informational_prefix": "% ",
+            "program_arguments": "default"
+        },
+        "yaplgt.sh": {
             "failure_response": "no",
             "success_response": "yes",
             "error_prefix": "! ",
