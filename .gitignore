@@ -14,3 +14,7 @@ logtalk_doclet_logs/
 *.ql
 *.itf
 *.po
+
+build/
+prolog_kernel.egg-info/
+prolog_kernel/__pycache__/
