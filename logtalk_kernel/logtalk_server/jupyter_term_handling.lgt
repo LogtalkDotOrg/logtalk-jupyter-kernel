@@ -1378,9 +1378,9 @@ gen_atom(Atom,In,Out) :- format_to_codes('~w',Atom,Codes), append(Codes,Out,In).
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-	% Change the Prolog implementation
+	% Change the Prolog backend
 
-	% The user requested to change the active Prolog implementation.
+	% The user requested to change the active Prolog backend.
 	% The actual changing of the implementation is handled by the client (the Jupyter kernel).
 	% It expects an 'set_prolog_backend_id' item to be part of the result.
 

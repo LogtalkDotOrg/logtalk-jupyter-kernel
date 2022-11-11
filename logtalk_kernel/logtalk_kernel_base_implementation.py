@@ -33,8 +33,8 @@ class LogtalkKernelBaseImplementation:
         self.logger = kernel.logger
         self.logger.setLevel(logging.DEBUG)
 
-        self.implementation_id = kernel.implementation_id
-        self.implementation_data = kernel.active_implementation_data
+        self.backend_id = kernel.backend_id
+        self.backend_data = kernel.active_backend_data
 
         self.logtalk_proc = None
         self.is_server_restart_required = False
@@ -53,10 +53,10 @@ class LogtalkKernelBaseImplementation:
         """Tries to (re)start the Logtalk server process with the configured arguments."""
         # Check if the Logtalk server is to be started with the default program arguments
         # Otherwise, the provided path needs to be absolute or relative to the current working directory
-        program_arguments = self.implementation_data["program_arguments"]
+        program_arguments = self.backend_data["program_arguments"]
         if program_arguments == "default":
             # Use the default
-            program_arguments = self.kernel.default_program_arguments[self.implementation_id]
+            program_arguments = self.kernel.default_program_arguments[self.backend_id]
             # The third element of the list is the path to the Logtalk source code relative to the directory this file is located in
             # In order for it to be found, the path needs to be extended by the location of this file
             program_arguments[3] = program_arguments[3].replace("logtalk_server/loader.lgt", os.path.join(path, "logtalk_server/loader.lgt"))
@@ -105,7 +105,7 @@ class LogtalkKernelBaseImplementation:
     def kill_logtalk_server(self):
         """Kills the Logtalk server process if it is still running."""
         if self.logtalk_proc is not None:
-            self.logger.debug(self.implementation_id + ': Kill Logtalk server')
+            self.logger.debug(self.backend_id + ': Kill Logtalk server')
             self.logtalk_proc.kill()
             self.is_server_restart_required = True
 
@@ -153,13 +153,13 @@ class LogtalkKernelBaseImplementation:
         If the execution is interrupted or an exception occurs, an error response is sent to the frontend.
         """
         if not silent:
-            error_prefix = self.implementation_data["error_prefix"]
+            error_prefix = self.backend_data["error_prefix"]
             try:
                 # Check if the server had been shutdown (because of 'halt', an interrupt, or an exception) and a server restart is necessary
                 if self.is_server_restart_required:
-                    self.logger.debug(self.implementation_id + ': Restart Logtalk server')
+                    self.logger.debug(self.backend_id + ': Restart Logtalk server')
                     self.start_logtalk_server()
-                    self.send_response_display_data(self.implementation_data["informational_prefix"] + 'The Logtalk server was restarted', self.error_ansi_escape_codes)
+                    self.send_response_display_data(self.backend_data["informational_prefix"] + 'The Logtalk server was restarted', self.error_ansi_escape_codes)
 
                 # Send an execution request and handle the response
                 response_dict = self.server_request(self.kernel.execution_count, 'call', {'code':code})
@@ -387,7 +387,7 @@ class LogtalkKernelBaseImplementation:
             if status == "halt":
                 # The Logtalk server was stopped, so it has to be restarted the next time code is to be executed
                 self.kill_logtalk_server()
-                self.send_response_display_data(self.implementation_data["informational_prefix"] + 'Successfully halted')
+                self.send_response_display_data(self.backend_data["informational_prefix"] + 'Successfully halted')
             elif status == "error":
                 is_error = True
                 error_object = self.handle_error_response(term_result)
@@ -417,10 +417,10 @@ class LogtalkKernelBaseImplementation:
                     if bindings == {}:
                         if additional_data_error_keys:
                             # The handling of the additional data has failed
-                            response_text = self.implementation_data["failure_response"]
+                            response_text = self.backend_data["failure_response"]
                             ansi_escape_codes = "\x1b[31m" # red
                         else:
-                            response_text = self.implementation_data["success_response"]
+                            response_text = self.backend_data["success_response"]
                     else:
                         # Read the variable values
                         variable_values = []
@@ -498,8 +498,8 @@ class LogtalkKernelBaseImplementation:
                 output += '\n' + error['data']['prolog_message']
                 response_text = error['data']['prolog_message']
             else:
-                output += '\n' + self.implementation_data["failure_response"]
-                response_text = self.implementation_data["failure_response"]
+                output += '\n' + self.backend_data["failure_response"]
+                response_text = self.backend_data["failure_response"]
         elif error_code == -4712:
             # Exception: "prolog_message" contains the error message
             ename = 'exception'
@@ -510,11 +510,11 @@ class LogtalkKernelBaseImplementation:
             ename = 'unhandled exception'
             output += '\n' + error['data']['prolog_message']
             self.kill_logtalk_server()
-            response_text = error['data']['prolog_message'] + '\n' + self.implementation_data["error_prefix"] + 'The Logtalk server needs to be restarted'
+            response_text = error['data']['prolog_message'] + '\n' + self.backend_data["error_prefix"] + 'The Logtalk server needs to be restarted'
         else:
             ename = 'error'
             output += '\n' + error['message']
-            response_text = self.implementation_data["error_prefix"] + str(error['message']) + '\n'
+            response_text = self.backend_data["error_prefix"] + str(error['message']) + '\n'
 
         self.send_response_display_data(response_text, self.error_ansi_escape_codes)
 
@@ -714,5 +714,5 @@ class LogtalkKernelBaseImplementation:
 
 
     def handle_set_prolog_backend(self, prolog_impl_id):
-        """The user requested to change the active Prolog implementation, which needs to be handled by the kernel."""
+        """The user requested to change the active Prolog backend, which needs to be handled by the kernel."""
         return self.kernel.change_prolog_implementation(prolog_impl_id)

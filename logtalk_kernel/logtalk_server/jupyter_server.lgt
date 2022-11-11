@@ -67,7 +67,7 @@
 		['Incorrect predicate specification: ~w'-[PredSpec]], [nl],
 		['It needs to be of the form PredName/PredArity or Module:PredName/PredArity'-[]], [nl].
 	juypter_message(prolog_impl_id_no_atom) -->
-		['The Prolog implementation ID needs to be an atom'-[]], [nl].
+		['The Prolog backend ID needs to be an atom'-[]], [nl].
 	juypter_message(single_test_directive) -->
 		['The definition of a unit test cannot be split across multiple cells'-[]], [nl].
 	juypter_message(trace_pred(TracePredSpec)) -->
