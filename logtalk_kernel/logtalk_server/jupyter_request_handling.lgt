@@ -1,8 +1,6 @@
 
-% This module provides predicates to start a loop reading and handling JSON RPC requests.
-
 % This is done by starting a loop which:
-% - Reads a message from the standard input stream with jupyter_jsonrpc:next_jsonrpc_message/1.
+% - Reads a message from the standard input stream with jupyter_jsonrpc::next_jsonrpc_message/1.
 % - Checks if the message is a valid request with dispatch_message/3.
 % - Checks the method of the request with dispatch_request/4, handles it accordingly and sends a response to the client.
 %   There are five methods:
@@ -20,6 +18,13 @@
 
 
 :- object(jupyter_request_handling).
+
+	:- info([
+		version is 0:1:0,
+		author is 'Anne Brecklinghaus and Paulo Moura',
+		date is 2022-11-11,
+		comment is 'This object provides predicates to start a loop reading and handling JSON RPC requests.'
+	]).
 
 	:- public([loop/3]).  % loop(+ContIn, +Stack, -ContOut)
 

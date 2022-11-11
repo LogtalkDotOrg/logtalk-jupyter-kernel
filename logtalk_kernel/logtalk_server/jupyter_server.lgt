@@ -7,6 +7,13 @@
 
 :- object(jupyter_server).
 
+	:- info([
+		version is 0:1:0,
+		author is 'Anne Brecklinghaus and Paulo Moura',
+		date is 2022-11-11,
+		comment is 'Main object of the server.'
+	]).
+
 	:- public([
 		jupyter_server_start/0,
 		jupyter_server_start/1

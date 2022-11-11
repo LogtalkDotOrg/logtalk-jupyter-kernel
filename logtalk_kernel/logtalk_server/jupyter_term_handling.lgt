@@ -1,5 +1,4 @@
 
-% This module provides predicates to handle terms received from the client, compute their results and assert them with term_response/1.
 % There are three main types of terms.
 % For each of the types there are terms which need to be handled specially.
 % The following types of terms are differentiated:
@@ -29,6 +28,13 @@
 
 
 :- object(jupyter_term_handling).
+
+	:- info([
+		version is 0:1:0,
+		author is 'Anne Brecklinghaus and Paulo Moura',
+		date is 2022-11-11,
+		comment is 'This object provides predicates to handle terms received from the client, compute their results and assert them with term_response/1.'
+	]).
 
 	:- public([
 		assert_sld_data/4,        % assert_sld_data(Port, Goal, Frame, ParentFrame)

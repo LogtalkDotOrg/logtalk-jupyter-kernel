@@ -1,6 +1,13 @@
 
 :- object(jupyter_preferences).
 
+	:- info([
+		version is 0:1:0,
+		author is 'Anne Brecklinghaus and Paulo Moura',
+		date is 2022-11-11,
+		comment is 'Preferecnes management.'
+	]).
+
 	:- public([
 		set_preference/2, set_preference/3, 
 		get_preference/2, get_preferences/1,

@@ -1,6 +1,13 @@
 
 :- object(jupyter_logging).
 
+	:- info([
+		version is 0:1:0,
+		author is 'Anne Brecklinghaus and Paulo Moura',
+		date is 2022-11-11,
+		comment is 'Logging support.'
+	]).
+
 	:- public([
 		create_log_file/1,  % create_log_file(-IsSuccess)
 		log/1,              % log(+Term)

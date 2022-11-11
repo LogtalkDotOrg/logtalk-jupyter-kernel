@@ -1,9 +1,14 @@
 
-% This module provides predicates to reuse previous values of variables in a query.
 % It is based on the module toplevel_variables from SWI-Prolog (version 8.4.2).
-% As this functionality is built-in for SWI-Prolog, this module is needed for SICStus Prolog only.
 
 :- object(jupyter_variable_bindings).
+
+	:- info([
+		version is 0:1:0,
+		author is 'Anne Brecklinghaus and Paulo Moura',
+		date is 2022-11-11,
+		comment is 'This object provides predicates to reuse previous values of variables in a query.'
+	]).
 
 	:- public([
 		store_var_bindings/1,            % store_var_bindings(+Bindings)

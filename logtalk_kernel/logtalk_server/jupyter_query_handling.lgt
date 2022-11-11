@@ -1,17 +1,23 @@
 
-% This module provides predicates to redirect the output of a query execution to a file and read it from the file.
 % The main predicates are
 % - call_with_output_to_file/3: call a goal and read all its output
 % - call_query_with_output_to_file/7: call a goal, read all its output, and assert its runtime and query data
 % - retrieve_message/2: for a term of the form message_data(Kind, Term), print the message with print_message(Kind, Term) and read it
 
 % Additionally, it provides the dynamic predicate query_data(CallRequestId, Runtime, TermData, OriginalTermData) where TermData and OriginalTermData are terms of the form term_data(TermAtom, Bindings).
-% It is used to remember all queries' IDs, goal and runtime so that the data can be accessed by jupyter:print_query_time/0 and jupyter:print_queries/1.
+% It is used to remember all queries' IDs, goal and runtime so that the data can be accessed by jupyter::print_query_time/0 and jupyter::print_queries/1.
 % If there was a replacement of $Var terms in the original term, OriginalTermData contains the original term and its bindings.
 % Otherwise, OriginalTermData=same
 
 
 :- object(jupyter_query_handling).
+
+	:- info([
+		version is 0:1:0,
+		author is 'Anne Brecklinghaus and Paulo Moura',
+		date is 2022-11-11,
+		comment is 'This object provides predicates to redirect the output of a query execution to a file and read it from the file.'
+	]).
 
 	:- public([
 		call_query_with_output_to_file/7,  % call_query_with_output_to_file(+Goal, +CallRequestId, +Bindings, +OriginalTermData, -Output, -ErrorMessageData -IsFailure)
