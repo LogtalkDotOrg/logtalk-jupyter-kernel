@@ -19,7 +19,7 @@
 		% On Windows platforms, opening a file with SICStus which is alread opened by another process (i.e. another Prolog server) fails
 		% Therefore separate log files are created for each Prolog implementation
 		current_logtalk_flag(prolog_dialect, Dialect),
-		atom_concat('.prolog_server_log_', Dialect, LogFileName),
+		atom_concat('.logtalk_server_log_', Dialect, LogFileName),
 		catch(open(LogFileName, write, Stream), _Exception, fail),
 		!,
 		assertz(log_stream(Stream)).

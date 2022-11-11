@@ -9,14 +9,14 @@ import requests
 
 from bs4 import BeautifulSoup, Tag
 
-from prolog_kernel.prolog_kernel_base_implementation import PrologKernelBaseImplementation
+from logtalk_kernel.logtalk_kernel_base_implementation import LogtalkKernelBaseImplementation
 
-# When overriding this at a different location, add the location of the prolog_kernel_base_implementation.py file defining the PrologKernelBaseImplementation class to the search path for modules
-#sys.path.append('/path/to/kernel/prolog_kernel/prolog_kernel')
-#from prolog_kernel_base_implementation import PrologKernelBaseImplementation
+# When overriding this at a different location, add the location of the logtalk_kernel_base_implementation.py file defining the LogtalkKernelBaseImplementation class to the search path for modules
+#sys.path.append('/path/to/kernel/logtalk_kernel/logtalk_kernel')
+#from logtalk_kernel_base_implementation import LogtalkKernelBaseImplementation
 
 
-class PrologKernelImplementation(PrologKernelBaseImplementation):
+class LogtalkKernelImplementation(LogtalkKernelBaseImplementation):
 
     def retrieve_predicate_information(self):
         """When inspecting a built-in predicate, the SICStus Prolog version is needed for retrieving the documentation URLs"""

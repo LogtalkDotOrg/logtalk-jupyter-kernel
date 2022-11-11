@@ -1,31 +1,31 @@
 """
-A Prolog Jupyter kernel communicating with a Prolog server with JSON-RPC 2.0 messages.
+A Logtalk Jupyter kernel communicating with a Logtalk server with JSON-RPC 2.0 messages.
 The communication is based on 'jsonrpc_client.py' from SICStus Prolog 4.5.1.
 
-By default, SICStus Prolog and SWI-Prolog (which is the actual default) are supported.
-By defining a 'prolog_kernel_config.py' file, the Prolog implementation to be used can be defined.
+By default, SICStus Prolog and SWI-Prolog backends (which is the actual default) are supported.
+By defining a 'logtalk_kernel_config.py' file, the Prolog backend to be used can be defined.
 In addition to providing an implementation_id (for SICStus und SWI-Prolog, the IDs 'sicstus' and 'swi' are expected),
 further implementation specific data (a dictionary 'implementation_data' with the implementation_id as key) can be defined.
 This includes the command line arguments with which the Prolog server can be started.
 
-Additionally, there is the Prolog predicate 'jupyter:set_prolog_impl(+PrologImplementationID)' with which the implementation can be changed.
+Additionally, there is the Logtalk predicate 'jupyter::set_prolog_impl(+PrologImplementationID)' with which the implementation can be changed.
 In order for this to work, the configured 'implementation_data' dictionary needs to contain data for more than one Prolog implementation.
 
 An example of a configuration file with an explanation of the options and their default values commented out can be found in the current directory.
 When defined, this file needs to be present in one of the Jupyter config paths (can be retrieved with 'jupyter --paths') or the current working directory.
 
 The actual kernel code is not implemented by this kernel class itself.
-Instead, there is the file 'prolog_kernel_base_implementation.py' which defines the class 'PrologKernelBaseImplementation'.
+Instead, there is the file 'logtalk_kernel_base_implementation.py' which defines the class 'LogtalkKernelBaseImplementation'.
 When the kernel is started, a (sub)object of this class is created.
 It handles the starting of and communication with the Prolog server.
-For all requests (execution, shutdown, completion, inspection) the kernel receives, a 'PrologKernelBaseImplementation' method is called.
+For all requests (execution, shutdown, completion, inspection) the kernel receives, a 'LogtalkKernelBaseImplementation' method is called.
 By creating a subclass of this and defining the path to it as 'kernel_implementation_path', the actual implementation code can be replaced.
 
 If no such path is defined, the path itself or the defined class is invalid, a default implementation is used instead.
 In case of SWI- and SICStus Prolog, the files 'swi_kernel_implementation.py' and 'sicstus_kernel_implementation.py' are used, which can be found in the current directory.
-Otherwise, the base implementation from the file 'prolog_kernel_base_implementation.py' is loaded.
+Otherwise, the base implementation from the file 'logtalk_kernel_base_implementation.py' is loaded.
 
-The Prolog Jupyter kernel is implemented in a way that basically all functionality except the loading of the configuration can easily be overriden.
+The Logtalk Jupyter kernel is implemented in a way that basically all functionality except the loading of the configuration can easily be overriden.
 This is especially useful for extending the kernel for further Prolog implementations.
 """
 
@@ -41,18 +41,18 @@ from jupyter_core.paths import jupyter_config_path
 from traitlets import Bool, Dict, Unicode
 from traitlets.config.loader import ConfigFileNotFound, PyFileConfigLoader
 
-import prolog_kernel.swi_kernel_implementation
-import prolog_kernel.sicstus_kernel_implementation
+#import logtalk_kernel.swi_kernel_implementation
+#import logtalk_kernel.sicstus_kernel_implementation
 
-from prolog_kernel.prolog_kernel_base_implementation import PrologKernelBaseImplementation
+from logtalk_kernel.logtalk_kernel_base_implementation import LogtalkKernelBaseImplementation
 
 
 # Set the logging format
 logging.basicConfig(format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s')
 
 
-class PrologKernel(Kernel):
-    kernel_name = 'prolog_kernel'
+class LogtalkKernel(Kernel):
+    kernel_name = 'logtalk_kernel'
     implementation = kernel_name
     implementation_version = '1.0'
     language_info = {
@@ -142,7 +142,7 @@ class PrologKernel(Kernel):
     #                        SWI-Prolog:     ["swipl", "-l", "prolog_server/jupyter_server.pl", "-t", "jupyter_server_start"]
     #                        SICStus Prolog: ["sicstus", "-l", "prolog_server/jupyter_server.pl", "--goal", "jupyter_server_start;halt.", "--nologo"]
     # Additionally, a "kernel_implementation_path" can be provided, which needs to be an absolute path to a Python file.
-    # The corresponding module is required to define a subclass of PrologKernelBaseImplementation named PrologKernelImplementation.
+    # The corresponding module is required to define a subclass of LogtalkKernelBaseImplementation named LogtalkKernelImplementation.
     # This can be used to override some of the kernel's basic behavior.
     implementation_data = Dict({
         "eclipselgt": {
@@ -242,7 +242,7 @@ class PrologKernel(Kernel):
 
     logger = None
 
-    # A dictionary with implementation ids as keys and the corresponding PrologKernelBaseImplementation as value.
+    # A dictionary with implementation ids as keys and the corresponding LogtalkKernelBaseImplementation as value.
     # When a Prolog implementation is started, it is added to the dictionary.
     # On kernel shutdown or interruption, all implementations are shutdown/interrupted
     active_kernel_implementations = {}
@@ -268,14 +268,14 @@ class PrologKernel(Kernel):
 
     def load_config_file(self):
         """
-        Searches the search paths for Jupyter config files and the current working directory for prolog_kernel_config.py files.
+        Searches the search paths for Jupyter config files and the current working directory for logtalk_kernel_config.py files.
         If such files exist, they are loaded.
         If a config file exists in the current working directory, its configuration overrides values from other config files.
 
         Based on _load_config_files(cls, basefilename, path, log, raise_config_file_errors) from traitlets.config.application.Application.
         """
 
-        config_file_name = 'prolog_kernel_config.py'
+        config_file_name = 'logtalk_kernel_config.py'
 
         # Get the search path for Jupyter config files and add the current working directory
         config_paths = jupyter_config_path()
@@ -340,13 +340,13 @@ class PrologKernel(Kernel):
 
     def load_kernel_implementation(self):
         """
-        In order for the kernel to be able to execute code, a (sub)object of 'PrologKernelBaseImplementation' is needed.
-        If the configured implementation_data contains an entry for 'kernel_implementation_path', tries to load the corresponding module and create a 'PrologKernelImplementation' defined in it.
+        In order for the kernel to be able to execute code, a (sub)object of 'LogtalkKernelBaseImplementation' is needed.
+        If the configured implementation_data contains an entry for 'kernel_implementation_path', tries to load the corresponding module and create a 'LogtalkKernelImplementation' defined in it.
         This causes the Prolog server to be started so that code can be executed.
 
         If no 'kernel_implementation_path' is given or it is invalid, a default implementation is used instead.
-        For the Prolog implementations with ID 'swi' or 'sicstus', there is a module defining the class 'PrologKernelImplementation' in the current directory.
-        Otherwise, the 'PrologKernelBaseImplementation' is used.
+        For the Prolog implementations with ID 'swi' or 'sicstus', there is a module defining the class 'LogtalkKernelImplementation' in the current directory.
+        Otherwise, the 'LogtalkKernelBaseImplementation' is used.
         """
 
         use_default = False
@@ -366,21 +366,21 @@ class PrologKernel(Kernel):
                 sys.modules[module_name] = kernel_implementation_module
                 spec.loader.exec_module(kernel_implementation_module)
 
-                # Try to get the class with name 'PrologKernelImplementation' and check if it is valid
-                implementation_classes = list(class_pair[1] for class_pair in getmembers(kernel_implementation_module, isclass) if class_pair[0]=='PrologKernelImplementation')
+                # Try to get the class with name 'LogtalkKernelImplementation' and check if it is valid
+                implementation_classes = list(class_pair[1] for class_pair in getmembers(kernel_implementation_module, isclass) if class_pair[0]=='LogtalkKernelImplementation')
                 if len(implementation_classes) == 0:
                     use_default = True
-                    self.logger.debug("The module at the configured kernel_implementation_path needs to define the class 'PrologKernelImplementation'")
+                    self.logger.debug("The module at the configured kernel_implementation_path needs to define the class 'LogtalkKernelImplementation'")
                 else:
                     # Try loading the specific implementation
                     try:
-                        self.active_kernel_implementation = kernel_implementation_module.PrologKernelImplementation(self)
-                        if not isinstance(self.active_kernel_implementation, kernel_implementation_module.PrologKernelBaseImplementation):
+                        self.active_kernel_implementation = kernel_implementation_module.LogtalkKernelImplementation(self)
+                        if not isinstance(self.active_kernel_implementation, kernel_implementation_module.LogtalkKernelBaseImplementation):
                             use_default = True
-                            self.logger.debug("The class 'PrologKernelImplementation' needs to be a subclass of 'PrologKernelBaseImplementation'")
+                            self.logger.debug("The class 'LogtalkKernelImplementation' needs to be a subclass of 'LogtalkKernelBaseImplementation'")
                     except Exception:
                         use_default = True
-                        self.logger.debug("Exception while creating a 'PrologKernelImplementation' object" , exc_info=True)
+                        self.logger.debug("Exception while creating a 'LogtalkKernelImplementation' object" , exc_info=True)
         else:
             use_default = True
             self.logger.debug('No kernel_implementation_path configured')
@@ -388,15 +388,15 @@ class PrologKernel(Kernel):
         if use_default:
             # The configured implementation could not be loaded
             # A default implementation is used instead
-            if self.implementation_id == 'swi':
-                self.logger.debug("Using the default implementation for SWI-Prolog")
-                self.active_kernel_implementation = prolog_kernel.swi_kernel_implementation.PrologKernelImplementation(self)
-            elif self.implementation_id == 'sicstus':
-                self.logger.debug("Using the default implementation for SICStus Prolog")
-                self.active_kernel_implementation = prolog_kernel.sicstus_kernel_implementation.PrologKernelImplementation(self)
-            else:
+#            if self.implementation_id == 'swi':
+#                self.logger.debug("Using the default implementation for SWI-Prolog")
+#                self.active_kernel_implementation = logtalk_kernel.swi_kernel_implementation.LogtalkKernelImplementation(self)
+#            elif self.implementation_id == 'sicstus':
+#                self.logger.debug("Using the default implementation for SICStus Prolog")
+#                self.active_kernel_implementation = logtalk_kernel.sicstus_kernel_implementation.LogtalkKernelImplementation(self)
+#            else:
                 self.logger.debug("Using the base implementation")
-                self.active_kernel_implementation = PrologKernelBaseImplementation(self)
+                self.active_kernel_implementation = LogtalkKernelBaseImplementation(self)
 
         # Add the Prolog implementation specific implementation class to the dictionary of active implementations
         self.active_kernel_implementations[self.implementation_id] = self.active_kernel_implementation
@@ -435,12 +435,12 @@ class PrologKernel(Kernel):
                 return True
             else:
                 self.implementation_id = prolog_impl_id
-                # Create an implementation object which starts the Prolog server
+                # Create an implementation object which starts the Logtalk server
                 self.load_kernel_implementation()
 
 
     def interrupt_all(self):
-        # Interrupting the kernel interrupts the running Prolog processes, so all of them need to be restarted
+        # Interrupting the kernel interrupts the running Logtalk processes, so all of them need to be restarted
         for implementation_id, kernel_implementation in self.active_kernel_implementations.items():
             kernel_implementation.kill_prolog_server()
 

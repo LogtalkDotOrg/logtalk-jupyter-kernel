@@ -5,10 +5,10 @@ requires = [
 ]
 
 [project]
-name = "prolog_kernel"
-version = "0.0.9"
-authors = [ { name="Anne Brecklinghaus" } ]
-description = "Extensible Jupyter kernel for (SWI- and SICStus) Prolog"
+name = "logtalk_kernel"
+version = "0.1.0"
+authors = [ { name="Anne Brecklinghaus" }, {name="Paulo Moura"} ]
+description = "Extensible Jupyter kernel for Logtalk"
 readme = "README.md"
 license = { file="LICENSE" }
 requires-python = ">=3.7"
@@ -27,4 +27,4 @@ dependencies = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/anbre/prolog-jupyter-kernel"
+"Homepage" = "https://github.com/LogtalkDotOrg/prolog-jupyter-kernel"

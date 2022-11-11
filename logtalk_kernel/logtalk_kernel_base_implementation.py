@@ -1,9 +1,9 @@
 """
-Base class for the actual execution of requests received by the Prolog Jupyter kernel.
-It provides code for starting a Prolog server and communicating with it.
+Base class for the actual execution of requests received by the Logtalk Jupyter kernel.
+It provides code for starting a Logtalk server and communicating with it.
 Additionally, code completion and inspection are implemented.
 
-By subclassing this, basically all functionality of the Prolog kernel can be overriden.
+By subclassing this, basically all functionality of the Logtalk kernel can be overriden.
 For further information, see 'kernel.py'.
 """
 
@@ -23,7 +23,7 @@ from signal import signal, SIGINT
 path = os.path.dirname(__file__)
 
 
-class PrologKernelBaseImplementation:
+class LogtalkKernelBaseImplementation:
 
     error_ansi_escape_codes =  "\x1b[1;31m" # red and bold
 
@@ -36,40 +36,40 @@ class PrologKernelBaseImplementation:
         self.implementation_id = kernel.implementation_id
         self.implementation_data = kernel.active_implementation_data
 
-        self.prolog_proc = None
+        self.logtalk_proc = None
         self.is_server_restart_required = False
 
         # Run handle_signal_interrupt when the kernel is interrupted
         signal(SIGINT, self.handle_signal_interrupt)
 
-        # Start the Prolog server
-        self.start_prolog_server()
+        # Start the Logtalk server
+        self.start_logtalk_server()
 
         self.configure_token_splitters()
         #self.retrieve_predicate_information()
 
 
-    def start_prolog_server(self):
-        """Tries to (re)start the Prolog server process with the configured arguments."""
-        # Check if the Prolog server is to be started with the default program arguments
+    def start_logtalk_server(self):
+        """Tries to (re)start the Logtalk server process with the configured arguments."""
+        # Check if the Logtalk server is to be started with the default program arguments
         # Otherwise, the provided path needs to be absolute or relative to the current working directory
         program_arguments = self.implementation_data["program_arguments"]
         if program_arguments == "default":
             # Use the default
             program_arguments = self.kernel.default_program_arguments[self.implementation_id]
-            # The third element of the list is the path to the Prolog source code relative to the directory this file is located in
+            # The third element of the list is the path to the Logtalk source code relative to the directory this file is located in
             # In order for it to be found, the path needs to be extended by the location of this file
             program_arguments[3] = program_arguments[3].replace("logtalk_server/loader.lgt", os.path.join(path, "logtalk_server/loader.lgt"))
 
         # Log the program arguments and the directory from which the program is tried to be started
-        self.logger.debug('Trying to start the Prolog server from ' + str(os.getcwd()) + ' with arguments: ' + str(program_arguments))
+        self.logger.debug('Trying to start the Logtalk server from ' + str(os.getcwd()) + ' with arguments: ' + str(program_arguments))
 
-        # Kill the running Prolog server
-        self.kill_prolog_server()
-        self.prolog_proc = None
+        # Kill the running Logtalk server
+        self.kill_logtalk_server()
+        self.logtalk_proc = None
 
-        # Start the Prolog server
-        self.prolog_proc = subprocess.Popen(
+        # Start the Logtalk server
+        self.logtalk_proc = subprocess.Popen(
             program_arguments,
             stdout=subprocess.PIPE,
             stdin=subprocess.PIPE,
@@ -82,15 +82,15 @@ class PrologKernelBaseImplementation:
             # In case of SICStus Prolog, if the implementation is started with a file which does not exist, no response can be read
             # The kernel cannot stop from trying to read a response and therefore cannot output an error message
             dialect_response_dict = self.server_request(0, 'dialect', log_response=False)
-            self.logger.debug("Started the Prolog server for dialect '" + dialect_response_dict["result"] + "'")
+            self.logger.debug("Started the Logtalk server for dialect '" + dialect_response_dict["result"] + "'")
             self.is_server_restart_required = False
             # If logging is configured for the server, send a request to create a log file and thereby enable logging
             if self.kernel.server_logging == True:
                 logging_response = self.server_request(0, 'enable_logging', log_response=False)
                 if logging_response == 'false':
-                    self.logger.debug('No log file could be created by the Prolog server')
+                    self.logger.debug('No log file could be created by the Logtalk server')
         except Exception as exception:
-            raise Exception("The Prolog server could not be started with the arguments " + str(program_arguments))
+            raise Exception("The Logtalk server could not be started with the arguments " + str(program_arguments))
 
 
     def handle_signal_interrupt(self, signal_received, frame):
@@ -102,11 +102,11 @@ class PrologKernelBaseImplementation:
         self.kernel.interrupt_all()
 
 
-    def kill_prolog_server(self):
-        """Kills the Prolog server process if it is still running."""
-        if self.prolog_proc is not None:
-            self.logger.debug(self.implementation_id + ': Kill Prolog server')
-            self.prolog_proc.kill()
+    def kill_logtalk_server(self):
+        """Kills the Logtalk server process if it is still running."""
+        if self.logtalk_proc is not None:
+            self.logger.debug(self.implementation_id + ': Kill Logtalk server')
+            self.logtalk_proc.kill()
             self.is_server_restart_required = True
 
 
@@ -121,13 +121,13 @@ class PrologKernelBaseImplementation:
 
 
     def retrieve_predicate_information(self):
-        """Requests information from the Prolog server which is needed for code completion and inspection."""
+        """Requests information from the Logtalk server which is needed for code completion and inspection."""
         try:
             # The currently defined predicates are used for code completion
             response_dict = self.server_request(0, 'call', {'code':'jupyter::update_completion_data.'}, log_response=False)
             self.current_predicates = response_dict['result']['1']['predicate_atoms']
 
-            # Retrieve the documentation texts which are shown when a predicate provided by the Prolog server in the module 'jupyter' is inspected
+            # Retrieve the documentation texts which are shown when a predicate provided by the Logtalk server in the module 'jupyter' is inspected
             jupyter_predicate_docs_dict = self.server_request(0, 'jupyter_predicate_docs', log_response=False)
             self.jupyter_predicate_docs = jupyter_predicate_docs_dict["result"]
 
@@ -141,14 +141,14 @@ class PrologKernelBaseImplementation:
 
 
     def do_shutdown(self, restart):
-        self.kill_prolog_server()
+        self.kill_logtalk_server()
         return {'status': 'ok', 'restart': restart}
 
 
     def do_execute(self, code, silent, store_history=True, user_expressions=None, allow_stdin=False):
         """
         A request to execute code was received.
-        The code is tried to be executed by sending it to the Prolog server.
+        The code is tried to be executed by sending it to the Logtalk server.
 
         If the execution is interrupted or an exception occurs, an error response is sent to the frontend.
         """
@@ -157,9 +157,9 @@ class PrologKernelBaseImplementation:
             try:
                 # Check if the server had been shutdown (because of 'halt', an interrupt, or an exception) and a server restart is necessary
                 if self.is_server_restart_required:
-                    self.logger.debug(self.implementation_id + ': Restart Prolog server')
-                    self.start_prolog_server()
-                    self.send_response_display_data(self.implementation_data["informational_prefix"] + 'The Prolog server was restarted', self.error_ansi_escape_codes)
+                    self.logger.debug(self.implementation_id + ': Restart Logtalk server')
+                    self.start_logtalk_server()
+                    self.send_response_display_data(self.implementation_data["informational_prefix"] + 'The Logtalk server was restarted', self.error_ansi_escape_codes)
 
                 # Send an execution request and handle the response
                 response_dict = self.server_request(self.kernel.execution_count, 'call', {'code':code})
@@ -173,14 +173,14 @@ class PrologKernelBaseImplementation:
                 self.handle_interrupt()
                 return {'status': 'error', 'ename' : 'interrupt', 'evalue' : '', 'traceback' : ''}
             except BrokenPipeError:
-                self.logger.error(error_prefix + 'Broken pipe\n' + error_prefix + 'The Prolog server needs to be restarted', self.error_ansi_escape_codes)
+                self.logger.error(error_prefix + 'Broken pipe\n' + error_prefix + 'The Logtalk server needs to be restarted', self.error_ansi_escape_codes)
                 self.is_server_restart_required = True
-                self.send_response_display_data(error_prefix + 'Something went wrong\n' + error_prefix + 'The Prolog server needs to be restarted\n', self.error_ansi_escape_codes)
+                self.send_response_display_data(error_prefix + 'Something went wrong\n' + error_prefix + 'The Logtalk server needs to be restarted\n', self.error_ansi_escape_codes)
                 return {'status': 'error', 'ename' : 'broken pipe', 'evalue' : '', 'traceback' : ''}
             except Exception as exception:
                 self.logger.error(exception, exc_info=True)
                 self.is_server_restart_required = True
-                self.send_response_display_data(error_prefix + 'Something went wrong\n' + error_prefix + 'The Prolog server needs to be restarted\n', self.error_ansi_escape_codes)
+                self.send_response_display_data(error_prefix + 'Something went wrong\n' + error_prefix + 'The Logtalk server needs to be restarted\n', self.error_ansi_escape_codes)
                 return {'status': 'error', 'ename' : 'exception', 'evalue' : '', 'traceback' : ''}
         else:
             reply_object = {
@@ -274,7 +274,7 @@ class PrologKernelBaseImplementation:
 
     def server_request(self, id, method, params=None, log_response=True):
         """
-        Sends a request to the Prolog server, reads the JSON response, deserializes and returns it.
+        Sends a request to the Logtalk server, reads the JSON response, deserializes and returns it.
 
         If something goes wrong, raises an exception so that an error response is sent to the frontend.
 
@@ -289,13 +289,13 @@ class PrologKernelBaseImplementation:
             request = json.dumps({'jsonrpc':'2.0', 'id':id, 'method':method, 'params':params})
         self.logger.debug('The Request object is: ' + str(request))
 
-        # Send the request to the Prolog server
-        self.prolog_proc.stdin.write(request)
-        self.prolog_proc.stdin.write('\n')
-        self.prolog_proc.stdin.flush()
+        # Send the request to the Logtalk server
+        self.logtalk_proc.stdin.write(request)
+        self.logtalk_proc.stdin.write('\n')
+        self.logtalk_proc.stdin.flush()
 
         # Read the JSON-RCP Response object (http://www.jsonrpc.org/specification#response_object)
-        response_string = self.prolog_proc.stdout.readline()
+        response_string = self.logtalk_proc.stdout.readline()
         if log_response:
             self.logger.debug('response: ' + response_string)
 
@@ -311,7 +311,7 @@ class PrologKernelBaseImplementation:
         Handles a success response by computing output for each term result and sending it to the frontend.
 
         The dictionary response_dict contains the key 'result'.
-        The corresponding value contains the results of the Prolog terms read from the cell.
+        The corresponding value contains the results of the Logtalk terms read from the cell.
         These are given as a dictionary where the keys are integers starting from 1.
 
         Each of the results is a dictionary with a status member which is either 'halt', 'success', or 'error'.
@@ -385,8 +385,8 @@ class PrologKernelBaseImplementation:
             status = term_result["status"]
 
             if status == "halt":
-                # The Prolog server was stopped, so it has to be restarted the next time code is to be executed
-                self.kill_prolog_server()
+                # The Logtalk server was stopped, so it has to be restarted the next time code is to be executed
+                self.kill_logtalk_server()
                 self.send_response_display_data(self.implementation_data["informational_prefix"] + 'Successfully halted')
             elif status == "error":
                 is_error = True
@@ -509,8 +509,8 @@ class PrologKernelBaseImplementation:
             # Unhandled exception: the server needs to be restarted
             ename = 'unhandled exception'
             output += '\n' + error['data']['prolog_message']
-            self.kill_prolog_server()
-            response_text = error['data']['prolog_message'] + '\n' + self.implementation_data["error_prefix"] + 'The Prolog server needs to be restarted'
+            self.kill_logtalk_server()
+            response_text = error['data']['prolog_message'] + '\n' + self.implementation_data["error_prefix"] + 'The Logtalk server needs to be restarted'
         else:
             ename = 'error'
             output += '\n' + error['message']

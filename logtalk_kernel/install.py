@@ -39,8 +39,8 @@ def main(argv=None):
     if not args.prefix and not _is_root():
         args.user = True
 
-    print('Installing Prolog kernel spec')
-    KernelSpecManager().install_kernel_spec(get_kernelspec_dir_path(), 'prolog_kernel', user=args.user, prefix=args.prefix)
+    print('Installing Logtalk kernel spec')
+    KernelSpecManager().install_kernel_spec(get_kernelspec_dir_path(), 'logtalk_kernel', user=args.user, prefix=args.prefix)
 
 if __name__ == '__main__':
     main()

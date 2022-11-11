@@ -15,6 +15,7 @@ logtalk_doclet_logs/
 *.itf
 *.po
 
+.ipynb_checkpoints/
 build/
-prolog_kernel.egg-info/
-prolog_kernel/__pycache__/
+logtalk_kernel.egg-info/
+logtalk_kernel/__pycache__/

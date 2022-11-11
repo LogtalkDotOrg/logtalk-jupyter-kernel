@@ -2,18 +2,18 @@ c = get_config()
 
 ## If set to True, the logging level is set to DEBUG by the kernel so that Python debugging messages are logged.
 # Default:
-# c.PrologKernel.jupyter_logging = False
-c.PrologKernel.jupyter_logging = True
+# c.LogtalkKernel.jupyter_logging = False
+c.LogtalkKernel.jupyter_logging = True
 
 ## If set to True, a log file is created by the Prolog server.
 # Default:
-# c.PrologKernel.server_logging = False
-c.PrologKernel.server_logging = True
+# c.LogtalkKernel.server_logging = False
+c.LogtalkKernel.server_logging = True
 
 ## The ID of the Prolog implementation with which the server is started.
 # Default:
-# c.PrologKernel.implementation_id = "swi"
-c.PrologKernel.implementation_id = "sicstus"
+# c.LogtalkKernel.implementation_id = "swi"
+c.LogtalkKernel.implementation_id = "sicstus"
 
 ## The implementation specific data which is needed to run the Prolog server for code execution.
 ## This is required to be a dictionary containing at least an entry for the configured implementation_id.
@@ -28,10 +28,10 @@ c.PrologKernel.implementation_id = "sicstus"
 ##                        SWI-Prolog:     ["swipl", "-l", "prolog_server/jupyter_server.pl", "-t", "jupyter_server_start"]
 ##                        SICStus Prolog: ["sicstus", "-l", "prolog_server/jupyter_server.pl", "--goal", "jupyter_server_start;halt.", "--nologo"]
 ## Additionally, a "kernel_implementation_path" can be provided, which needs to be an absolute path to a Python file.
-## The corresponding module is required to define a subclass of PrologKernelBaseImplementation named PrologKernelImplementation.
+## The corresponding module is required to define a subclass of LogtalkKernelBaseImplementation named LogtalkKernelImplementation.
 ## This can be used to override some of the kernel's basic behavior.
 # Default:
-# c.PrologKernel.implementation_data = {
+# c.LogtalkKernel.implementation_data = {
 #    "swi": {
 #        "failure_response": "false",
 #        "success_response": "true",
@@ -49,7 +49,7 @@ c.PrologKernel.implementation_id = "sicstus"
 # }
 
 # The following shows the usage of the relative path to the Prolog server code
-c.PrologKernel.implementation_data = {
+c.LogtalkKernel.implementation_data = {
    "swi": {
        "failure_response": "false",
        "success_response": "true",
@@ -63,7 +63,7 @@ c.PrologKernel.implementation_data = {
        "error_prefix": "! ",
        "informational_prefix": "% ",
        "program_arguments": ["sicstus",
-                             "-l", "../../../prolog_kernel/prolog_server/jupyter_server.pl",
+                             "-l", "../../../logtalk_kernel/prolog_server/jupyter_server.pl",
                              "--goal", "jupyter_server_start;halt.",
                              "--nologo"]
    }

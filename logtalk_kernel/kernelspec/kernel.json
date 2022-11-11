@@ -2,10 +2,10 @@
   "argv": [
       "python3",
       "-m",
-      "prolog_kernel",
+      "logtalk_kernel",
       "-f",
       "{connection_file}"
   ],
-  "display_name": "Prolog",
-  "language": "prolog"
+  "display_name": "Logtalk",
+  "language": "logtalk"
 }
