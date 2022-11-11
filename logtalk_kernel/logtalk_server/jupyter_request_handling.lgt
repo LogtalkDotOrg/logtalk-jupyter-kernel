@@ -191,7 +191,7 @@
 			assertz(request_data(CallRequestId, RemainingTermsAndVariables)),
 			jupyter_term_handling::handle_term(Term, false, CallRequestId, Stack, Variables, Cont)
 		).
-	dispatch_request(dialect, Message, _Stack, continue) :-
+	dispatch_request(backend, Message, _Stack, continue) :-
 		!,
 		Message = request(_Method,CallRequestId,_Params,_RPC),
 		current_logtalk_flag(prolog_dialect, Dialect),

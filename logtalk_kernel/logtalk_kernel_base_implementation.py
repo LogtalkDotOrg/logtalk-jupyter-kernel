@@ -77,12 +77,12 @@ class LogtalkKernelBaseImplementation:
             encoding='UTF-8'
         )
 
-        # Test if the server was started correctly by requesting the dialect Prolog flag
+        # Test if the server was started correctly by requesting the Prolog backend identifier
         try:
             # In case of SICStus Prolog, if the implementation is started with a file which does not exist, no response can be read
             # The kernel cannot stop from trying to read a response and therefore cannot output an error message
-            dialect_response_dict = self.server_request(0, 'dialect', log_response=False)
-            self.logger.debug("Started the Logtalk server for dialect '" + dialect_response_dict["result"] + "'")
+            backend_response_dict = self.server_request(0, 'backend', log_response=False)
+            self.logger.debug("Started the Logtalk server with the '" + backend_response_dict["result"] + "' backend")
             self.is_server_restart_required = False
             # If logging is configured for the server, send a request to create a log file and thereby enable logging
             if self.kernel.server_logging == True:
