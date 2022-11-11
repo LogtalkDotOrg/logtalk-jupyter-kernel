@@ -1,7 +1,7 @@
 
 # Hercutalk - A Jupyter Kernel for Logtalk
 
-A [Jupyter](https://jupyter.org/) kernel for Logtalk based on the [IPython kernel](https://github.com/ipython/ipykernel).
+A [Jupyter](https://jupyter.org/) kernel for Logtalk based [prolog-jupyter-kernel](https://github.com/hhu-stups/prolog-jupyter-kernel) and [IPython kernel](https://github.com/ipython/ipykernel).
 
 By default, [SICStus Prolog](https://sicstus.sics.se/) and [SWI-Prolog](https://www.swi-prolog.org/) (which is the actual **default**) backends are supported. The kernel is implemented in a way that basically all functionality except the loading of configuration files can easily be overridden. This is especially useful for **extending the kernel for further Prolog backends** or running code with a different version of a backend. For further information about this, see [Configuration](#configuration).
 
