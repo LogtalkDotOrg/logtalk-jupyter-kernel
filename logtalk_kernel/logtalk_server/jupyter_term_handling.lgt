@@ -17,7 +17,7 @@
 %     - jupyter::print_sld_tree/1
 %     - jupyter::print_transition_graph/1,3,4
 %     - jupyter::show_graph/2  % alternative name for print_transition_graph with Node and Edge predicate
-%     - jupyter::set_prolog_impl/1
+%     - jupyter::set_prolog_backend/1
 %     - jupyter::update_completion_data/0
 %     - jupyter::print_stack/0
 %   - a call of run_tests: run_tests/0, run_tests/1 or run_tests/2
@@ -398,12 +398,12 @@ replace_previous_variable_bindings(Term, Bindings, UpdatedTerm, UpdatedBindings,
 is_query_alias(retry,jupyter::retry).
 is_query_alias(cut,jupyter::cut).
 is_query_alias(halt,jupyter::halt).
-is_query_alias(eclipse,jupyter::set_prolog_impl(eclipselgt)) :- \+ user::current_predicate(eclipse/0).
-is_query_alias(lvm,jupyter::set_prolog_impl(lvmlgt)) :- \+ user::current_predicate(lvm/0).
-is_query_alias(sicstus,jupyter::set_prolog_impl(sicstuslgt)) :-  \+ user::current_predicate(sicstus/0).
-is_query_alias(swi,jupyter::set_prolog_impl(swilgt)) :- \+ user::current_predicate(swi/0).
-is_query_alias(trealla,jupyter::set_prolog_impl(tplgt)) :-  \+ user::current_predicate(trealla/0).
-is_query_alias(yap,jupyter::set_prolog_impl(yaplgt)) :-  \+ user::current_predicate(yap/0).
+is_query_alias(eclipse,jupyter::set_prolog_backend(eclipselgt)) :- \+ user::current_predicate(eclipse/0).
+is_query_alias(lvm,jupyter::set_prolog_backend(lvmlgt)) :- \+ user::current_predicate(lvm/0).
+is_query_alias(sicstus,jupyter::set_prolog_backend(sicstuslgt)) :-  \+ user::current_predicate(sicstus/0).
+is_query_alias(swi,jupyter::set_prolog_backend(swilgt)) :- \+ user::current_predicate(swi/0).
+is_query_alias(trealla,jupyter::set_prolog_backend(tplgt)) :-  \+ user::current_predicate(trealla/0).
+is_query_alias(yap,jupyter::set_prolog_backend(yaplgt)) :-  \+ user::current_predicate(yap/0).
 is_query_alias(show_graph(Nodes,Edges),jupyter::show_graph(Nodes,Edges)) :-  \+ user::current_predicate(show_graph/2).
 is_query_alias(print_queries,jupyter::print_queries) :-  \+ user::current_predicate(print_queries/0).
 is_query_alias(print_queries(L),jupyter::print_queries(L)) :-  \+ user::current_predicate(print_queries/1).
@@ -452,9 +452,9 @@ handle_query_term_(jupyter::print_transition_graph(PredSpec, FromIndex, ToIndex)
 handle_query_term_(jupyter::show_graph(NodeSpec,PredSpec),
                   _IsDirective, _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_print_transition_graph(NodeSpec,PredSpec).
-handle_query_term_(jupyter::set_prolog_impl(PrologImplementationID), _IsDirective, _CallRequestId, _Stack,
+handle_query_term_(jupyter::set_prolog_backend(Backend), _IsDirective, _CallRequestId, _Stack,
                    _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-  handle_set_prolog_impl(PrologImplementationID).
+  handle_set_prolog_backend(Backend).
 handle_query_term_(jupyter::update_completion_data, 
                    _IsDirective, _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_update_completion_data.
@@ -1382,14 +1382,14 @@ gen_atom(Atom,In,Out) :- format_to_codes('~w',Atom,Codes), append(Codes,Out,In).
 
 	% The user requested to change the active Prolog implementation.
 	% The actual changing of the implementation is handled by the client (the Jupyter kernel).
-	% It expects an 'set_prolog_impl_id' item to be part of the result.
+	% It expects an 'set_prolog_backend_id' item to be part of the result.
 
-	% handle_set_prolog_impl(+PrologImplementationID)
-	handle_set_prolog_impl(PrologImplementationID) :-
-		atom(PrologImplementationID),
+	% handle_set_prolog_backend(+Backend)
+	handle_set_prolog_backend(Backend) :-
+		atom(Backend),
 		!,
-		assert_success_response(query, [], '', [set_prolog_impl_id-PrologImplementationID]).
-	handle_set_prolog_impl(_PrologImplementationID) :-
+		assert_success_response(query, [], '', [set_prolog_backend_id-Backend]).
+	handle_set_prolog_backend(_Backend) :-
 		assert_error_response(exception, message_data(error, jupyter(prolog_impl_id_no_atom)), '', []).
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

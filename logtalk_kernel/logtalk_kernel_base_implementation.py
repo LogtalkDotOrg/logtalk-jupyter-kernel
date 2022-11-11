@@ -565,9 +565,9 @@ class LogtalkKernelBaseImplementation:
         if 'retracted_clauses' in dict:
             if self.handle_retracted_clauses(dict['retracted_clauses']):
                 failure_keys.append(['retracted_clauses'])
-        if 'set_prolog_impl_id' in dict:
-            if self.handle_set_prolog_impl(dict['set_prolog_impl_id']):
-                failure_keys.append(['set_prolog_impl_id'])
+        if 'set_prolog_backend_id' in dict:
+            if self.handle_set_prolog_backend(dict['set_prolog_backend_id']):
+                failure_keys.append(['set_prolog_backend_id'])
 
         return failure_keys
 
@@ -713,6 +713,6 @@ class LogtalkKernelBaseImplementation:
             self.kernel.send_response(self.kernel.iopub_socket, 'display_data', display_data)
 
 
-    def handle_set_prolog_impl(self, prolog_impl_id):
+    def handle_set_prolog_backend(self, prolog_impl_id):
         """The user requested to change the active Prolog implementation, which needs to be handled by the kernel."""
         return self.kernel.change_prolog_implementation(prolog_impl_id)

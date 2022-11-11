@@ -93,7 +93,7 @@ In general, the kernel can be configured to use a different Prolog backend (whic
   - Additionally, a `kernel_implementation_path` can be provided, which needs to be an **absolute path to a Python file**:
     - The corresponding module is required to define a subclass of `LogtalkKernelBaseImplementation` named `LogtalkKernelImplementation`. This can be used to override some of the kernel's basic behavior (see [Overriding the Kernel Implementation](#overriding-the-kernel-implementation)).
 
-In addition to configuring the Prolog backend to be used, the Prolog Logtalk implements the predicate `jupyter::set_prolog_impl(+PrologImplementationID)` to **change the Prolog backend on the fly**. In order for this to work, the configured `implementation_data` dictionary needs to contain data for more than one Prolog backend.
+In addition to configuring the Prolog backend to be used, the Prolog Logtalk implements the predicate `jupyter::set_prolog_impl(+Backend)` to **change the Prolog backend on the fly**. In order for this to work, the configured `implementation_data` dictionary needs to contain data for more than one Prolog backend.
 
 
 **Troubleshooting:**
@@ -112,7 +112,7 @@ If no such path is defined, the path itself or the defined class is invalid, a *
 
 ### Development Install
 
-1. `git clone https://github.com/anbre/prolog-jupyter-kernel.git`
+1. `git clone https://github.com/LogtalkDotOrg/logtalk-jupyter-kernel`
 2. Change to the root directory of the repository
 3. `pip install .`
 4. Install the kernel specification directory:
@@ -144,6 +144,6 @@ Usually, if the execution of a goal causes an exception, the corresponding Logta
 
 Debugging the server code is not possible in the usual way by tracing invocations. Furthermore, all messages exchanged with the client are written to the standard streams. Therefore, printing helpful debugging messages does not work either. Instead, if `server_logging` is configured, **messages can be written to a log file** by calling `log/1` or `log/2` from the module `jupyter_logging`. By default, only the responses sent to the client are logged.
 
-When a query is executed, all its output is written to a file named `.server_output`, which is deleted afterwards by `jupyter_query_handling:delete_output_file`. If an error occurs during the actual execution, the file cannot be deleted and thus, the **output of the goal can be accessed**. Otherwise, the deletion might be prevented.
+When a query is executed, all its output is written to a file named `.server_output`, which is deleted afterwards by `jupyter_query_handling::delete_output_file`. If an error occurs during the actual execution, the file cannot be deleted and thus, the **output of the goal can be accessed**. Otherwise, the deletion might be prevented.
 
 Furthermore, the server might send a response which the client cannot handle. In that case, **logging for the Python code** can be enabled by configuring `jupyter_logging`. For instance, the client logs the responses received from the server.

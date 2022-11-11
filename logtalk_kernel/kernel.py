@@ -8,7 +8,7 @@ In addition to providing an implementation_id (for SICStus und SWI-Prolog, the I
 further implementation specific data (a dictionary 'implementation_data' with the implementation_id as key) can be defined.
 This includes the command line arguments with which the Prolog server can be started.
 
-Additionally, there is the Logtalk predicate 'jupyter::set_prolog_impl(+PrologImplementationID)' with which the implementation can be changed.
+Additionally, there is the Logtalk predicate 'jupyter::set_prolog_backend(+Backend)' with which the implementation can be changed.
 In order for this to work, the configured 'implementation_data' dictionary needs to contain data for more than one Prolog implementation.
 
 An example of a configuration file with an explanation of the options and their default values commented out can be found in the current directory.

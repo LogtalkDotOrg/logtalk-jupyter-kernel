@@ -23,7 +23,7 @@
 		print_transition_graph/4,  % print_transition_graph(+PredSpec, +FromIndex, +ToIndex, +LabelIndex)
 		print_variable_bindings/0,
 		retry/0,
-		set_prolog_impl/1,         % set_prolog_impl(+PrologImplementationID)
+		set_prolog_backend/1,      % set_prolog_backend(+Backend)
 		trace/1,                   % trace(+Goal)
 		update_completion_data/0
 	]).
@@ -60,9 +60,9 @@ cut :-
   throw(jupyter(no_single_goal(jupyter::cut/0)))}.
 
 
-% jupyter:set_prolog_impl(+PrologImplementationID)
-jupyter:set_prolog_impl(_PrologImplementationID) :-
-  throw(jupyter(no_single_goal(jupyter::set_prolog_impl/1))).
+% jupyter:set_prolog_backend(+Backend)
+jupyter:set_prolog_backend(_Backend) :-
+  throw(jupyter(no_single_goal(jupyter::set_prolog_backend/1))).
 
 
 % jupyter:print_sld_tree(+Goal)
@@ -226,11 +226,11 @@ jupyter:update_completion_data :-
 			'\n    This is also the case if a retry/0 encounters no further solutions.',
 			'\n\n    Needs to be the only goal of a query.'
 		], Doc).
-	predicate_doc('jupyter::set_prolog_impl/1', Doc) :-
+	predicate_doc('jupyter::set_prolog_backend/1', Doc) :-
 		atomic_list_concat([
-			'jupyter::set_prolog_impl(+PrologImplementationID)',
-			'\n\n    Activates the Prolog implementation with ID PrologImplementationID.',
-			'\n\n    Code in the same cell is executed with the previous implementation.',
+			'jupyter::set_prolog_backend(+Backend)',
+			'\n\n    Activates the given Prolog backend.',
+			'\n\n    Code in the same cell is executed with the previous backend.',
 			'\n\n    Needs to be the only goal of a query.'
 		], Doc).
 	predicate_doc('jupyter::trace/1', Doc) :-
