@@ -258,7 +258,6 @@ jupyter:update_completion_data :-
 	%
 	% Switch the tracer on, call the goal Goal and stop the tracer.
 	% Debug mode is switched on so that any breakpoints which might exist can be activated.
-	% Because of user:prolog_trace_interception/4 defined in jupyter_server, debugging messages are printed to the current output without requesting user interaction.
 	:- meta_predicate(trace(*)).
 	trace(Goal) :-
 		trace,

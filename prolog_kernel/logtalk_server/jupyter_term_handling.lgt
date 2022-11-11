@@ -233,7 +233,7 @@ handle_clause_definition(Clause) :-
 % module_name_expanded(+Term, -MTerm)
 module_name_expanded((Module:Head:-Body), Module:(Head:-Body)) :- !.
 module_name_expanded(Module:Term, Module:Term) :- !.
-module_name_expanded(Term, user:Term).
+module_name_expanded(Term, user::Term).
 
 
 % clause_head(+Clause, -Head)
@@ -392,8 +392,11 @@ replace_previous_variable_bindings(Term, Bindings, UpdatedTerm, UpdatedBindings,
 is_query_alias(retry,jupyter::retry).
 is_query_alias(cut,jupyter::cut).
 is_query_alias(halt,jupyter::halt).
-is_query_alias(swi,jupyter::set_prolog_impl(swi)) :- \+ user::current_predicate(swi/0).
-is_query_alias(sicstus,jupyter::set_prolog_impl(sicstus)) :-  \+ user::current_predicate(sicstus/0).
+is_query_alias(lvm,jupyter::set_prolog_impl(lvmlgt)) :- \+ user::current_predicate(lvm/0).
+is_query_alias(sicstus,jupyter::set_prolog_impl(sicstuslgt)) :-  \+ user::current_predicate(sicstus/0).
+is_query_alias(swi,jupyter::set_prolog_impl(swilgt)) :- \+ user::current_predicate(swi/0).
+is_query_alias(trealla,jupyter::set_prolog_impl(tplgt)) :-  \+ user::current_predicate(trealla/0).
+is_query_alias(yap,jupyter::set_prolog_impl(yaplgt)) :-  \+ user::current_predicate(yap/0).
 is_query_alias(show_graph(Nodes,Edges),jupyter::show_graph(Nodes,Edges)) :-  \+ user::current_predicate(show_graph/2).
 is_query_alias(print_queries,jupyter::print_queries) :-  \+ user::current_predicate(print_queries/0).
 is_query_alias(print_queries(L),jupyter::print_queries(L)) :-  \+ user::current_predicate(print_queries/1).
@@ -535,7 +538,7 @@ handle_query(Goal, IsDirective, CallRequestId, Stack, Bindings, OriginalTermData
 % add user module prefix used by Jupyter for user-defined predicates and for queries
 % it is important use_module(library(clpfd)), ... are executed in the user: scope so that operators are visible
 add_user_module_prefix_if_necessary(Module:Goal, Module:Goal) :- !.
-add_user_module_prefix_if_necessary(Goal, user:Goal). % note: also ok if Goal is a conjunction with its own module prefixes
+add_user_module_prefix_if_necessary(Goal, user::Goal). % note: also ok if Goal is a conjunction with its own module prefixes
 
 % assert_query_failure_response(+IsDirective, +GoalAtom, +Output)
 assert_query_failure_response(true, GoalAtom, Output) :-
@@ -899,7 +902,7 @@ assert_sld_data(call, MGoal, Current, Parent) :-
 	collect_sld_data, % SLD data is to be collected
 	!,
 	% If the goal is module name expanded with the user module, remove the module expansion
-	(	MGoal = user:Goal ->
+	(	MGoal = user::Goal ->
 		true
 	;	Goal = MGoal
 	),
@@ -1378,7 +1381,7 @@ gen_atom(Atom,In,Out) :- format_to_codes('~w',Atom,Codes), append(Codes,Out,In).
 	handle_set_prolog_impl(PrologImplementationID) :-
 		atom(PrologImplementationID),
 		!,
-		assert_success_response(query, [], '', [set_prolog_impl_id=PrologImplementationID]).
+		assert_success_response(query, [], '', [set_prolog_impl_id-PrologImplementationID]).
 	handle_set_prolog_impl(_PrologImplementationID) :-
 		assert_error_response(exception, message_data(error, jupyter(prolog_impl_id_no_atom)), '', []).
 
