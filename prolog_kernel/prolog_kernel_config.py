@@ -10,6 +10,8 @@ c = get_config()
 
 ## The ID of the Prolog implementation with which the server is started.
 # Default:
+#c.PrologKernel.implementation_id = "eclipselgt"
+#c.PrologKernel.implementation_id = "eclipselgt.sh"
 #c.PrologKernel.implementation_id = "lvmlgt"
 #c.PrologKernel.implementation_id = "lvmlgt.sh"
 #c.PrologKernel.implementation_id = "sicstuslgt"

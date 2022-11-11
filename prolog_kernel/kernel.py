@@ -74,6 +74,8 @@ class PrologKernel(Kernel):
 
     # The ID of the Prolog implementation with which the server is started.
     # It is required that the implementation_data dictionary contains an item with this key.
+    #implementation_id = Unicode('eclipselgt').tag(config=True)
+    #implementation_id = Unicode('eclipselgt.sh').tag(config=True)
     #implementation_id = Unicode('lvmlgt').tag(config=True)
     #implementation_id = Unicode('lvmlgt.sh').tag(config=True)
     #implementation_id = Unicode('sicstuslgt').tag(config=True)
@@ -87,6 +89,12 @@ class PrologKernel(Kernel):
 
     # The default program arguments for supported Prolog backends
     default_program_arguments = {
+        "eclipselgt": ["eclipselgt",
+                "-P",
+                "-e", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,jupyter_server_start);halt."],
+        "eclipselgt.sh": ["eclipselgt.sh",
+                "-P",
+                "-e", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,jupyter_server_start);halt."],
         "lvmlgt": ["lvmlgt",
                 "-q",
                 "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,jupyter_server_start);halt."],
@@ -137,6 +145,20 @@ class PrologKernel(Kernel):
     # The corresponding module is required to define a subclass of PrologKernelBaseImplementation named PrologKernelImplementation.
     # This can be used to override some of the kernel's basic behavior.
     implementation_data = Dict({
+        "eclipselgt": {
+            "failure_response": "No",
+            "success_response": "Yes",
+            "error_prefix": "! ",
+            "informational_prefix": "% ",
+            "program_arguments": "default"
+        },
+        "eclipselgt.sh": {
+            "failure_response": "No",
+            "success_response": "Yes",
+            "error_prefix": "! ",
+            "informational_prefix": "% ",
+            "program_arguments": "default"
+        },
         "lvmlgt": {
             "failure_response": "false",
             "success_response": "true",
