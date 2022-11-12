@@ -3,7 +3,7 @@
 
 	:- info([
 		version is 0:1:0,
-		author is 'Anne Brecklinghaus and Paulo Moura',
+		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
 		date is 2022-11-11,
 		comment is 'Logging support.'
 	]).

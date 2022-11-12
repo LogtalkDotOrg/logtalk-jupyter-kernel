@@ -14,7 +14,7 @@
 
 	:- info([
 		version is 0:1:0,
-		author is 'Anne Brecklinghaus and Paulo Moura',
+		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
 		date is 2022-11-11,
 		comment is 'This object provides predicates to redirect the output of a query execution to a file and read it from the file.'
 	]).

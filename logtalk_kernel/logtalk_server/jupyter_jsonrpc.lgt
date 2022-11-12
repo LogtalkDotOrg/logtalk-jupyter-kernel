@@ -3,7 +3,7 @@
 
 	:- info([
 		version is 0:1:0,
-		author is 'Anne Brecklinghaus and Paulo Moura',
+		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
 		date is 2022-11-11,
 		comment is 'This object andles all reading, writing, and parsing of JSON messages. It is based on jsonrpc_server.pl and jsonrpc_client.pl from SICStus 4.5.1.'
 	]).
