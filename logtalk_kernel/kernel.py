@@ -442,7 +442,7 @@ class LogtalkKernel(Kernel):
     def interrupt_all(self):
         # Interrupting the kernel interrupts the running Logtalk processes, so all of them need to be restarted
         for backend_id, kernel_implementation in self.active_kernel_implementations.items():
-            kernel_implementation.kill_prolog_server()
+            kernel_implementation.kill_logtalk_server()
 
 
     ############################################################################
