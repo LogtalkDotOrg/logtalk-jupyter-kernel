@@ -15,7 +15,7 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-11,
+		date is 2022-11-12,
 		comment is 'This object provides predicates to redirect the output of a query execution to a file and read it from the file.'
 	]).
 
@@ -42,10 +42,6 @@
 	:- uses(reader, [line_to_codes/2 as read_line_to_codes/2]).
 	:- uses(term_io, [write_term_to_codes/3]).
 	:- uses(jupyter_logging, [log/1, log/2]).
-
-	% output_stream(OutputStream)
-	:- private(output_stream/1).
-	:- dynamic(output_stream/1).
 
 	% query_data(CallRequestId, Runtime, TermData, OriginalTermData)
 	:- dynamic(query_data/4).
@@ -117,8 +113,7 @@
 	% Redirects the output of a goal and debugging messages to a file
 	redirect_output_to_file :-
 		file_name(output, OutputFileName),
-		open(OutputFileName, write, OutputStream),
-		assertz(output_stream(OutputStream)),
+		open(OutputFileName, write, OutputStream, [alias(output_to_file_stream)]),
 		% Set the streams to which the goal's output and debugging messages are written by default
 		redirect_output_to_stream(current_output, OutputStream),
 		redirect_output_to_stream(user_output, OutputStream),
@@ -168,8 +163,7 @@
 
 	% reset_output_streams(+DeleteFile)
 	reset_output_streams(DeleteFile) :-
-		retract(output_stream(OutputStream)),
-		close(OutputStream),
+		close(output_to_file_stream),
 		delete_output_file(DeleteFile).
 
 
