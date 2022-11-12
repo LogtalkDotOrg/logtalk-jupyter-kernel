@@ -7,8 +7,7 @@ By default, [SICStus Prolog](https://sicstus.sics.se/) and [SWI-Prolog](https://
 
 Also see the [JupyterLab Prolog CodeMirror Extension](https://github.com/anbre/jupyterlab-prolog-codemirror-extension) for **syntax highlighting** of Prolog code in JupyterLab.
 
-**Note:** The project is a fork of the [prolog-jupyter-kernel](https://github.com/hhu-stups/prolog-jupyter-kernel) project and still under development. Major changes are expected. Furthermore, no liability is accepted for correctness and completeness.
-
+**Note:** The project is a fork of the [prolog-jupyter-kernel](https://github.com/hhu-stups/prolog-jupyter-kernel) project (developed by Anne Brecklinghaus in her Master's thesis at the University of Düsseldorf under the supervision of Michael Leuschel and Philipp Körner) and still under development. Major changes are expected. Furthermore, no liability is accepted for correctness and completeness.
 
 ## Examples
 
