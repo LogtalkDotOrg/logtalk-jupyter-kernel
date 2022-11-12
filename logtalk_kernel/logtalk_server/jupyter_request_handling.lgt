@@ -4,10 +4,10 @@
 % - Checks if the message is a valid request with dispatch_message/3.
 % - Checks the method of the request with dispatch_request/4, handles it accordingly and sends a response to the client.
 %   There are five methods:
-%   - call: execute any terms (handled by the module jupyter_term_handling)
+%   - call: execute any terms (handled by the object jupyter_term_handling)
 %   - version: retrieve the SICStus version
 %   - predicates: find built-in and exported predicates
-%   - jupyter_predicate_docs: retrieve the docs of the predicates in the module jupyter
+%   - jupyter_predicate_docs: retrieve the docs of the predicates in the object jupyter
 %   - enable_logging: create a log file to which log messages can be written
 
 % In case of a call request, the request might contain multiple terms.
@@ -210,7 +210,7 @@
 		format_to_atom('~d.~d.~d', [Major, Minor, Patch], VersionAtom),
 		jupyter_jsonrpc::send_success_reply(CallRequestId, VersionAtom).
 	dispatch_request(jupyter_predicate_docs, Message, _Stack, continue) :-
-		% Retrieve the docs of the predicates in the module jupyter and send them to the client
+		% Retrieve the docs of the predicates in the object jupyter and send them to the client
 		Message = request(_Method,CallRequestId,_Params,_RPC),
 		!,
 		jupyter::predicate_docs(PredDocs),

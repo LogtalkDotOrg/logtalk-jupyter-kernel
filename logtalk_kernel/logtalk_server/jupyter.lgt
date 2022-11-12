@@ -40,7 +40,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 /*
 % The following predicates need to appear as a single goal in a query.
-% In that case, the execution is handled by the module jupyter_term_handling.
+% In that case, the execution is handled by the jupyter_term_handling object.
 % Otherwise, an error message is output.
 
 % retry
@@ -91,7 +91,7 @@ jupyter:update_completion_data :-
 	predicate_docs(PredDocs) :-
 		findall(Pred=Doc, predicate_doc(Pred, Doc), PredDocs).
 
-	% Prints the documentation for all predicates defined in module jupyter.
+	% Prints the documentation for all predicates defined in jupyter object.
 	help :-
 		predicate_docs(PredDocs),
 		log(PredDocs),
@@ -117,7 +117,7 @@ jupyter:update_completion_data :-
 	predicate_doc('jupyter::help/0', Doc) :-
 		atomic_list_concat([
 			'jupyter::help',
-			'\n\n    Outputs the documentation for all predicates from module jupyter.'
+			'\n\n    Outputs the documentation for all predicates from object jupyter.'
 		], Doc).
 	predicate_doc('jupyter::print_query_time', Doc) :-
 		atomic_list_concat([
