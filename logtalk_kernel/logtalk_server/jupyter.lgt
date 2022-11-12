@@ -8,6 +8,8 @@
 		comment is 'This object provides special predicates which can be used in call requests by the client. Some of these predicates need to be the only goal of a query. Otherwise, they cannot be determined as special predicates and do not work as expected.'
 	]).
 
+	:- initialization(debugger::leash(none)).
+
 	:- public([
 		%halt/0,
 		help/0,
@@ -26,7 +28,7 @@
 		update_completion_data/0
 	]).
 
-	:- uses(debugger, [trace/0, notrace/0]).
+	:- uses(debugger, [leash/1, trace/0, notrace/0]).
 	:- uses(format, [format/2]).
 	:- uses(list, [append/3, member/2, reverse/2]).
 	:- uses(term_io, [read_term_from_codes/3, write_term_to_codes/3, format_to_codes/3]).
@@ -226,6 +228,7 @@ jupyter:update_completion_data :-
 	% Debug mode is switched on so that any breakpoints which might exist can be activated.
 	:- meta_predicate(trace(*)).
 	trace(Goal) :-
+		leash(none),
 		trace,
 		(	{Goal} ->
 			notrace
