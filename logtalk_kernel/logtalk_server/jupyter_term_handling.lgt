@@ -18,7 +18,6 @@
 %     - jupyter::show_graph/2  % alternative name for print_transition_graph with Node and Edge predicate
 %     - jupyter::set_prolog_backend/1
 %     - jupyter::update_completion_data/0
-%   - a call of run_tests: run_tests/0, run_tests/1 or run_tests/2
 %   - a call of trace: trace/0, trace/1 or trace/2
 %   - a call of leash/1
 %   - a call of abolish/1 or abolish/2(in case of SICStus Prolog)
@@ -43,7 +42,7 @@
 	]).
 
 	:- uses(debugger, [debug/0, trace/0, notrace/0]).
-	:- uses(term_io, [write_term_to_codes/3, format_to_codes/3, read_term_from_codes/3]).
+	:- uses(term_io, [write_term_to_atom/3, write_term_to_codes/3, format_to_codes/3, read_term_from_codes/3]).
 	:- uses(format, [format/2]).
 	:- uses(list, [append/2, append/3, delete/3, length/2, reverse/2,  member/2, nth1/3]).
 	:- uses(user, [atomic_list_concat/2]).
@@ -324,7 +323,7 @@ retract_previous_clauses(Module:PredName/PredArity, PredDefinitionSpecs, [Module
   var(ExceptionMessage),
   !,
   % Create an atom of MPredSpec so that it is JSON parsable
-  write_term_to_atom(Module:PredName/PredArity, [], MPredSpecAtom),
+  write_term_to_atom(Module:PredName/PredArity, MPredSpecAtom, []),
   % Create a new unbound term to retract all clauses
   functor(Term, PredName, PredArity),
   retractall(Module:Term),
@@ -384,7 +383,7 @@ handle_query_term(Term, IsDirective, CallRequestId, Stack, Bindings, LoopCont, C
 		% The term data is needed when accessing previous queries (e.g. with jupyter::print_queries/1).
 		% Bindings needs to be copied so that the term can be read from the atom without any of the variables being instantiated by calling the term.
 		copy_term(Bindings, BindingsCopy),
-		write_term_to_atom(Term, Bindings, TermAtom),
+		write_term_to_atom(Term, TermAtom, [variable_names(Bindings)]),
 		handle_query_term_(UpdatedTerm, IsDirective, CallRequestId, Stack, UpdatedBindings, term_data(TermAtom, BindingsCopy), LoopCont, Cont)
 	).
 
@@ -497,7 +496,8 @@ handle_query_term_(Query, IsDirective, CallRequestId, Stack, Bindings, OriginalT
 handle_query(Goal, IsDirective, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont) :-
 	% In order to send the goal to the client, it has to be converted to an atom
 	% This has to be done before calling it causes variables to be bound
-	write_term_to_atom(Goal, Bindings, GoalAtom),
+	write_term_to_atom(Goal, GoalAtom, [variable_names(Bindings)]),
+	open('/Users/pmoura/wtf/wtf91.txt', write, S2), writeq(S2, write_term_to_atom(Goal, GoalAtom, [variable_names(Bindings)])), close(S2),
 	RecStack = [GoalAtom|Stack],
 	retractall(is_retry(_)),
 	asserta(is_retry(false)),
@@ -633,7 +633,7 @@ json_parsable_vars([_VarName=Var|RemainingBindings], Bindings, JsonParsableBindi
 	json_parsable_vars(RemainingBindings, Bindings, JsonParsableBindings).
 json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName-VarAtom|JsonParsableBindings]) :-
 	% Convert the value to an atom as it may be compound and cannot be parsed to JSON otherwise
-	write_term_to_atom(Var, Bindings, VarAtom),
+	write_term_to_atom(Var, VarAtom, [variable_names(Bindings)])
 	json_parsable_vars(RemainingBindings, Bindings, JsonParsableBindings).
 
 
@@ -763,8 +763,13 @@ table_variable_names(VariableNames, Length, VariableNames) :-
 %
 % AtomList contains the elements of List after converting them to atoms.
 convert_to_atom_list(List, Bindings, AtomList) :-
-	findall(ElementAtom, (member(Element, List), write_term_to_atom(Element, Bindings, ElementAtom)), AtomList).
-
+	findall(
+		ElementAtom,
+		(	member(Element, List),
+			write_term_to_atom(Element, ElementAtom, [variable_names(Bindings)]
+		),
+		AtomList
+	).
 
 % write_term_to_stream(+Term, +Bindings, +TestDefinitionStream)
 write_term_to_stream(Term, Bindings, TestDefinitionStream) :-
@@ -828,7 +833,7 @@ json_parsable_results([Result|Results], [VarName|VarNames], Bindings, [Result|Js
 	json_parsable_results(Results, VarNames, Bindings, JsonParsableResults).
 json_parsable_results([Result|Results], [_VarName|VarNames], Bindings, [ResultAtom|JsonParsableResults]) :-
 	% Convert the value to an atom as it may be compound and cannot be parsed to JSON otherwise
-	write_term_to_atom(Result, Bindings, ResultAtom),
+	write_term_to_atom(Result, ResultAtom, [variable_names(Bindings)]),
 	json_parsable_results(Results, VarNames, Bindings, JsonParsableResults).
 
 
@@ -1507,16 +1512,5 @@ handle_update_completion_data.
 		%format(user_error,'ERROR ~w:~n ~w~n~w~n ~w~n',[ErrorCode,ErrorMessageData,Output,AdditionalData]),
 		jupyter_jsonrpc::json_error_term(ErrorCode, ErrorMessageData, Output, AdditionalData, ErrorData),
 		assertz(term_response(json([status-error, error-ErrorData]))).
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-	% write_term_to_atom(+Term, +Bindings, -Atom)
-	%
-	% Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the term Term.
-	write_term_to_atom(Term, Bindings, Atom) :-
-		write_term_to_codes(Term, TermCodes, [variable_names(Bindings)]),
-		atom_codes(Atom, TermCodes).
 
 :- end_object.
