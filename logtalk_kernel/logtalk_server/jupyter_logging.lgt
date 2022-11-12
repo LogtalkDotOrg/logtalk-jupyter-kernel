@@ -4,7 +4,7 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-11,
+		date is 2022-11-12,
 		comment is 'Logging support.'
 	]).
 
@@ -13,9 +13,6 @@
 		log/1,              % log(+Term)
 		log/2               % log(+Control, +Arguments)
 	]).
-
-	:- private(log_stream/1).
-	:- dynamic(log_stream/1).
 
 	:- uses(format, [format/3]).
 	:- uses(list, [valid/1 as is_list/1]).
@@ -27,9 +24,8 @@
 		% Therefore separate log files are created for each Prolog backend
 		current_logtalk_flag(prolog_dialect, Dialect),
 		atom_concat('.logtalk_server_log_', Dialect, LogFileName),
-		catch(open(LogFileName, write, Stream), _Exception, fail),
-		!,
-		assertz(log_stream(Stream)).
+		catch(open(LogFileName, write, _Stream, [alias(log_stream)]), _Exception, fail),
+		!.
 	create_log_file(false).
 	% No new log file could be opened
 
@@ -42,10 +38,10 @@
 
 	log(Control, Arguments) :-
 		% Write to the log file
-		log_stream(Stream),
+		stream_property(_, alias(log_stream)),
 		!,
-		format(Stream, Control, Arguments),
-		flush_output(Stream).
+		format(log_stream, Control, Arguments),
+		flush_output(log_stream).
 	log(_Control, _Arguments).
 	% No new log file could be opened
 

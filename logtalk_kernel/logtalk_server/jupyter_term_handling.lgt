@@ -633,7 +633,7 @@ json_parsable_vars([_VarName=Var|RemainingBindings], Bindings, JsonParsableBindi
 	json_parsable_vars(RemainingBindings, Bindings, JsonParsableBindings).
 json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName-VarAtom|JsonParsableBindings]) :-
 	% Convert the value to an atom as it may be compound and cannot be parsed to JSON otherwise
-	write_term_to_atom(Var, VarAtom, [variable_names(Bindings)])
+	write_term_to_atom(Var, VarAtom, [variable_names(Bindings)]),
 	json_parsable_vars(RemainingBindings, Bindings, JsonParsableBindings).
 
 
@@ -766,7 +766,7 @@ convert_to_atom_list(List, Bindings, AtomList) :-
 	findall(
 		ElementAtom,
 		(	member(Element, List),
-			write_term_to_atom(Element, ElementAtom, [variable_names(Bindings)]
+			write_term_to_atom(Element, ElementAtom, [variable_names(Bindings)])
 		),
 		AtomList
 	).
