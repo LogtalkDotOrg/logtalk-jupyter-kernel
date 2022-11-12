@@ -9,7 +9,6 @@
 	]).
 
 	:- public([
-		cut/0,
 		%halt/0,
 		help/0,
 		predicate_docs/1,
@@ -17,7 +16,6 @@
 		print_queries/1,           % print_queries(+Ids)
 		print_query_time/0,        % print_query_time
 		print_sld_tree/1,          % print_sld_tree(+Goal)
-		print_stack/0,             % print_stack
 		print_table/1,             % print_table(+Goal)
 		print_table/2,             % print_table(+ValuesLists, +VariableNames)
 		print_transition_graph/4,  % print_transition_graph(+PredSpec, +FromIndex, +ToIndex, +LabelIndex)
@@ -52,13 +50,6 @@ retry :-
 {retry :-
   throw(jupyter(no_single_goal(retry/0)))}.
 
-% cut
-cut :-
-  throw(jupyter(no_single_goal(cut/0))).
-
-{cut :-
-  throw(jupyter(no_single_goal(jupyter::cut/0)))}.
-
 
 % jupyter:set_prolog_backend(+Backend)
 jupyter:set_prolog_backend(_Backend) :-
@@ -68,11 +59,6 @@ jupyter:set_prolog_backend(_Backend) :-
 % jupyter:print_sld_tree(+Goal)
 jupyter:print_sld_tree(_Goal) :-
   throw(jupyter(no_single_goal(jupyter::print_sld_tree/1))).
-
-
-% jupyter:print_stack
-jupyter:print_stack :-
-  throw(jupyter(no_single_goal(jupyter::print_stack/0))).
 
 
 % jupyter:print_table(+Goal)
@@ -119,17 +105,6 @@ jupyter:update_completion_data :-
 		format('~w~n~n--------------------------------------------------------------------------------~n~n', [Doc]),
 		print_pred_docs(PredDocs).
 
-	predicate_doc('jupyter::cut/0', Doc) :-
-		atomic_list_concat([
-			'jupyter::cut or cut',
-			'\n\n    Cuts off the choicepoints of the latest active query.',
-			'\n\n    In general, the previous query is the active one.',
-			'\n    However, the previous active query can be activated again.',
-			'\n    This can be done by cutting off choicepoints with jupyter::cut/0.',
-			'\n    This is also the case if a retry/0 encounters no further solutions.',
-			'\n\n    A further retry/0 call causes backtracking of the previous active goal.',
-			'\n\n    Needs to be the only goal of a query.'
-		], Doc).
 	predicate_doc('jupyter::halt/0', Doc) :-
 		atomic_list_concat([
 			'jupyter::halt or halt',
@@ -161,13 +136,6 @@ jupyter:update_completion_data :-
 		atomic_list_concat([
 			'jupyter::print_sld_tree(+Goal)',
 			'\n\n    Executes the goal Goal and prints a graph resembling its SLD tree.',
-			'\n\n    Needs to be the only goal of a query.'
-		], Doc).
-	predicate_doc('jupyter::print_stack/0', Doc) :-
-		atomic_list_concat([
-			'jupyter::print_stack',
-			'\n\n    Prints the current stack used for jupyter::retry/0 and jupyter::cut/0.',
-			'\n    The active goal is marked by a preceding \'->\'.',
 			'\n\n    Needs to be the only goal of a query.'
 		], Doc).
 	predicate_doc('jupyter::print_table/1', Doc) :-
@@ -220,10 +188,6 @@ jupyter:update_completion_data :-
 		atomic_list_concat([
 			'jupyter::retry or retry',
 			'\n\n    Causes backtracking of the latest active query.',
-			'\n\n    In general, the previous query is the active one.',
-			'\n    However, the previous active query can be activated again.',
-			'\n    This can be done by cutting off choicepoints with jupyter::cut/0.',
-			'\n    This is also the case if a retry/0 encounters no further solutions.',
 			'\n\n    Needs to be the only goal of a query.'
 		], Doc).
 	predicate_doc('jupyter::set_prolog_backend/1', Doc) :-

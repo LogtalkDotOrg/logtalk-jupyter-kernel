@@ -10,7 +10,6 @@
 %   - Head (if the request contains more than one term)
 % - queries (including terms following '?-'):
 %   - retry or jupyter::retry
-%   - cut or jupyter::cut
 %   - halt or jupyter::halt
 %   - a call of a special jupyter predicate:
 %     - jupyter::print_table/1 or jupyter:print_table/2
@@ -19,7 +18,6 @@
 %     - jupyter::show_graph/2  % alternative name for print_transition_graph with Node and Edge predicate
 %     - jupyter::set_prolog_backend/1
 %     - jupyter::update_completion_data/0
-%     - jupyter::print_stack/0
 %   - a call of run_tests: run_tests/0, run_tests/1 or run_tests/2
 %   - a call of trace: trace/0, trace/1 or trace/2
 %   - a call of leash/1
@@ -396,7 +394,6 @@ replace_previous_variable_bindings(Term, Bindings, UpdatedTerm, UpdatedBindings,
 	catch(jupyter_variable_bindings::term_with_stored_var_bindings(Term, Bindings, UpdatedTerm, UpdatedBindings), Exception, true).
 
 is_query_alias(retry,jupyter::retry).
-is_query_alias(cut,jupyter::cut).
 is_query_alias(halt,jupyter::halt).
 is_query_alias(eclipse,jupyter::set_prolog_backend(eclipselgt)) :- \+ user::current_predicate(eclipse/0).
 is_query_alias(lvm,jupyter::set_prolog_backend(lvmlgt)) :- \+ user::current_predicate(lvm/0).
@@ -421,10 +418,6 @@ handle_query_term_(Call, IsDirective, CallRequestId, Stack,
 handle_query_term_(jupyter::retry, _IsDirective, _CallRequestId, Stack,
                    _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_retry(Stack).
-% cut
-handle_query_term_(jupyter::cut, _IsDirective, _CallRequestId, Stack,
-                   _Bindings, _OriginalTermData, _LoopCont, Cont) :- !,
-  handle_cut(Stack, Cont).
 % halt
 handle_query_term_(jupyter::halt, _IsDirective, _CallRequestId, _Stack, 
                    _Bindings, _OriginalTermData, _LoopCont, done) :- !,
@@ -434,9 +427,6 @@ handle_query_term_(jupyter::halt, _IsDirective, _CallRequestId, _Stack,
 handle_query_term_(jupyter::print_sld_tree(Goal), _IsDirective, _CallRequestId, _Stack, 
                    Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_print_sld_tree(Goal, Bindings).
-handle_query_term_(jupyter::print_stack, _IsDirective, CallRequestId, Stack, 
-                   _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-  handle_print_stack(Stack, CallRequestId).
 handle_query_term_(jupyter::print_table(Goal), _IsDirective, _CallRequestId, _Stack,
                     Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_print_table_with_findall(Bindings, Goal).
@@ -499,7 +489,7 @@ handle_query_term_(Query, IsDirective, CallRequestId, Stack, Bindings, OriginalT
 % CallRequestId is the ID of the current call request.
 %  It is needed for juypter:print_queries/1.
 % Stack is a list containing atoms representing the previous queries which might have exited with a choicepoint and can therefore be retried.
-%  It is needed for retry/0 and cut/0 queries.
+%  It is needed for retry/0 queries.
 % Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the goal Goal.
 % LoopCont is one of continue and cut.
 %  If LoopCont = cut, the recurse loop (jupyter_request_handling:loop/3) will exit right away without making retrys of a term possible.
@@ -682,33 +672,6 @@ json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName-VarAtom|J
 		;	% No active call
 			assert_error_response(no_active_call, null, '', [])
 		).
-
-
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-	% Cut
-
-	% If there is no active goal, an error message is sent to the client.
-	% Otherwise, Cont=cut causes possible choice points of jupyter_query_handling:call_query_with_output_to_file/7 in handle_query/8 to be cut.
-	% A message informing the user about the new active query is displayed.
-
-	% handle_cut(+Stack, -Cont)
-	handle_cut(Stack, Cont) :-
-		(	Stack = [_Active|RemainingStack] ->
-			cut_message(RemainingStack, CutMessage),
-			assert_success_response(query, [], CutMessage, []),
-			Cont = cut
-		;	% No active call
-			assert_error_response(no_active_call, null, '', []),
-			Cont = continue
-		).
-
-
-	% cut_message(+RemainingStack, -CutMessage)
-	cut_message([], '% There is no previous active goal') :- !.
-	cut_message([ActiveGoalAtom|_RemainingStack], CutMessage) :-
-		format_to_codes('% The new active goal is: ~w', [ActiveGoalAtom], MessageCodes),
-		atom_codes(CutMessage, MessageCodes).
 
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1467,31 +1430,6 @@ handle_update_completion_data.
 %		atom_codes(NameAtom, [CurrentCharacterCode]),
 %		NextCharacterCode is CurrentCharacterCode + 1,
 %		name_var_pairs(Variables, NextCharacterCode, Bindings).
-
-
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-	% Print stack
-
-	% Prints the stack used for juypter:retry/0 and jupyter::cut/0.
-	% The currently active query is printed at the top and indicated by a preceding '->'.
-
-	% handle_print_stack(+Stack, +CallRequestId)
-	handle_print_stack(Stack, CallRequestId) :-
-		handle_query(jupyter_term_handling::print_stack(Stack), false, CallRequestId, Stack, [], _OriginalTermData, cut, _Cont).
-
-
-	% print_stack(+Stack)
-	print_stack([]) :- !.
-	print_stack([Query|Queries]) :-
-		format('->  ~w~n', [Query]),
-		print_stack_(Queries).
-
-	% print_stack_(+Stack)
-	print_stack_([]) :- !.
-	print_stack_([Query|Queries]) :-
-		format('    ~w~n', [Query]),
-		print_stack_(Queries).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
