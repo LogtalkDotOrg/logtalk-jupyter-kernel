@@ -4,7 +4,7 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-11,
+		date is 2022-11-13,
 		comment is 'This object provides special predicates which can be used in call requests by the client. Some of these predicates need to be the only goal of a query. Otherwise, they cannot be determined as special predicates and do not work as expected.'
 	]).
 

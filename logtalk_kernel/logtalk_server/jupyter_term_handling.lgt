@@ -29,7 +29,7 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-11,
+		date is 2022-11-13,
 		comment is 'This object provides predicates to handle terms received from the client, compute their results and assert them with term_response/1.'
 	]).
 
@@ -863,8 +863,11 @@ json_parsable_results([Result|Results], [_VarName|VarNames], Bindings, [ResultAt
 %   }
 
 
+:- private(collect_sld_data/0).
 :- dynamic(collect_sld_data/0).
+
 % sld_data(GoalCodes, Current, Parent)
+:- private(sld_data/3).
 :- dynamic(sld_data/3).
 
 
