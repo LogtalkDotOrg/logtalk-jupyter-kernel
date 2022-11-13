@@ -199,7 +199,7 @@
 		assertz(send_reply_on_error),
 		close(Stream),
 		% Read the error message from the file
-		read_atom_from_file(FileName, false, Message),
+		read_atom_from_file(FileName, Message),
 		delete_file(FileName),
 		!.
 
@@ -233,27 +233,27 @@
 
 	% read_output_from_file(+OutputFileName, +Goal, -Output)
 	read_output_from_file(OutputFileName, _, Output) :-
-		read_atom_from_file(OutputFileName, false, Output).
+		read_atom_from_file(OutputFileName, Output).
 
 
-	% read_atom_from_file(+FileName, +IsSicstusJupyterTrace, -FileContent)
+	% read_atom_from_file(+FileName, -FileContent)
 	%
 	% FileContent is an atom containing the content of the file with name FileName.
 	% If IsSicstusJupyterTrace=true, some of the lines of the file are not included.
-	read_atom_from_file(FileName, IsSicstusJupyterTrace, FileContent) :-
+	read_atom_from_file(FileName, FileContent) :-
 		open(FileName, read, Stream),
 		read_lines(Stream, AllLinesCodes),
 		close(Stream),
 		AllLinesCodes \= [],
 		!,
-		remove_output_lines(IsSicstusJupyterTrace, AllLinesCodes, LineCodes),
+		remove_output_lines(AllLinesCodes, LineCodes),
 		% Create an atom from the line lists
 		(	LineCodes == [] ->
 			FileContent = ''
 		;	append(LineCodes, [_|ContentCodes]), % Cut off the first new line code
 			atom_codes(FileContent, ContentCodes)
 		).
-	read_atom_from_file(_FileName, _DeleteLastLine, '').
+	read_atom_from_file(_FileName, '').
 
 
 	% read_lines(+Stream, -Lines)
@@ -267,46 +267,23 @@
 		).
 
 
-% remove_output_lines(+IsSicstusJupyterTrace, +Lines, -NewLines)
-%
-% Lines is a list of codes corresponding to lines read from a file to which output of a goal was written.
-% In some cases such as for a jupyter:trace/1 or juypter:print_sld_tree/1 call, not all lines should be included in the output sent to the client.
-% This is determined by IsSicstusJupyterTrace and the dynamic predicate remove_output_lines_for/1.
-remove_output_lines(IsSicstusJupyterTrace, Lines, NewLines) :-
-	IsSicstusJupyterTrace == true,
-	!,
-	% The output was caused by a call of jupyter:trace/1 from SICStus Prolog and contains debugging messages
-	% The first element corresponds to the message '% The debugger will first creep -- showing everything (trace)'
-	Lines = [_TraceMessage|LinesWithoutTraceMessage],
-	% Remove the last two or three elements
-	% In case there is a breakpoint, debugging mode was switched back on and the last line contains the corresponding message "% The debugger will first leap -- showing spypoints (debug)"
-	% The preceding two elements correspond to the debugging message of nodebug/0 and its message "% The debugger is switched off"
-	(	current_prolog_flag(debug, on) ->
-		NumRemoveLastLines = 3
-	;	NumRemoveLastLines = 2
-	),
-	length(RemoveList, NumRemoveLastLines),
-	append(LinesWithoutLastLines, RemoveList, LinesWithoutTraceMessage),
-	% In case debugging mode was on before trace mode was switched on, a clause remove_output_lines_for(trace_debugging_messages) exists
-	% In that case, the remaining first to lines are debugging messages of the exit ports of trace/0 and jupyter:switch_trace_mode_on/0
-	(	remove_output_lines_for(trace_debugging_messages) ->
-		retractall(remove_output_lines_for(trace_debugging_messages)),
-		LinesWithoutLastLines = [_ExitMessage1, _ExitMessage2|NewLines]
-	;	NewLines = LinesWithoutLastLines
-	).
-remove_output_lines(_IsSicstusJupyterTrace, Lines, NewLines) :-
-	remove_output_lines_for(sld_tree_breakpoint_messages),
-	!,
-	retractall(remove_output_lines_for(sld_tree_breakpoint_messages)),
-	% The output was produced by a call of jupyter:print_sld_tree
-	% The first two lines are of the following form:
-	% "% The debugger will first leap -- showing spypoints (debug)"
-	% "% Generic spypoint added, BID=1"
-	% The last line is like the following:
-	% "% Generic spypoint, BID=1, removed (last)"
-	% The lines corresponding to those messages are removed
-	append(LinesWithoutLast, [_LastLine], Lines),
-	LinesWithoutLast = [_First, _Second|NewLines].
-remove_output_lines(_IsSicstusJupyterTrace, Lines, Lines).
+	% remove_output_lines(++Lines, -NewLines)
+	%
+	% Lines is a list of codes corresponding to lines read from a file to which output of a goal was written.
+	% In some cases such as for a jupyter::trace/1 or juypter::print_sld_tree/1 call, not all lines should be included in the output sent to the client.
+	remove_output_lines(Lines, NewLines) :-
+		remove_output_lines_for(sld_tree_breakpoint_messages),
+		!,
+		retractall(remove_output_lines_for(sld_tree_breakpoint_messages)),
+		% The output was produced by a call of jupyter:print_sld_tree
+		% The first two lines are of the following form:
+		% "% The debugger will first leap -- showing spypoints (debug)"
+		% "% Generic spypoint added, BID=1"
+		% The last line is like the following:
+		% "% Generic spypoint, BID=1, removed (last)"
+		% The lines corresponding to those messages are removed
+		append(LinesWithoutLast, [_LastLine], Lines),
+		LinesWithoutLast = [_First, _Second|NewLines].
+	remove_output_lines(Lines, Lines).
 
 :- end_object.
