@@ -2,7 +2,7 @@
 % The main predicates are
 % - call_with_output_to_file/3: call a goal and read all its output
 % - call_query_with_output_to_file/7: call a goal, read all its output, and assert its runtime and query data
-% - retrieve_message/2: for a term of the form message_data(Kind, Term), print the message with print_message(Kind, Term) and read it
+% - retrieve_message/2: for a term of the form message_data(Kind, Term), print the message with print_message(Kind, jupyter, Term) and read it
 
 % Additionally, it provides the dynamic predicate query_data(CallRequestId, Runtime, TermData, OriginalTermData) where TermData and OriginalTermData are terms of the form term_data(TermAtom, Bindings).
 % It is used to remember all queries' IDs, goal and runtime so that the data can be accessed by jupyter::print_query_time/0 and jupyter::print_queries/1.
@@ -70,7 +70,7 @@
 	% Redirects the output of the goal Goal and debugging messages to a file.
 	% This is done by creating a file which is set as the current output and error stream.
 	% Calls the goal Goal and reads its output Output (and debugging messages) from the file.
-	% If an exception is thrown when calling the goal, ErrorMessageData is a term of the form message_data(Kind, Term) so that the acutal error message can be retrieved with print_message(Kind, Term).
+	% If an exception is thrown when calling the goal, ErrorMessageData is a term of the form message_data(Kind, Term) so that the acutal error message can be retrieved with print_message(Kind, jupyter, Term).
 	% If Goal=jupyter::trace(TraceGoal), debug mode has to be switched off afterwards.
 	call_with_output_to_file(Goal, Output, ErrorMessageData) :-
 		prepare_call_with_output_to_file,
@@ -120,10 +120,10 @@
 		redirect_output_to_stream(user_error, OutputStream).
 
 
-	% call_with_exception_handling(+MGoal, -ErrorMessageData)
-	call_with_exception_handling(MGoal, ErrorMessageData) :-
+	% call_with_exception_handling(+Goal, -ErrorMessageData)
+	call_with_exception_handling(Goal, ErrorMessageData) :-
 		catch(
-			MGoal,
+			Goal,
 			Exception,
 			% In case of an exception, switch debug mode off so that no more debugging messages are printed
 			(notrace, ErrorMessageData = message_data(error, Exception))
@@ -184,14 +184,14 @@
 	%
 	% ErrorMessageData either null or a term of the form message_data(Kind, Term).
 	% In the first case, Message=''.
-	% Otherwise, Message is the message as printed by print_message(Kind, Term).
+	% Otherwise, Message is the message as printed by print_message(Kind, jupyter, Term).
 	% For this, the error stream is redirected to a file, the message is printed and read from the file.
 	retrieve_message(null, '') :- !.
 	retrieve_message(message_data(Kind, Term), Message) :-
 		% Open a file to print the message to it
 		file_name(message_output, FileName),
 		open(FileName, write, Stream),
-		redirect_output_to_stream(user_error, Stream),
+		redirect_output_to_stream(user_output, Stream),
 		% Do not send an error reply when printing the error message
 		% Use catch/3, because send_reply_on_error might have been retracted by call_with_output_to_file/3
 		catch(retractall(send_reply_on_error), _Exception, true),

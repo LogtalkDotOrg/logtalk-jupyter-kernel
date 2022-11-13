@@ -1508,7 +1508,7 @@ handle_update_completion_data.
 	% assert_error_response(+ErrorCode, +ErrorMessageData, +Output, +AdditionalData)
 	%
 	% ErrorCode is one of the error codes defined by error_object_code/3 (e.g. exception).
-	% ErrorMessageData is a term of the form message_data(Kind, Term) so that the acutal error message can be retrieved with print_message(Kind, Term)
+	% ErrorMessageData is a term of the form message_data(Kind, Term) so that the actual error message can be retrieved with print_message(Kind, jupyter, Term)
 	% Output is the output of the term which was executed.
 	% AdditionalData is a list containing Key=Value pairs providing additional data for the client.
 	assert_error_response(ErrorCode, ErrorMessageData, Output, AdditionalData) :-

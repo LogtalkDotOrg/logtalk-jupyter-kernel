@@ -186,7 +186,7 @@
 	write_message(JSON) :-
 		jupyter_logging::log(JSON),
 		% If sending the JSON message to the client directly fails (because the term JSON might not be parsable to JSON),
-		%  the client would receive an imcomplete message.
+		%  the client would receive an incomplete message.
 		% Instead, try writing JSON to a file and send an error reply if this fails.
 		% Otherwise, send the JSON message to the client.
 		null_device_path(NullPath),
@@ -231,7 +231,7 @@
 	% TermsAndVariables is a list with elements of the form Term-Variables.
 	% Variables is a list of variable name and variable mappings (of the form [Name-Var, ...]) which occur in the corresponding term Term.
 	% ParsingErrorMessageData is instantiated to a term of the form message_data(Kind, Term) if a syntax error was encountered when reading the terms.
-	% ParsingErrorMessageData can be used to print the actual error message with print_message(Kind, Term).
+	% ParsingErrorMessageData can be used to print the actual error message with print_message(Kind, jupyter, Term).
 	% In case of a syntax error, TermsAndVariables is left unbound.
 	%
 	% Examples:

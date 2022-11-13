@@ -43,12 +43,20 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Handle error messages which might be sent by the sub modules
+	:- multifile(logtalk::message_prefix_stream/4).
+	:- dynamic(logtalk::message_prefix_stream/4).
+
+	logtalk::message_prefix_stream(Kind, jupyter, Prefix, Stream) :-
+		message_prefix_stream(Kind, Prefix, Stream).
+
+	message_prefix_stream(information, '% ',     user_output).
+	message_prefix_stream(comment,     '% ',     user_output).
+	message_prefix_stream(warning,     '*     ', user_output).
+	message_prefix_stream(error,       '!     ', user_output).
 
 	:- multifile(logtalk::message_tokens//2).
-	logtalk::message_tokens(jupyter(JupyterMessageTerm), _) -->
+	logtalk::message_tokens(jupyter(JupyterMessageTerm), jupyter) -->
 		juypter_message(JupyterMessageTerm).
-
 
 	juypter_message(goal_failed(Goal)) -->
 		['~w - goal failed'-[Goal]], [nl].
