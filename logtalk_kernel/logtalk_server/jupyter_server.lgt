@@ -1,6 +1,6 @@
 
 % This is the main module of the SICStus server.
-% The predicate jupyter_server_start/0 can be called to start the server which enters a loop handling requests from a client.
+% The predicate start/0 can be called to start the server which enters a loop handling requests from a client.
 % The requests and corresponding replies are JSON-RPC 2.0 (https://www.jsonrpc.org/specification) messages sent over the standard streams.
 % The handling of those is based on code from 'jsonrpc_server.pl' from SICStus 4.5.1
 
@@ -10,13 +10,13 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-11,
+		date is 2022-11-13,
 		comment is 'Main object of the server.'
 	]).
 
 	:- public([
-		jupyter_server_start/0,
-		jupyter_server_start/1
+		start/0,
+		start/1
 	]).
 
 	:- uses(jupyter_logging, [log/1, log/2]).
@@ -25,10 +25,10 @@
 	:- uses(jupyter_term_handling, [assert_sld_data/4]).
 	:- uses(jupyter_preferences, [set_preference/2]).
 
-	jupyter_server_start :-
-		jupyter_server_start(10).
+	start :-
+		start(10).
 
-	jupyter_server_start(JupyterKernelVerbosityLevel) :-
+	start(JupyterKernelVerbosityLevel) :-
 		setup,
 		set_preference(verbosity,JupyterKernelVerbosityLevel), % useful for testing purposes
 		% Start the loop handling requests from the client
