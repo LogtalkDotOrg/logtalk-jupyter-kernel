@@ -124,7 +124,7 @@ jupyter:update_completion_data :-
 	predicate_doc('jupyter::print_query_time', Doc) :-
 		atomic_list_concat([
 			'jupyter::print_query_time',
-			'\n\n    Prints the latest previous query and its runtime in milliseconds.'
+			'\n\n    Prints the latest previous query and its runtime in seconds.'
 		], Doc).
 	predicate_doc('jupyter::print_queries/1', Doc) :-
 		atomic_list_concat([
