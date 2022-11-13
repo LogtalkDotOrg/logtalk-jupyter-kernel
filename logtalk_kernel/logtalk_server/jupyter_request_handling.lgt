@@ -133,12 +133,11 @@
 
 	% term_responses(+CurrentNum, -TermResponses)
 	term_responses(Num, [NumAtom-Response|TermResponses]) :-
-		term_response(Response),
 		retract(term_response(Response)),
 		!,
 		number_codes(Num, NumCodes),
 		atom_codes(NumAtom, NumCodes),
-		NextNum is Num+1,
+		NextNum is Num + 1,
 		term_responses(NextNum, TermResponses).
 	term_responses(_Num, []).
 
