@@ -31,9 +31,9 @@
 		debug_mode_for_breakpoints/0
 	]).
 
-	:- meta_predicate(call_with_output_to_file(0, *, *)).
-	:- meta_predicate(call_query_with_output_to_file(0, *, *, *, *, *, *)).
-	:- meta_predicate(call_with_exception_handling(0, *)).
+	:- meta_predicate(call_with_output_to_file(*, *, *)).
+	:- meta_predicate(call_query_with_output_to_file(*, *, *, *, *, *, *)).
+	:- meta_predicate(call_with_exception_handling(*, *)).
 
 	:- uses(debugger, [notrace/0]).
 	:- uses(list, [append/2, append/3, length/2]).
@@ -123,7 +123,7 @@
 	% call_with_exception_handling(+Goal, -ErrorMessageData)
 	call_with_exception_handling(Goal, ErrorMessageData) :-
 		catch(
-			Goal,
+			{Goal},
 			Exception,
 			% In case of an exception, switch debug mode off so that no more debugging messages are printed
 			(notrace, ErrorMessageData = message_data(error, Exception))

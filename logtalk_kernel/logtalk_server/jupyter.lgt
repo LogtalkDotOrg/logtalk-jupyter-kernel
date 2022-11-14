@@ -171,7 +171,6 @@ jupyter:update_completion_data :-
 			'\n\n    Finds all solutions of the predicate with specification PredSpec.',
 			'\n    Prints a graph interpreting the solutions as transitions.',
 			'\n\n    PredSpec needs to be of the form PredName/PredArity.',
-			'\n    Optionally, it can be module name expanded.',
 			'\n\n    FromIndex and ToIndex point to predicate arguments used as nodes.',
 			'\n    LabelIndex points to the argument providing a label for an edge.',
 			'\n    If LabelIndex=0, no label is shown.',
@@ -212,7 +211,7 @@ jupyter:update_completion_data :-
 			'jupyter::update_completion_data',
 			'\n\n    Updates the predicate data used for code completion using Tab.',
 			'\n\n    This is done by retrieving all built-in and exported predicates.',
-			'\n    Needed to use completion for predicates from a newly loaded module.',
+			'\n    Needed to use completion for predicates from a newly loaded code.',
 			'\n\n    Needs to be the only goal of a query.'
 		], Doc).
 

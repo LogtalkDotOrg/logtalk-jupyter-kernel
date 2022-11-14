@@ -502,9 +502,8 @@ handle_query(Goal, IsDirective, CallRequestId, Stack, Bindings, OriginalTermData
 	RecStack = [GoalAtom|Stack],
 	retractall(is_retry(_)),
 	asserta(is_retry(false)),
-	add_user_module_prefix_if_necessary(Goal,MGoal), % add user prefix; important for use_module, ...
 	% Call the goal Goal
-	call_query_with_output_to_file(MGoal, CallRequestId, Bindings, OriginalTermData, Output, ErrorMessageData, IsFailure),
+	call_query_with_output_to_file(Goal, CallRequestId, Bindings, OriginalTermData, Output, ErrorMessageData, IsFailure),
 	retry_message_and_output(GoalAtom, Output, RetryMessageAndOutput),
 	% Exception, failure or success from Goal
 	(	nonvar(ErrorMessageData) -> % Exception
@@ -532,11 +531,6 @@ handle_query(Goal, IsDirective, CallRequestId, Stack, Bindings, OriginalTermData
 		)
 	),
 	!.
-% add_user_module_prefix_if_necessary(+Goal, -MGoal)
-% add user module prefix used by Jupyter for user-defined predicates and for queries
-% it is important use_module(library(clpfd)), ... are executed in the user: scope so that operators are visible
-add_user_module_prefix_if_necessary(Module:Goal, Module:Goal) :- !.
-add_user_module_prefix_if_necessary(Goal, user::Goal). % note: also ok if Goal is a conjunction with its own module prefixes
 
 % assert_query_failure_response(+IsDirective, +GoalAtom, +Output)
 assert_query_failure_response(true, GoalAtom, Output) :-
