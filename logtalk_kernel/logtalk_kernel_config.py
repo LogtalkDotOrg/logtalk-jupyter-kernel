@@ -8,7 +8,7 @@ c = get_config()
 # Default:
 # c.LogtalkKernel.server_logging = False
 
-## The ID of the Prolog backend with which the server is started.
+## The Prolog backend with which the server is started.
 # Default:
 #c.LogtalkKernel.backend_id = "eclipselgt"
 #c.LogtalkKernel.backend_id = "eclipselgt.sh"
@@ -31,23 +31,20 @@ c.LogtalkKernel.backend_id = "swilgt"
 ## - "error_prefix": The prefix output for error messages
 ## - "informational_prefix": The prefix output for informational messages
 ## - "program_arguments": The command line arguments (a list of strings) with which the Logtalk server can be started
-##                        For SWI- and SICStus Prolog, the default Logtalk server can be used by configuring the string "default"
-##                        In that case, the following arguments are used (where the file path is extended to be absolute)
-##                        SWI-Prolog:     ["swipl", "-l", "prolog_server/jupyter_server.pl", "-t", "jupyter_server_start"]
-##                        SICStus Prolog: ["sicstus", "-l", "prolog_server/jupyter_server.pl", "--goal", "jupyter_server_start;halt.", "--nologo"]
+##                        For all backends, the default Logtalk server can be used by configuring the string "default"
 ## Additionally, a "kernel_backend_path" can be provided, which needs to be an absolute path to a Python file.
 ## The corresponding module is required to define a subclass of LogtalkKernelBaseImplementation named LogtalkKernelImplementation.
 ## This can be used to override some of the kernel's basic behavior.
 # Default:
 # c.LogtalkKernel.backend_data = {
-#    "swi": {
+#    "swilgt": {
 #        "failure_response": "false",
 #        "success_response": "true",
-#        "error_prefix": "ERROR: ",
+#        "error_prefix": "! ",
 #        "informational_prefix": "% ",
 #        "program_arguments": "default"
 #    },
-#    "sicstus": {
+#    "sicstuslgt": {
 #        "failure_response": "no",
 #        "success_response": "yes",
 #        "error_prefix": "! ",

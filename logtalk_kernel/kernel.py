@@ -72,7 +72,7 @@ class LogtalkKernel(Kernel):
     # If set to True, a log file is created by the Logtalk server.
     server_logging = Bool(False).tag(config=True)
 
-    # The ID of the Prolog backend with which the server is started.
+    # The Prolog backend script with which the server is started.
     # It is required that the backend_data dictionary contains an item with this key.
     #backend_id = Unicode('eclipselgt').tag(config=True)
     #backend_id = Unicode('eclipselgt.sh').tag(config=True)
