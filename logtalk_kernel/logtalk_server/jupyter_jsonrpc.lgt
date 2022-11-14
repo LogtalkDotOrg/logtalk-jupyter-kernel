@@ -22,7 +22,7 @@
 	:- uses(term_io, [read_term_from_codes/4]).
 	:- uses(jupyter_query_handling, [retrieve_message/2]).
 	:- uses(jupyter_logging, [log/1, log/2]).
-	:- uses(json(list,atom), [
+	:- uses(json(list,dash,atom), [
 		generate(stream(Stream),JSON) as json_write(Stream,JSON),
 		parse(line(Stream),JSON) as json_read(Stream,JSON)
 	]).
