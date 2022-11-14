@@ -76,16 +76,22 @@ class LogtalkKernel(Kernel):
     # It is required that the backend_data dictionary contains an item with this key.
     #backend_id = Unicode('eclipselgt').tag(config=True)
     #backend_id = Unicode('eclipselgt.sh').tag(config=True)
+    #backend_id = Unicode('eclipselgt.ps1').tag(config=True)
     #backend_id = Unicode('lvmlgt').tag(config=True)
     #backend_id = Unicode('lvmlgt.sh').tag(config=True)
+    #backend_id = Unicode('lvmlgt.ps1').tag(config=True)
     #backend_id = Unicode('sicstuslgt').tag(config=True)
     #backend_id = Unicode('sicstuslgt.sh').tag(config=True)
+    #backend_id = Unicode('sicstuslgt.ps1').tag(config=True)
     backend_id = Unicode('swilgt').tag(config=True)
     #backend_id = Unicode('swilgt.sh').tag(config=True)
+    #backend_id = Unicode('swilgt.ps1').tag(config=True)
     #backend_id = Unicode('tplgt').tag(config=True)
     #backend_id = Unicode('tplgt.sh').tag(config=True)
+    #backend_id = Unicode('tplgt.ps1').tag(config=True)
     #backend_id = Unicode('yaplgt').tag(config=True)
     #backend_id = Unicode('yaplgt.sh').tag(config=True)
+    #backend_id = Unicode('yaplgt.ps1').tag(config=True)
 
     # The default program arguments for supported Prolog backends
     default_program_arguments = {
@@ -95,10 +101,16 @@ class LogtalkKernel(Kernel):
         "eclipselgt.sh": ["eclipselgt.sh",
                 "-P",
                 "-e", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt."],
+        "eclipselgt.ps1": ["eclipselgt.ps1",
+                "-P",
+                "-e", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt."],
         "lvmlgt": ["lvmlgt",
                 "-q",
                 "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt."],
         "lvmlgt.sh": ["lvmlgt.sh",
+                "-q",
+                "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt."],
+        "lvmlgt.ps1": ["lvmlgt.ps1",
                 "-q",
                 "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt."],
         "sicstuslgt": ["sicstuslgt",
@@ -109,10 +121,17 @@ class LogtalkKernel(Kernel):
                 "--noinfo",
                 "--goal", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt.",
                 "--nologo"],
+        "sicstuslgt.ps1": ["sicstuslgt.ps1",
+                "--noinfo",
+                "--goal", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt.",
+                "--nologo"],
         "swilgt": ["swilgt",
                 "-q",
                 "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt"],
         "swilgt.sh": ["swilgt.sh",
+                "-q",
+                "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt"],
+        "swilgt.ps1": ["swilgt.ps1",
                 "-q",
                 "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt"],
         "tplgt": ["tplgt",
@@ -121,10 +140,16 @@ class LogtalkKernel(Kernel):
         "tplgt.sh": ["tplgt.sh",
                 "-q",
                 "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt"],
+        "tplgt.ps1": ["tplgt.ps1",
+                "-q",
+                "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt"],
         "yaplgt": ["yaplgt",
                 "-q",
                 "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt"],
         "yaplgt.sh": ["yaplgt.sh",
+                "-q",
+                "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt"],
+        "yaplgt.ps1": ["yaplgt.ps1",
                 "-q",
                 "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt"]
     }
@@ -155,6 +180,13 @@ class LogtalkKernel(Kernel):
             "informational_prefix": "% ",
             "program_arguments": "default"
         },
+        "eclipselgt.ps1": {
+            "failure_response": "No",
+            "success_response": "Yes",
+            "error_prefix": "! ",
+            "informational_prefix": "% ",
+            "program_arguments": "default"
+        },
         "lvmlgt": {
             "failure_response": "false",
             "success_response": "true",
@@ -163,6 +195,13 @@ class LogtalkKernel(Kernel):
             "program_arguments": "default"
         },
         "lvmlgt.sh": {
+            "failure_response": "false",
+            "success_response": "true",
+            "error_prefix": "! ",
+            "informational_prefix": "% ",
+            "program_arguments": "default"
+        },
+        "lvmlgt.ps1": {
             "failure_response": "false",
             "success_response": "true",
             "error_prefix": "! ",
@@ -183,6 +222,13 @@ class LogtalkKernel(Kernel):
             "informational_prefix": "% ",
             "program_arguments": "default"
         },
+        "sicstuslgt.ps1": {
+            "failure_response": "no",
+            "success_response": "yes",
+            "error_prefix": "! ",
+            "informational_prefix": "% ",
+            "program_arguments": "default"
+        },
         "swilgt": {
             "failure_response": "false",
             "success_response": "true",
@@ -191,6 +237,13 @@ class LogtalkKernel(Kernel):
             "program_arguments": "default"
         },
         "swilgt.sh": {
+            "failure_response": "false",
+            "success_response": "true",
+            "error_prefix": "! ",
+            "informational_prefix": "% ",
+            "program_arguments": "default"
+        },
+        "swilgt.ps1": {
             "failure_response": "false",
             "success_response": "true",
             "error_prefix": "! ",
@@ -211,6 +264,13 @@ class LogtalkKernel(Kernel):
             "informational_prefix": "% ",
             "program_arguments": "default"
         },
+        "tplgt.ps1": {
+            "failure_response": "false",
+            "success_response": "true",
+            "error_prefix": "! ",
+            "informational_prefix": "% ",
+            "program_arguments": "default"
+        },
         "yaplgt": {
             "failure_response": "no",
             "success_response": "yes",
@@ -219,6 +279,13 @@ class LogtalkKernel(Kernel):
             "program_arguments": "default"
         },
         "yaplgt.sh": {
+            "failure_response": "no",
+            "success_response": "yes",
+            "error_prefix": "! ",
+            "informational_prefix": "% ",
+            "program_arguments": "default"
+        },
+        "yaplgt.ps1": {
             "failure_response": "no",
             "success_response": "yes",
             "error_prefix": "! ",
