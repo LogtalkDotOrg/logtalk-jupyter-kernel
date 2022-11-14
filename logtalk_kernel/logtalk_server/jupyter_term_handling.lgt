@@ -29,7 +29,7 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-13,
+		date is 2022-11-14,
 		comment is 'This object provides predicates to handle terms received from the client, compute their results and assert them with term_response/1.'
 	]).
 
@@ -45,15 +45,16 @@
 	:- uses(term_io, [write_term_to_atom/3, write_term_to_codes/3, format_to_codes/3, read_term_from_codes/3]).
 	:- uses(format, [format/2]).
 	:- uses(list, [append/2, append/3, delete/3, length/2, reverse/2,  member/2, nth1/3]).
+	:- uses(logtalk, [print_message(debug, jupyter, Message) as dbg(Message)]).
+	:- uses(meta, [map/3 as maplist/3]).
+	:- uses(os, [delete_file/1]).
 	:- uses(user, [atomic_list_concat/2]).
+
 	:- uses(jupyter_logging, [log/1, log/2]).
 	:- uses(jupyter_query_handling, [call_with_output_to_file/3, call_query_with_output_to_file/7, redirect_output_to_file/0]).
 	:- uses(jupyter_jsonrpc, [send_error_reply/3]).
 	:- uses(jupyter_request_handling, [loop/3]).
 	:- uses(jupyter_preferences, [set_preference/3, get_preference/2, get_preferences/1]).
-
-	:- uses(meta, [map/3 as maplist/3]).
-	:- uses(os, [delete_file/1]).
 	:- uses(jupyter_variable_bindings, [term_with_stored_var_bindings/4, store_var_bindings/1]).
 
 
@@ -1501,7 +1502,7 @@ handle_update_completion_data.
 	% Output is the output of the term which was executed.
 	% AdditionalData is a list containing Key=Value pairs providing additional data for the client.
 	assert_success_response(Type, Bindings, Output, AdditionalData) :-
-		%format(user_error,'Success ~w:~n ~w~n~w~n ~w~n',[Type,Bindings,Output,AdditionalData]),
+		dbg('Success ~w:~n ~w~n~w~n ~w~n'+[Type,Bindings,Output,AdditionalData]),
 		assertz(term_response(json([status-success, type-Type, bindings-json(Bindings), output-Output|AdditionalData]))).
 
 
@@ -1512,7 +1513,7 @@ handle_update_completion_data.
 	% Output is the output of the term which was executed.
 	% AdditionalData is a list containing Key=Value pairs providing additional data for the client.
 	assert_error_response(ErrorCode, ErrorMessageData, Output, AdditionalData) :-
-		%format(user_error,'ERROR ~w:~n ~w~n~w~n ~w~n',[ErrorCode,ErrorMessageData,Output,AdditionalData]),
+		dbg('ERROR ~w:~n ~w~n~w~n ~w~n'+[ErrorCode,ErrorMessageData,Output,AdditionalData]),
 		jupyter_jsonrpc::json_error_term(ErrorCode, ErrorMessageData, Output, AdditionalData, ErrorData),
 		assertz(term_response(json([status-error, error-ErrorData]))).
 
