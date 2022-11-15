@@ -77,6 +77,9 @@ class LogtalkKernel(Kernel):
     #backend_id = Unicode('eclipselgt').tag(config=True)
     #backend_id = Unicode('eclipselgt.sh').tag(config=True)
     #backend_id = Unicode('eclipselgt.ps1').tag(config=True)
+    #backend_id = Unicode('gplgt').tag(config=True)
+    #backend_id = Unicode('gplgt.sh').tag(config=True)
+    #backend_id = Unicode('gplgt.ps1').tag(config=True)
     #backend_id = Unicode('lvmlgt').tag(config=True)
     #backend_id = Unicode('lvmlgt.sh').tag(config=True)
     #backend_id = Unicode('lvmlgt.ps1').tag(config=True)
@@ -104,6 +107,15 @@ class LogtalkKernel(Kernel):
         "eclipselgt.ps1": ["eclipselgt.ps1",
                 "-P",
                 "-e", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt."],
+        "gplgt": ["gplgt",
+                "-q",
+                "--entry-goal", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),flush_output,'::'(jupyter_server,start);halt."],
+        "gplgt.sh": ["gplgt.sh",
+                "-q",
+                "--entry-goal", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt."],
+        "gplgt.ps1": ["gplgt.ps1",
+                "-q",
+                "--entry-goal", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt."],
         "lvmlgt": ["lvmlgt",
                 "-q",
                 "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt."],
@@ -183,6 +195,27 @@ class LogtalkKernel(Kernel):
         "eclipselgt.ps1": {
             "failure_response": "No",
             "success_response": "Yes",
+            "error_prefix": "! ",
+            "informational_prefix": "% ",
+            "program_arguments": "default"
+        },
+        "gplgt": {
+            "failure_response": "no",
+            "success_response": "yes",
+            "error_prefix": "! ",
+            "informational_prefix": "% ",
+            "program_arguments": "default"
+        },
+        "gplgt.sh": {
+            "failure_response": "no",
+            "success_response": "yes",
+            "error_prefix": "! ",
+            "informational_prefix": "% ",
+            "program_arguments": "default"
+        },
+        "gplgt.ps1": {
+            "failure_response": "no",
+            "success_response": "yes",
             "error_prefix": "! ",
             "informational_prefix": "% ",
             "program_arguments": "default"
