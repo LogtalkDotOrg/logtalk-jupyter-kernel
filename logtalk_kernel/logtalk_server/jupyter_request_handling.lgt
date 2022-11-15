@@ -22,13 +22,13 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-11,
+		date is 2022-11-15,
 		comment is 'This object provides predicates to start a loop reading and handling JSON RPC requests.'
 	]).
 
 	:- public([loop/3]).  % loop(+ContIn, +Stack, -ContOut)
 
-	:- uses(term_io, [format_to_atom/3]).
+	:- uses(term_io, [format_to_atom/3, write_term_to_atom/3]).
 	:- uses(jupyter_logging, [create_log_file/1, log/1, log/2]).
 	:- uses(jupyter_jsonrpc, [send_success_reply/2, send_error_reply/3, next_jsonrpc_message/1, parse_json_terms_request/3]).
 	:- uses(jupyter_term_handling, [handle_term/6, declaration_end/1, pred_definition_specs/1, term_response/1]).
@@ -218,7 +218,8 @@
 		% Make sure that a 'retry' call can fail
 		Method \= call,
 		Message = request(_,Id,_Params,_RPC), !,
-		jupyter_jsonrpc::send_error_reply(Id, method_not_found, '').
+		write_term_to_atom(Method, MethodAtom, [quoted(true)]),
+		jupyter_jsonrpc::send_error_reply(Id, method_not_found, MethodAtom).
 
 
 	% handle_parsing_error(+ParsingErrorMessageData, +CallRequestId)

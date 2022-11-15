@@ -4,7 +4,7 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-11,
+		date is 2022-11-15,
 		comment is 'This object andles all reading, writing, and parsing of JSON messages. It is based on jsonrpc_server.pl and jsonrpc_client.pl from SICStus 4.5.1.'
 	]).
 
@@ -19,7 +19,7 @@
 
 	:- uses(list, [append/3, member/2]).
 	:- uses(os, [null_device_path/1]).
-	:- uses(term_io, [read_term_from_codes/4]).
+	:- uses(term_io, [read_term_from_codes/4, write_term_to_atom/3]).
 	:- uses(jupyter_query_handling, [retrieve_message/2]).
 	:- uses(jupyter_logging, [log/1, log/2]).
 	:- uses(json(list,dash,atom), [
@@ -194,7 +194,8 @@
 		catch(json_write(NullStream, JSON), Exception, true),
 		close(NullStream),
 		(	nonvar(Exception) ->
-			send_error_reply(@(null), invalid_json_response, '')
+			write_term_to_atom(Exception, ExceptionAtom, [quoted(true)]),
+			send_error_reply(@(null), invalid_json_response, ExceptionAtom)
 		;	current_output(Out),
 			json_write(Out, JSON),
 			% Terminate the line (assuming single-line output).
