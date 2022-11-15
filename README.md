@@ -13,12 +13,6 @@ Also see the [JupyterLab Prolog CodeMirror Extension](https://github.com/anbre/j
 
 The directory [notebooks](./notebooks) contains some example Juypter notebooks. Note that all of them can be viewed with [nbviewer](https://nbviewer.org/) without having to install the kernel.
 
-For instance, the notebooks in [notebooks/feature_introduction](./notebooks/feature_introduction) can be accessed via:
-- [using_jupyter_notebooks_with_swi_prolog.ipynb](https://nbviewer.org/github/anbre/prolog-jupyter-kernel/blob/master/notebooks/feature_introduction/swi/using_jupyter_notebooks_with_swi_prolog.ipynb)
-- [using_jupyter_notebooks_with_sicstus_prolog.ipynb](https://nbviewer.org/github/anbre/prolog-jupyter-kernel/blob/master/notebooks/feature_introduction/sicstus/using_jupyter_notebooks_with_sicstus_prolog.ipynb)
-
-These notebooks serve as an **introduction to the features** of the kernel for SWI and SICStus Prolog backends. They also point out some peculiarities of the backends.
-
 The notebook in [notebooks/slides](./notebooks/slides) was created for a **slideshow** giving a rough overview of the kernel's features and its implementation.
 
 The directory [notebooks/nbgrader_example](./notebooks/nbgrader_example) provides an example of a **course directory** for the [nbgrader extension](https://nbgrader.readthedocs.io/en/stable/).
@@ -35,7 +29,7 @@ The directory [notebooks/nbgrader_example](./notebooks/nbgrader_example) provide
     - jupyter_core: 4.10.0
     - jupyterlab: 3.2.9
     - notebook: 6.4.8
-- Latest Logtalk git version 
+- Logtalk 3.60.0 or later version
 - A **Prolog** installation for the configured backend
   - In order to use the default configuration, SWI-Prolog is needed and needs to be on the PATH
   - Tested with version 8.4.3 of SWI-Prolog and SICStus 4.5.1
@@ -92,7 +86,7 @@ In general, the kernel can be configured to use a different Prolog backend (whic
   - Additionally, a `kernel_implementation_path` can be provided, which needs to be an **absolute path to a Python file**:
     - The corresponding module is required to define a subclass of `LogtalkKernelBaseImplementation` named `LogtalkKernelImplementation`. This can be used to override some of the kernel's basic behavior (see [Overriding the Kernel Implementation](#overriding-the-kernel-implementation)).
 
-In addition to configuring the Prolog backend to be used, the Prolog Logtalk implements the predicate `jupyter::set_prolog_impl(+Backend)` to **change the Prolog backend on the fly**. In order for this to work, the configured `implementation_data` dictionary needs to contain data for more than one Prolog backend.
+In addition to configuring the Prolog backend to be used, the Prolog Logtalk implements the predicate `jupyter::set_prolog_backend(+Backend)` to **change the Prolog backend on the fly**. In order for this to work, the configured `implementation_data` dictionary needs to contain data for more than one Prolog backend.
 
 
 **Troubleshooting:**
@@ -129,10 +123,10 @@ Adjustments of the Logtalk server code are loaded when the server is restarted. 
 ### Upload to PyPI
 
 This kernel is available as a Python package on the [Python Package Index](https://pypi.org/project/prolog-kernel/). A new version of the package can be published in the following way:
-1. Install the requirements build and twine: <br/> `pip install build twine`
+1. Install the requirements build and twine: `pip install build twine`
 2. Increase the version in [pyproject.toml](./pyproject.toml)
-3. Create the distribution files: <br/> `python -m build`
-4. Upload the package to PyPI: <br/> `twine upload dist/*`
+3. Create the distribution files: `python -m build`
+4. Upload the package to PyPI: `twine upload dist/*`
 
 For further information, see the [Packaging Python Projects Tutorial](https://packaging.python.org/en/latest/tutorials/packaging-projects/).
 
