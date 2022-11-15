@@ -207,8 +207,9 @@
 	% redirect_output_to_stream(+StreamAlias, +Stream)
 	:- if(current_logtalk_flag(prolog_dialect, eclipse)).
 
-		redirect_output_to_stream(StreamAlias, Stream) :-
-			set_stream(StreamAlias, Stream).
+		redirect_output_to_stream(current_output, _).
+		redirect_output_to_stream(Alias, Stream) :-
+			set_stream(Alias, Stream).
 	
 	:- elif(predicate_property(set_stream(_,_), built_in)).
 
