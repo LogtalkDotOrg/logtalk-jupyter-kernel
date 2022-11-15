@@ -464,7 +464,7 @@ handle_query_term_(trace, _IsDirective, _CallRequestId, _Stack,
 %  handle_trace(trace/2).
 %:- endif.
 % leash/1
-handle_query_term_(leash(_Ports), _IsDirective, _CallRequestId, _Stack,
+handle_query_term_(debugger::leash(_Ports), _IsDirective, _CallRequestId, _Stack,
                     _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   assert_error_response(exception, message_data(error, jupyter(leash_pred)), '', []).
 %:- if(sicstus).
