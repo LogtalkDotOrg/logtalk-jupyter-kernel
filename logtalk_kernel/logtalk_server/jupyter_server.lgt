@@ -73,7 +73,7 @@
 		['All indices need to be less or equal to the provided predicate arity ~w'-[Arity]], [nl].
 	juypter_message(print_transition_graph_pred_spec(PredSpec)) -->
 		['Incorrect predicate specification: ~w'-[PredSpec]], [nl],
-		['It needs to be of the form PredName/PredArity or Module:PredName/PredArity'-[]], [nl].
+		['It needs to be of the form PredName/PredArity or Object::PredName/PredArity'-[]], [nl].
 	juypter_message(prolog_impl_id_no_atom) -->
 		['The Prolog backend ID needs to be an atom'-[]], [nl].
 	juypter_message(single_test_directive) -->

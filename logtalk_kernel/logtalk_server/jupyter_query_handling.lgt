@@ -210,7 +210,14 @@
 		redirect_output_to_stream(current_output, _).
 		redirect_output_to_stream(Alias, Stream) :-
 			set_stream(Alias, Stream).
-	
+
+	:- elif(current_logtalk_flag(prolog_dialect, gnu)).
+
+		redirect_output_to_stream(current_output, _).
+		redirect_output_to_stream(user_output, Stream) :-
+			set_output(Stream).
+		redirect_output_to_stream(user_error, _).
+
 	:- elif(predicate_property(set_stream(_,_), built_in)).
 
 		redirect_output_to_stream(StreamAlias, Stream) :-

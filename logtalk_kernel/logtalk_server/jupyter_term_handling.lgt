@@ -396,6 +396,7 @@ replace_previous_variable_bindings(Term, Bindings, UpdatedTerm, UpdatedBindings,
 is_query_alias(retry,jupyter::retry).
 is_query_alias(halt,jupyter::halt).
 is_query_alias(eclipse,jupyter::set_prolog_backend(eclipselgt)) :- \+ user::current_predicate(eclipse/0).
+is_query_alias(gnu,jupyter::set_prolog_backend(gplgt)) :- \+ user::current_predicate(gnu/0).
 is_query_alias(lvm,jupyter::set_prolog_backend(lvmlgt)) :- \+ user::current_predicate(lvm/0).
 is_query_alias(sicstus,jupyter::set_prolog_backend(sicstuslgt)) :-  \+ user::current_predicate(sicstus/0).
 is_query_alias(swi,jupyter::set_prolog_backend(swilgt)) :- \+ user::current_predicate(swi/0).
