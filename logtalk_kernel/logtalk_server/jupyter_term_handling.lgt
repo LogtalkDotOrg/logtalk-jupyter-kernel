@@ -29,7 +29,7 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-14,
+		date is 2022-11-16,
 		comment is 'This object provides predicates to handle terms received from the client, compute their results and assert them with term_response/1.'
 	]).
 
@@ -38,7 +38,8 @@
 		declaration_end/1,        % declaration_end(+LoadFile)
 		handle_term/6,            % handle_term(+Term, +IsSingleTerm, +CallRequestId, +Stack, +Bindings, -Cont)
 		pred_definition_specs/1,  % pred_definition_specs(PredDefinitionSpecs)
-		term_response/1           % term_response(JsonResponse)
+		term_response/1,           % term_response(JsonResponse),
+		findall_results_and_var_names/4
 	]).
 
 	:- uses(debugger, [debug/0, trace/0, notrace/0]).

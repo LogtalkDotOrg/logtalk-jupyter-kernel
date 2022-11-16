@@ -22,7 +22,7 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-15,
+		date is 2022-11-16,
 		comment is 'This object provides predicates to start a loop reading and handling JSON RPC requests.'
 	]).
 
@@ -164,6 +164,16 @@
 	%
 	% Checks the request method and handles the request accordingly.
 	dispatch_request(call, Message, Stack, Cont) :-
+		Message = request(_Method,CallRequestId,Params,_RPC),
+		Params = json([code-Code]),
+		file_cell_magic(Code, File, Mode, Terms),	
+		!,		
+		open(File, Mode, Stream),
+		write(Stream, Terms),
+		close(Stream),
+		assertz(request_data(CallRequestId, [])),
+		jupyter_term_handling::handle_term(logtalk_load(File), true, CallRequestId, Stack, [], Cont).
+	dispatch_request(call, Message, Stack, Cont) :-
 		!,
 		Message = request(_Method,CallRequestId,Params,_RPC),
 		jupyter_jsonrpc::parse_json_terms_request(Params, TermsAndVariables, ParsingErrorMessageData),
@@ -232,5 +242,34 @@
 	handle_parsing_error(_ParsingErrorMessageData, CallRequestId) :-
 		% Malformed request
 		jupyter_jsonrpc::send_error_reply(CallRequestId, invalid_params, '').
+
+	% cell magic
+
+	file_cell_magic(Code, 'user.lgt', append, Terms) :-
+		sub_atom(Code, 0, _, _, '@user+\n'),
+		sub_atom(Code, 7, _, 0, Terms0),
+		atom_concat('\n\n', Terms0, Terms),
+		!.
+	file_cell_magic(Code, 'user.lgt', write, Terms) :-
+		sub_atom(Code, 0, _, _, '@user\n'),
+		sub_atom(Code, 6, _, 0, Terms),
+		!.
+	file_cell_magic(Code, File, append, Terms) :-
+		sub_atom(Code, 0, _, _, '@file+ '),
+		sub_atom(Code, Before, _, _, '\n'),
+		Length is Before - 7,
+		sub_atom(Code, 7, Length, _, File),
+		Rest is 7 + Length + 1,
+		sub_atom(Code, Rest, _, 0, Terms0),
+		atom_concat('\n\n', Terms0, Terms),
+		!.
+	file_cell_magic(Code, File, write, Terms) :-
+		sub_atom(Code, 0, _, _, '@file '),
+		sub_atom(Code, Before, _, _, '\n'),
+		Length is Before - 6,
+		sub_atom(Code, 6, Length, _, File),
+		Rest is 6 + Length + 1,
+		sub_atom(Code, Rest, _, 0, Terms),
+		!.
 
 :- end_object.

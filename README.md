@@ -23,16 +23,16 @@ The directory [notebooks/nbgrader_example](./notebooks/nbgrader_example) provide
 ### Requirements
 
 - At least **Python** 3.5
-  - Tested with Python 3.8.10
+  - Tested with Python 3.10.8
 - **Jupyter** installation with JupyterLab and/or Juypter Notebook
   - Tested with
     - jupyter_core: 4.10.0
-    - jupyterlab: 3.2.9
+    - jupyterlab: 3.5.0
     - notebook: 6.4.8
 - Logtalk 3.60.0 or later version
 - A **Prolog** installation for the configured backend
   - In order to use the default configuration, SWI-Prolog is needed and needs to be on the PATH
-  - Tested with version 8.4.3 of SWI-Prolog and SICStus 4.5.1
+  - Tested with version 8.5.20 of SWI-Prolog and SICStus 4.7.1
 - For Windows, installing **graphviz** with pip does not suffice
   - Instead, it can be installed from [here](https://graphviz.org/download/) and added to the PATH (a reboot is required afterwards)
 
