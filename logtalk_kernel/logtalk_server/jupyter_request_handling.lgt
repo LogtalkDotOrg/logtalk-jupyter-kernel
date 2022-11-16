@@ -13,7 +13,7 @@
 % In case of a call request, the request might contain multiple terms.
 % They are handled one by one and the remaining ones are asserted with request_data/2.
 % They need to be asserted so that "retry." terms can fail into the previous call.
-% If the term produces any result, it is asserted with jupyter_term_handling:term_response/1.
+% If the term produces any result, it is asserted with jupyter_term_handling::term_response/1.
 % Once all terms of a request are handled, their results are sent to the client.
 
 
@@ -26,12 +26,12 @@
 		comment is 'This object provides predicates to start a loop reading and handling JSON RPC requests.'
 	]).
 
-	:- public([loop/3]).  % loop(+ContIn, +Stack, -ContOut)
+	:- public(loop/3).  % loop(+ContIn, +Stack, -ContOut)
 
 	:- uses(term_io, [format_to_atom/3, write_term_to_atom/3]).
 	:- uses(jupyter_logging, [create_log_file/1, log/1, log/2]).
 	:- uses(jupyter_jsonrpc, [send_success_reply/2, send_error_reply/3, next_jsonrpc_message/1, parse_json_terms_request/3]).
-	:- uses(jupyter_term_handling, [handle_term/6, declaration_end/1, pred_definition_specs/1, term_response/1]).
+	:- uses(jupyter_term_handling, [handle_term/6, term_response/1]).
 	:- uses(jupyter_query_handling, [send_reply_on_error/0, retrieve_message/2]).
 	:- uses(jupyter, []).
 
@@ -58,10 +58,6 @@
 		jupyter_logging::log(MessageTerm),
 		% Retract all data of the current request
 		retract(request_data(_CallRequestId, _TermsAndVariables)),
-		% Use catch/3, because no clauses might have been asserted
-		catch(jupyter_term_handling::retractall(pred_definition_specs(_)), _, true),
-		% Delete the declaration file
-		declaration_end(false),
 		% Send an error response
 		jupyter_query_handling::retrieve_message(message_data(error, MessageTerm), ExceptionMessage),
 		jupyter_jsonrpc::send_error_reply(@(null), unhandled_exception, ExceptionMessage),
@@ -122,12 +118,9 @@
 	send_responses :-
 		% Retract all data of the current request
 		retract(request_data(CallRequestId, _)),
-		% Use catch/3, because no clauses might have been asserted
-		catch(jupyter_term_handling::retractall(pred_definition_specs(_)), _, true),
-		% If any declarations were made by the current request, load the corresponding file(s)
-		declaration_end(true),
 		% Collect the responses and send them to the client
 		term_responses(1, TermResponses),
+		open('/Users/pmoura/wtf/wtfr_sr.txt', write, S1), writeq(S1, send_success_reply(CallRequestId, json(TermResponses))), close(S1),
 		send_success_reply(CallRequestId, json(TermResponses)).
 
 

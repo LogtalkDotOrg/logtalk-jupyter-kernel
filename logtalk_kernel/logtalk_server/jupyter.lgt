@@ -4,7 +4,7 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-13,
+		date is 2022-11-16,
 		comment is 'This object provides special predicates which can be used in call requests by the client. Some of these predicates need to be the only goal of a query. Otherwise, they cannot be determined as special predicates and do not work as expected.'
 	]).
 
@@ -36,51 +36,6 @@
 	:- uses(jupyter_logging, [log/1, log/2]).
 	:- uses(jupyter_query_handling, [query_data/4, debug_mode_for_breakpoints/0]).
 	:- uses(jupyter_variable_bindings, [var_bindings/1]).
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-/*
-% The following predicates need to appear as a single goal in a query.
-% In that case, the execution is handled by the jupyter_term_handling object.
-% Otherwise, an error message is output.
-
-% retry
-retry :-
-  throw(jupyter(no_single_goal(retry/0))).
-
-{retry :-
-  throw(jupyter(no_single_goal(retry/0)))}.
-
-
-% jupyter:set_prolog_backend(+Backend)
-jupyter:set_prolog_backend(_Backend) :-
-  throw(jupyter(no_single_goal(jupyter::set_prolog_backend/1))).
-
-
-% jupyter:print_sld_tree(+Goal)
-jupyter:print_sld_tree(_Goal) :-
-  throw(jupyter(no_single_goal(jupyter::print_sld_tree/1))).
-
-
-% jupyter:print_table(+Goal)
-jupyter:print_table(_Goal) :-
-  throw(jupyter(no_single_goal(jupyter::print_table/1))).
-
-% jupyter:print_table(+ValuesLists, +VariableNames)
-jupyter:print_table(_ValuesLists, _VariableNames) :-
-  throw(jupyter(no_single_goal(jupyter::print_table/2))).
-
-
-% jupyter:print_transition_graph(+PredSpec, +FromIndex, +ToIndex, +LabelIndex)
-jupyter:print_transition_graph(_PredSpec, _FromIndex, _ToIndex, _LabelIndex) :-
-  throw(jupyter(no_single_goal(jupyter::print_transition_graph/4))).
-
-
-% jupyter:update_completion_data
-jupyter:update_completion_data :-
-  throw(jupyter(no_single_goal(jupyter::update_completion_data/0))).
-*/
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

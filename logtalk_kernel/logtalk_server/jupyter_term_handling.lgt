@@ -35,9 +35,7 @@
 
 	:- public([
 		assert_sld_data/4,        % assert_sld_data(Port, Goal, Frame, ParentFrame)
-		declaration_end/1,        % declaration_end(+LoadFile)
 		handle_term/6,            % handle_term(+Term, +IsSingleTerm, +CallRequestId, +Stack, +Bindings, -Cont)
-		pred_definition_specs/1,  % pred_definition_specs(PredDefinitionSpecs)
 		term_response/1,           % term_response(JsonResponse),
 		findall_results_and_var_names/4
 	]).
@@ -58,19 +56,9 @@
 	:- uses(jupyter_preferences, [set_preference/3, get_preference/2, get_preferences/1]).
 	:- uses(jupyter_variable_bindings, [term_with_stored_var_bindings/4, store_var_bindings/1]).
 
-
-	% declaration_stream(DeclarationStream)
-	% DeclarationStream is a write stream if the current request contains declaration directives.
-	:- private(declaration_stream/1).
-	:- dynamic(declaration_stream/1).
-
 	% is_retry(IsRetry)
 	:- private(is_retry/1).
 	:- dynamic(is_retry/1).
-
-	% pred_definition_specs(PredDefinitionSpecs)
-	% PredDefinitionSpecs is a list of PredName/PredArity elements for every predicate which is defined by the current request.	
-	:- dynamic(pred_definition_specs/1).
 
 	% term_response(JsonResponse)
 	:- dynamic(term_response/1).
@@ -83,282 +71,18 @@
 %
 % Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the term Term.
 % Check which type of term Term is and handle it accordingly.
-% Term can be either a directive, a clause definition (which might be a DCG rule), or a query
-% Directives
-handle_term((:- Directive), IsSingleTerm, CallRequestId, Stack, Bindings, Cont) :- !,
-	handle_directive((:- Directive), IsSingleTerm, CallRequestId, Stack, Bindings, Cont).
-% Clause definitions
-handle_term((Head :- Body), _IsSingleTerm, _CallRequestId, _Stack, Bindings, continue) :- !,
-	handle_clause_definition_term((Head :- Body), Bindings).
-handle_term((Head --> Body), _IsSingleTerm, _CallRequestId, _Stack, _Bindings, continue) :- !,
-	handle_dcg((Head --> Body)).
+% Term can be a query, possible using the ?- prefix operator
 % Queries
 handle_term(?-(Query), _IsSingleTerm, CallRequestId, Stack, Bindings, Cont) :- !,
 	handle_query_term(Query, false, CallRequestId, Stack, Bindings, continue, Cont).
 handle_term(Query, true, CallRequestId, Stack, Bindings, Cont) :-
 	handle_query_term(Query, false, CallRequestId, Stack, Bindings, continue, Cont).
-% Clause definitions
-handle_term(Head, false, _CallRequestId, _Stack, Bindings, continue) :-
-	handle_clause_definition_term(Head, Bindings).
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% Directives
-
-% All directives are called with jupyter_query_handling:call_with_output_to_file/3.
-% The runtime of the exeuction and additional query data is not asserted as it is the case for queries.
-% Furthermore, a retry is not possible and a directive's variable bindings are not sent to the client.
-
-% For SICStus, declarations need to be handled specially as they must not appear in a query.
-% Therefore, all declarations of a request are written to a file which is loaded.
-% Thus, all declarations which are to be valid at the same time, need to be defined in a single request.
-% The declaration file is loaded when all terms of a request have been handled.
-% When declaring a property of a predicate for which clauses had been asserted before, these do not exist anymore after the declaration.
-% Therefore, a cell declaring predicate properties cannot contain clauses for the same predicate.
-
-% handle_directive(+Term, +IsSingleTerm, +CallRequestId, +Stack, +Bindings, +Cont)
-%
-handle_directive((:- Declaration), _IsSingleTerm, _CallRequestId, _Stack, _Bindings, continue) :-
-	functor(Declaration, DeclarationName, DeclarationArity),
-	declaration_name_arity(DeclarationName, DeclarationArity),
-	!,
-	handle_declaration_directive(DeclarationName, (:- Declaration)).
-% Any other directive
-handle_directive((:- Directive), _IsSingleTerm, CallRequestId, Stack, Bindings, Cont) :- !,
-	handle_query_term(Directive, true, CallRequestId, Stack, Bindings, cut, Cont).
-
-
-% declaration_name_arity(-Name,-Arity)
-%
-% Name and Arity are the name and arity of any declaration listed by the Predicate Index website: https://sicstus.sics.se/sicstus/docs/4.7.1/html/sicstus.html/Predicate-Index.html
-declaration_name_arity(discontiguous, 1).
-declaration_name_arity(dynamic, 1).
-declaration_name_arity(include, 1).
-declaration_name_arity(initialization, 1).
-declaration_name_arity(meta_predicate, 1).
-declaration_name_arity(multifile, 1).
-
-
-% jupyter_discontiguous(PredSpec)
-% The predicate with predicate spec PredSpec was declared discontiguous
-% As this predicate property cannot be retrieved with predicate_property (as is the case for SWI), a dynamic predicate needs to be used instead
-:- private(jupyter_discontiguous/1).
-:- dynamic(jupyter_discontiguous/1).
-
-
-declaration_file_name('jupyter_declaration.pl').
-
-
-% handle_declaration_directive(+DeclarationName, +Declaration)
-handle_declaration_directive(discontiguous, (:- Declaration)) :-
-  Declaration = discontiguous(PredSpec),
-  assertz(jupyter_discontiguous(PredSpec)),
-  handle_declaration_directive((:- Declaration)).
-handle_declaration_directive(_DeclarationName, DeclarationDirective) :-
-  handle_declaration_directive(DeclarationDirective).
-
-
-% handle_declaration_directive(+Declaration)
-handle_declaration_directive(DeclarationDirective) :-
-  declaration_stream(DeclarationStream),
-  % Not the first declaration directive -> write to the existing file
-  !,
-  write_term_to_stream(DeclarationDirective, [], DeclarationStream).
-handle_declaration_directive(DeclarationDirective) :-
-  % First declaration directive of the request -> create a new file
-  declaration_file_name(DeclarationFileName),
-  open(DeclarationFileName, write, DeclarationStream),
-  assertz(declaration_stream(DeclarationStream)),
-  write_term_to_stream(DeclarationDirective, [], DeclarationStream).
-
-
-% declaration_end(+LoadFile)
-%
-% Closes and retracts the stream to which declaration_directives were written.
-% If LoadFile=true, loads that file.
-declaration_end(LoadFile) :-
-	declaration_stream(DeclarationStream),
-	!,
-	close(DeclarationStream),
-	retractall(declaration_stream(_)),
-	declaration_file_name(DeclarationFileName),
-	% When loading the file, an exception or warning might be output
-	(	LoadFile == true ->
-		% Disable the printing of informational messages so that the messages of the following form are not printed:
-		% "% compiling cwd/jupyter_declaration.pl...""
-		% "% compiled cwd/jupyter_declaration.pl in module user, 0 msec 112 bytes"
-		current_logtalk_flag(report, PreviousInformationalValue),
-		set_logtalk_flag(report, warnings),
-		% When loading the file, an exception or warning might be output
-		jupyter_query_handling::call_with_output_to_file(load_files(DeclarationFileName), Output, ErrorMessageData),
-		% Reset the value of the Prolog flag 'informational'
-		set_logtalk_flag(report, PreviousInformationalValue)
-	;	Output = ''
-	),
-	delete_file(DeclarationFileName),
-	(	nonvar(ErrorMessageData) ->
-		assert_error_response(exception, message_data(error, ErrorMessageData), Output, [])
-	;	atom_concat(Output, '\n% Loaded the declaration file', OutputWithLoadMessage),
-		assert_success_response(directive, [], OutputWithLoadMessage, [])
-	).
-declaration_end(_LoadFile).
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% Clause definitions
-
-% In order to be able to redefine a predicate without having to remove its clauses first, previous clauses are retracted automatically.
-% Whenever a clause is to be defined for a predicate for which there already are clauses, these are retracted and a message saying so is sent to the client.
-% This implies that all clauses of a predicate need to be defined by one request.
-% New clauses are added to the database with assertz/1.
-
-% handle_clause_definition_term(+Clause, +Bindings)
-handle_clause_definition_term(Clause, _Bindings) :-
-	handle_clause_definition(Clause).
-
-
-% handle_clause_definition(+Clause)
-handle_clause_definition(Clause) :-
-	module_name_expanded(Clause, Module:ClauseWithoutModule),
-	clause_head(ClauseWithoutModule, Head),
-	functor(Head, PredName, PredArity),
-	retract_previous_clauses(Module:PredName/PredArity, RetractedClauses, Output),
-	% Assert the clause and check if it was successful
-	catch(assertz(Module:ClauseWithoutModule), Exception, true),
-	(	nonvar(Exception) ->
-		assert_error_response(exception, message_data(error, Exception), Output, [retracted_clauses-RetractedClauses])
-	;	assert_success_response(clause_definition, [], Output, [retracted_clauses-RetractedClauses])
-	).
-
-
-% module_name_expanded(+Term, -MTerm)
-module_name_expanded((Module:Head:-Body), Module:(Head:-Body)) :- !.
-module_name_expanded(Module:Term, Module:Term) :- !.
-module_name_expanded(Term, user::Term).
-
-
-% clause_head(+Clause, -Head)
-clause_head((Head :- _Body), Head) :- !.
-clause_head(Head, Head).
-
-
-% retract_previous_clauses(+MPredSpec, -RetractedClauses, -Output)
-retract_previous_clauses(MPredSpec, json([]), AssertMessage) :-
-  % In case the predicate was declared as discontiguous, no previous clauses are retracted
-  discontiguous_pred(MPredSpec),
-  !,
-  current_pred_definition_specs(PredDefinitionSpecs),
-  ( member(MPredSpec, PredDefinitionSpecs) ->
-    % For the current request, clauses have been defined for the given predicate
-    AssertMessage = ''
-  ; compute_assert_message(MPredSpec, AssertMessage),
-    % Update the defined predicate definition specs
-    catch(retractall(pred_definition_specs(_)), _Exception, true),
-    assertz(pred_definition_specs([MPredSpec|PredDefinitionSpecs]))
-  ).
-retract_previous_clauses(MPredSpec, RetractedClausesJson, Output) :-
-  current_pred_definition_specs(PredDefinitionSpecs),
-  retract_previous_clauses(MPredSpec, PredDefinitionSpecs, NewPredDefinitionSpecs, RetractedClauses, Output),
-  % Update the defined predicate definition specs
-  catch(retractall(pred_definition_specs(_)), _Exception, true),
-  assertz(pred_definition_specs(NewPredDefinitionSpecs)),
-  ( var(RetractedClauses) ->
-     RetractedClausesJson = json([])
-   ; get_preference(verbosity,L), L<2 ->
-     RetractedClausesJson = json([])
-   ; RetractedClausesJson = json([RetractedClauses])
-  ).
-
-
-% discontiguous_pred(+MPredSpec)
-%
-% Succeeds if the predicate with pred spec MPredSpec was declared discontiguous.
-discontiguous_pred(PredName/PredArity) :-
-  jupyter_discontiguous(PredName/PredArity).
-
-
-% current_pred_definition_specs(-PredDefinitionSpecs)
-%
-% PredDefinitionSpecs is a list of Module:PredName/PredArity elements for every predicate which is defined by the current request.
-current_pred_definition_specs(PredDefinitionSpecs) :-
-	pred_definition_specs(PredDefinitionSpecs),
-	!.
-current_pred_definition_specs([]).
-
-
-% retract_previous_clauses(+MPredSpec, +PredDefinitionSpecs, -NewPredDefinitionSpecs, -RetractedClauses, -Output)
-%
-% MPredSpec is of the form Module:PredName/PredArity.
-% PredDefinitionSpecs is a list of Module:PredName/PredArity elements for every predicate which is defined by the current request.
-% The predicate specs need to be remembered so that the first time a clause for a new predicate is encountered, all previous clauses can be retracted.
-% RetractedClauses is of the form MPredSpecAtom=ListingOutput.
-%  MPredSpecAtom is an atom representing MPredSpec.
-%  ListingOutput is an atom of all the previously defined clauses if there were any which had to be retracted.
-%  Otherwise, RetractedClauses is not bound to anything.
-% When the first clause of a predicate is asserted, Output is an atom saying which predicate is being asserted.
-%  Otherwise, Output=''.
-retract_previous_clauses(MPredSpec, PredDefinitionSpecs, PredDefinitionSpecs, _RetractedClauses, '') :-
-  member(MPredSpec, PredDefinitionSpecs),
-  % This is not the first clause of the PredName/PredArity predicate for the current request -> no clauses have to be retracted
-  !.
-retract_previous_clauses(Module:PredName/PredArity, PredDefinitionSpecs, [Module:PredName/PredArity|PredDefinitionSpecs], _RetractedClauses, AssertMessage) :-
-  functor(Term, PredName, PredArity),
-  \+ predicate_property(Module:Term, _Property),
-  % The predicate does not exist yet -> no clauses have to be retracted
-  !,
-  compute_assert_message(Module:PredName/PredArity, AssertMessage).
-retract_previous_clauses(Module:PredName/PredArity, PredDefinitionSpecs, PredDefinitionSpecs, _RetractedClauses, '') :-
-  functor(Term, PredName, PredArity),
-  \+ predicate_property(Module:Term, dynamic),
-  % The predicate is not dynamic -> no clauses can be asserted
-  % Try asserting anyway so that the corresponding error reply is sent to the client
-  !.
-retract_previous_clauses(Module:PredName/PredArity, PredDefinitionSpecs, [Module:PredName/PredArity|PredDefinitionSpecs], MPredSpecAtom-ListingOutput, AssertMessage) :-
-  functor(Head, PredName, PredArity),
-  clause(Module:Head, _Body),
-  % Use listing/1 to get all the clauses that are to be retracted.
-  jupyter_query_handling::call_with_output_to_file(listing(Module:PredName/PredArity), ListingOutput, ExceptionMessage),
-  var(ExceptionMessage),
-  !,
-  % Create an atom of MPredSpec so that it is JSON parsable
-  write_term_to_atom(Module:PredName/PredArity, MPredSpecAtom, []),
-  % Create a new unbound term to retract all clauses
-  functor(Term, PredName, PredArity),
-  retractall(Module:Term),
-  compute_assert_message(Module:PredName/PredArity, AssertMessage).
-retract_previous_clauses(PredSpec, PredDefinitionSpecs, [PredSpec|PredDefinitionSpecs], _RetractedClauses, AssertMessage) :-
-  % There are no clauses to retract
-  compute_assert_message(PredSpec, AssertMessage).
-
-
-% compute_assert_message(+MPredSpec, -AssertMessage)
-compute_assert_message(PredSpec, AssertMessage) :-
-	format_to_atom('% Asserting clauses for ~w~n', [PredSpec], AssertMessage).
 
 format_to_atom(_,_,Atom) :-  get_preference(verbosity,L), L<2,!, 
 	Atom=''.
 format_to_atom(Msg,Args,Atom) :- 
 	format_to_codes(Msg, Args, Codes),
 	atom_codes(Atom, Codes).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% DCG
-
-% DCGs are transformed into clauses with term expansion and handled like other clause definitions with handle_clause_definition/1.
-
-% handle_dcg(+DCG)
-handle_dcg(DCG) :-
-	expand_dcg_term(DCG, ExpandedDCG),
-	handle_clause_definition(ExpandedDCG).
-
-
-expand_dcg_term(DCG, ExpandedDCG) :-
-	expand_term(DCG, ExpandedDCG).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -534,20 +258,20 @@ handle_query(Goal, IsDirective, CallRequestId, Stack, Bindings, OriginalTermData
 	),
 	!.
 
-% assert_query_failure_response(+IsDirective, +GoalAtom, +Output)
-assert_query_failure_response(true, GoalAtom, Output) :-
-	% For directives, output an error message displaying the failure
-	!,
-	assert_error_response(failure, message_data(warning, jupyter(goal_failed(GoalAtom))), Output, []).
-assert_query_failure_response(_IsDirective, _GoalAtom, Output) :-
-	assert_error_response(failure, null, Output, []).
+	% assert_query_failure_response(+IsDirective, +GoalAtom, +Output)
+	assert_query_failure_response(true, GoalAtom, Output) :-
+		% For directives, output an error message displaying the failure
+		!,
+		assert_error_response(failure, message_data(warning, jupyter(goal_failed(GoalAtom))), Output, []).
+	assert_query_failure_response(_IsDirective, _GoalAtom, Output) :-
+		assert_error_response(failure, null, Output, []).
 
 
-% output_and_failure_message(+Output, +FailureMessage, -OutputAndFailureMessage)
-output_and_failure_message('', FailureMessage, FailureMessage) :- !.
-output_and_failure_message(Output, FailureMessage, OutputAndFailureMessage) :-
-	atom_concat('\n', FailureMessage, FailureMessageWithNl),
-	atom_concat(Output, FailureMessageWithNl, OutputAndFailureMessage).
+	% output_and_failure_message(+Output, +FailureMessage, -OutputAndFailureMessage)
+	output_and_failure_message('', FailureMessage, FailureMessage) :- !.
+	output_and_failure_message(Output, FailureMessage, OutputAndFailureMessage) :-
+		atom_concat('\n', FailureMessage, FailureMessageWithNl),
+		atom_concat(Output, FailureMessageWithNl, OutputAndFailureMessage).
 
 
 	% assert_query_success_response(+IsDirective, +ResultBindings, +Output)
@@ -916,8 +640,7 @@ handle_print_sld_tree(Goal, Bindings) :-
 
 	% call_with_sld_data_collection(+Goal, -Exception -IsFailure)
 	call_with_sld_data_collection(Goal, Exception, IsFailure) :-
-		module_name_expanded(Goal, MGoal),
-		catch(call_with_sld_failure_handling(MGoal, IsFailure), Exception, notrace).
+		catch(call_with_sld_failure_handling(Goal, IsFailure), Exception, notrace).
 
 
 	% call_with_sld_failure_handling(+Goal, -IsFailure)
