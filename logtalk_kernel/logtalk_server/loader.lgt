@@ -1,4 +1,8 @@
 
+:- if(current_logtalk_flag(prolog_dialect, swi)).
+	:- set_prolog_flag(encoding, utf8).
+:- endif.
+
 :- initialization((
 	logtalk_load(basic_types(loader)),
 	logtalk_load(format(loader)),
