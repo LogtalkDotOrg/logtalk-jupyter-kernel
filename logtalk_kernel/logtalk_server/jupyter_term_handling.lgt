@@ -20,7 +20,6 @@
 %     - jupyter::update_completion_data/0
 %   - a call of trace: trace/0, trace/1 or trace/2
 %   - a call of leash/1
-%   - a call of abolish/1 or abolish/2(in case of SICStus Prolog)
 %   - any other term which is the only one of a request
 
 
@@ -656,27 +655,27 @@ handle_print_sld_tree(Goal, Bindings) :-
 		).
 
 
-% sld_graph_file_content(-GraphFileContentAtom)
-%
-% GraphFileContentAtom is an atom representing the content of a graph file which would represent the SLD tree of the current execution.
-% Collects the data which was asserted as sld_data/3.
-% For each element (except the ones for the toplevel call and remove_breakpoints/1), an atom is created representing one of the lines of the file.
-sld_graph_file_content(GraphFileContentAtom) :-
-	findall(GoalCodes-Id-ParentId, sld_data(GoalCodes, Id, ParentId), SldData),
-	clean_sld_data(SldData, CleanSldData),
-	% Compute nodes content
-	sld_tree_node_atoms(CleanSldData, 'A', [], Nodes),
-	% Compute edges content
-	% The first element corresponds to a call from the toplevel
-	% SldDataWithoutToplevelCalls contains all elements from CleanSldData which do not correspond to teplevel calls with the same ParentId
-	CleanSldData = [_Goal-_CurrentId-ToplevelId|_],
-	delete_all_occurrences(CleanSldData, _G-_Id-ToplevelId, SldDataWithoutToplevelCalls),
-	sld_tree_edge_atoms(SldDataWithoutToplevelCalls, Edges),
-	% Build the file content atom
-	% Append elements to the list with which the remaining file content is added
-	append(Edges, ['}'], EdgesWithClosingBracket),
-	append(Nodes, EdgesWithClosingBracket, NodesAndEdgesWithClosingBracket),
-	atomic_list_concat(['digraph {\n'|NodesAndEdgesWithClosingBracket], GraphFileContentAtom).
+	% sld_graph_file_content(-GraphFileContentAtom)
+	%
+	% GraphFileContentAtom is an atom representing the content of a graph file which would represent the SLD tree of the current execution.
+	% Collects the data which was asserted as sld_data/3.
+	% For each element (except the ones for the toplevel call and remove_breakpoints/1), an atom is created representing one of the lines of the file.
+	sld_graph_file_content(GraphFileContentAtom) :-
+		findall(GoalCodes-Id-ParentId, sld_data(GoalCodes, Id, ParentId), SldData),
+		clean_sld_data(SldData, CleanSldData),
+		% Compute nodes content
+		sld_tree_node_atoms(CleanSldData, 'A', [], Nodes),
+		% Compute edges content
+		% The first element corresponds to a call from the toplevel
+		% SldDataWithoutToplevelCalls contains all elements from CleanSldData which do not correspond to teplevel calls with the same ParentId
+		CleanSldData = [_Goal-_CurrentId-ToplevelId|_],
+		delete_all_occurrences(CleanSldData, _G-_Id-ToplevelId, SldDataWithoutToplevelCalls),
+		sld_tree_edge_atoms(SldDataWithoutToplevelCalls, Edges),
+		% Build the file content atom
+		% Append elements to the list with which the remaining file content is added
+		append(Edges, ['}'], EdgesWithClosingBracket),
+		append(Nodes, EdgesWithClosingBracket, NodesAndEdgesWithClosingBracket),
+		atomic_list_concat(['digraph {\n'|NodesAndEdgesWithClosingBracket], GraphFileContentAtom).
 
 
 % clean_sld_data(+SldData, -CleanSldData)
@@ -1058,7 +1057,7 @@ valid_dot_node_style(wedged).
 valid_dot_node_style(none).
 
 % generate a node description as list of codes
-% | ?- jupyter_term_handling:gen_node_desc(a,[dot_attr(label,b),dot_attr(color,c)],A,[]), format("~s~n",[A]).
+% | ?- jupyter_term_handling::gen_node_desc(a,[dot_attr(label,b),dot_attr(color,c)],A,[]), format("~s~n",[A]).
 % a [label="b", color="c"]
 gen_dot_node_desc(NodeName,Attrs) --> "\"", gen_atom(NodeName),"\" [", gen_node_attr_codes(Attrs),"]",[10].
 gen_node_attr_codes([]) --> "".
@@ -1161,50 +1160,6 @@ handle_update_completion_data.
 %		NextCharacterCode is CurrentCharacterCode + 1,
 %		name_var_pairs(Variables, NextCharacterCode, Bindings).
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% abolish
-
-% In case of SWI-Prolog, a predicate declared as discontiguous can be determined as such by predicate_property(P, discontiguous).
-% As this is not the case for SICStus Prolog, the dynamic predicate jupyter_discontiguous(PredSpec) is used instead.
-% PredSpec is the predicate spec of a predicate which was declared discontiguous.
-
-% When removing a predicate from the database with abolish, its properties are removed as well.
-% In that case, the corresponding jupyter_discontiguous/1 clause also needs to be removed.
-% In order for this to work, abolish needs to be called as the single goal of a query.
-
-%:- if(sicstus).
-%% handle_abolish(+Goal, +CallRequestId, +Stack, +Bindings, +OriginalTermData, +LoopCont)
-%handle_abolish(Goal, CallRequestId, OriginalTermData) :-
-%  add_user_module_prefix_if_necessary(Goal,MGoal),
-%  call_query_with_output_to_file(MGoal, CallRequestId, [], OriginalTermData, Output, ErrorMessageData, IsFailure),
-%  % Exception, failure or success from Goal
-%  ( nonvar(ErrorMessageData) -> % Exception
-%    !,
-%    assert_error_response(exception, ErrorMessageData, Output, [])
-%  ; IsFailure == true -> % Failure
-%    !,
-%    assert_error_response(failure, ErrorMessageData, Output, [])
-%  ; % Success
-%    Goal =.. [abolish, Predicates|_Options],
-%    retract_jupyter_discontiguous(Predicates),
-%    assert_success_response(query, [], Output, [])
-%  ).
-%
-%
-%% retract_jupyter_discontiguous(+Predicates)
-%%
-%% Predicates is a predicate specification or a list of such.
-%retract_jupyter_discontiguous(Module:Name/Arity) :- !,
-%  catch(retractall(jupyter_discontiguous(Module:Name/Arity)), _Exception, true).
-%retract_jupyter_discontiguous(Name/Arity) :- !,
-%  catch(retractall(jupyter_discontiguous(Name/Arity)), _Exception, true).
-%retract_jupyter_discontiguous([]) :- !.
-%retract_jupyter_discontiguous([PredSpec|PredSpecs]) :-
-%  retract_jupyter_discontiguous(PredSpec),
-%  retract_jupyter_discontiguous(PredSpecs).
-%:- endif.
 
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
