@@ -13,13 +13,13 @@
 		jupyter_preferences,
 		jupyter_variable_bindings,
 		jupyter_query_handling,
+		jupyter,
 		jupyter_jsonrpc,
 		jupyter_request_handling,
 		jupyter_term_handling,
-		jupyter,
 		jupyter_server
 	], [
 %		debug(on),
-		portability(warning)
+%		portability(warning)
 	])
 )).

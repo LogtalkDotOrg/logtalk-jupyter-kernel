@@ -40,6 +40,9 @@
 		findall_results_and_var_names/4
 	]).
 
+	:- meta_predicate(findall_results_and_var_names(*, *, *, *)).
+	:- meta_predicate(call_with_sld_failure_handling(*, *)).
+
 	:- uses(debugger, [debug/0, trace/0, notrace/0]).
 	:- uses(term_io, [write_term_to_atom/3, write_term_to_codes/3, format_to_codes/3, read_term_from_codes/3]).
 	:- uses(format, [format/2]).
@@ -424,19 +427,18 @@ json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName-VarAtom|J
 % The header of the table will contain the names of the variables occurring in Goal.
 % Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the goal Goal.
 handle_print_table_with_findall(Bindings, Goal) :-
-	(	jupyter_query_handling::call_with_output_to_file(jupyter_term_handling::findall_results_and_var_names(Goal, Bindings, Results, VarNames), Output, ErrorMessageData),
-		% Success or exception from findall_results_and_var_names/4
-		(	nonvar(ErrorMessageData) ->
-			!,
-			assert_error_response(exception, ErrorMessageData, '', [])
-		;	% success
-			% Return the additional 'print_table' data
-			assert_success_response(query, [], Output, [print_table-json(['ValuesLists'-Results, 'VariableNames'-VarNames])])
-		),
-		!
-	;	% findall_results_and_var_names/4 failed
-		assert_error_response(failure, null, '', [])
+	jupyter_query_handling::call_with_output_to_file(jupyter_term_handling::findall_results_and_var_names(Goal, Bindings, Results, VarNames), Output, ErrorMessageData),
+	!,
+	% Success or exception from findall_results_and_var_names/4
+	(	nonvar(ErrorMessageData) ->
+		assert_error_response(exception, ErrorMessageData, '', [])
+	;	% success
+		% Return the additional 'print_table' data
+		assert_success_response(query, [], Output, [print_table-json(['ValuesLists'-Results, 'VariableNames'-VarNames])])
 	).
+handle_print_table_with_findall(_Bindings, _Goal) :-
+	% findall_results_and_var_names/4 failed
+	assert_error_response(failure, null, '', []).
 
 
 % handle_print_table(+Bindings, +ValuesLists, +VariableNames)
