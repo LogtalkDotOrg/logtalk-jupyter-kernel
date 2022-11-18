@@ -3,11 +3,20 @@
 
 A [Jupyter](https://jupyter.org/) kernel for Logtalk based on [prolog-jupyter-kernel](https://github.com/hhu-stups/prolog-jupyter-kernel) and [IPython kernel](https://github.com/ipython/ipykernel).
 
-By default, [SICStus Prolog](https://sicstus.sics.se/), [SWI-Prolog](https://www.swi-prolog.org/) (which is the actual **default**), and [Trealla Prolog](https://github.com/trealla-prolog/trealla) backends are supported. The kernel is implemented in a way that basically all functionality except the loading of configuration files can easily be overridden. This is especially useful for **extending the kernel for further Prolog backends** or running code with a different version of a backend. For further information about this, see [Configuration](#configuration).
+This project is a fork of the [prolog-jupyter-kernel](https://github.com/hhu-stups/prolog-jupyter-kernel) project (developed by Anne Brecklinghaus in her Master's thesis at the University of Düsseldorf under the supervision of Michael Leuschel and Philipp Körner) and still under development. Major changes are committed and more are expected. Furthermore, no liability is accepted for correctness and completeness.
 
-Also see the [JupyterLab Prolog CodeMirror Extension](https://github.com/anbre/jupyterlab-prolog-codemirror-extension) for **syntax highlighting** of Prolog code in JupyterLab.
 
-**Note:** The project is a fork of the [prolog-jupyter-kernel](https://github.com/hhu-stups/prolog-jupyter-kernel) project (developed by Anne Brecklinghaus in her Master's thesis at the University of Düsseldorf under the supervision of Michael Leuschel and Philipp Körner) and still under development. Major changes are expected. Furthermore, no liability is accepted for correctness and completeness.
+## Supported Prolog backends
+
+- [LVM 5.0.0 or later](https://graphstax.ai/)
+- [SICStus Prolog 4.5.1 or later](https://sicstus.sics.se/)
+- [SWI-Prolog 8.4.3 or later](https://www.swi-prolog.org/) (default)
+- [Trealla Prolog 2.6.9 or later](https://github.com/trealla-prolog/trealla)
+
+The kernel is implemented in a way that basically all functionality except the loading of configuration files can easily be overridden. This is especially useful for **extending the kernel for further Prolog backends** or running code with a different version of a backend. For further information about this, see [Configuration](#configuration).
+
+Also see the [JupyterLab Prolog CodeMirror Extension](https://github.com/anbre/jupyterlab-prolog-codemirror-extension) for *syntax highlighting* of Prolog code in JupyterLab. A similar extension for *syntax highlighting* of Logtalk is expected to be available soon.
+
 
 ## Examples
 
@@ -26,36 +35,40 @@ The directory [notebooks/nbgrader_example](./notebooks/nbgrader_example) provide
   - Tested with Python 3.10.8
 - **Jupyter** installation with JupyterLab and/or Juypter Notebook
   - Tested with
-    - jupyter_core: 4.10.0
-    - jupyterlab: 3.5.0
-    - notebook: 6.4.8
+    - `jupyter_core`: 4.10.0
+    - `jupyterlab`: 3.5.0
+    - `notebook`: 6.4.8
 - Logtalk 3.60.0 or later version
-- A **Prolog** installation for the configured backend
-  - In order to use the default configuration, SWI-Prolog is needed and needs to be on the PATH
-  - Tested with SWI-Prolog 8.5.20, SICStus 4.7.1, and Trealla Prolog 2.6.9
-- For Windows, installing **graphviz** with pip does not suffice
-  - Instead, it can be installed from [here](https://graphviz.org/download/) and added to the PATH (a reboot is required afterwards)
+- One or more supported Prolog backends (see above)
+- For Windows, installing **Graphviz** with `pip` does not suffice
+  - Instead, it can be installed from [here](https://graphviz.org/download/) and added to the `PATH` (a reboot is required afterwards)
 
-The installation was tested with macOS 12.6.1.
+The installation was tested with macOS 12.6.1 and Ubuntu 20.0.4.
 
 
 ### Install
 
-From the repo clone directory, type `make`.
+1. `git clone https://github.com/LogtalkDotOrg/logtalk-jupyter-kernel`
+2. Change to the root directory of the repository
+3. `pip install .`
+4. `make`.
 
+If you get errors when running `pip` or `make`, you may need to use `pip3` instead and update the `Makefile` file to use `pip3` and `python3`.
 
 ### Uninstall
 
 From the repo clone directory, type `make clean`.
 
 
+## Running using JupyterLab
+
+Simply start JupyterLab and then click on the Logtalk Notebook or Logtalk Console icons in the Launcher.
+
 ### Configuration
 
 The kernel can be configured by defining a Python config file named `logtalk_kernel_config.py`. The kernel will look for this file in the Jupyter config path (can be retrieved with `jupyter --paths`) and the current working directory. An **example** of such a configuration file with an explanation of the options and their default values commented out can be found [here](./logtalk_kernel/logtalk_kernel_config.py).
 
 **Note:** If a config file exists in the current working directory, it overrides values from other configuration files.
-
-
 
 In general, the kernel can be configured to use a different Prolog backend (which is responsible for code execution) or kernel implementation. Furthermore, it can be configured to use another Prolog backend altogether which might not be supported by default. The following options can be configured:
 - `jupyter_logging`: If set to `True`, the logging level is set to DEBUG by the kernel so that **Python debugging messages** are logged.
@@ -65,8 +78,7 @@ In general, the kernel can be configured to use a different Prolog backend (whic
 
 - `server_logging`: If set to `True`, a **Logtalk server log file** is created.
   - The name of the file consists of the implementation ID preceded by `.logtalk_server_log_`.
-- `implementation_id`: The ID of the **Prolog backend** with which the server is started.
-  - In order to use the default SWI- or SICStus Prolog or Trealla Prolog backends, the ID `swi`, `sicstus`, or `trealla` is expected respectively.
+- `implementation_id`: The ID of the **Prolog backend integration script** with which the server is started.
 - `implementation_data`: The **Prolog backend-specific data** which is needed to run the server for code execution.
   - This is required to be a dictionary containing at least an entry for the configured `implementation_id`.
   - Each entry needs to define values for
@@ -79,32 +91,20 @@ In general, the kernel can be configured to use a different Prolog backend (whic
   - Additionally, a `kernel_implementation_path` can be provided, which needs to be an **absolute path to a Python file**:
     - The corresponding module is required to define a subclass of `LogtalkKernelBaseImplementation` named `LogtalkKernelImplementation`. This can be used to override some of the kernel's basic behavior (see [Overriding the Kernel Implementation](#overriding-the-kernel-implementation)).
 
-In addition to configuring the Prolog backend to be used, the Prolog Logtalk implements the predicate `jupyter::set_prolog_backend(+Backend)` to **change the Prolog backend on the fly**. In order for this to work, the configured `implementation_data` dictionary needs to contain data for more than one Prolog backend.
+In addition to configuring the Prolog backend to be used, a `jupyter::set_prolog_backend(+Backend)` predicate is provided to **change the Prolog backend on the fly**. In order for this to work, the configured `implementation_data` dictionary needs to contain data for more than one Prolog backend. For example (in a notebook code cell):
 
+	jupyter::set_prolog_backend('lvmlgt.sh).
 
 **Troubleshooting:**
 In case of SICStus Prolog, if the given **`program_arguments` are invalid** (e.g. if the Prolog code file does not exist), the kernel waits for a response from the server which it will never receive. In that state it is **not able to log any exception** and instead, nothing happens.
 To facilitate finding the cause of the error, before trying to start the Logtalk server, the arguments and the directory from which they are tried to be executed are logged.
 
+### Overriding the Kernel Implementation
 
-#### Overriding the Kernel Implementation
-
-The actual kernel code determining the handling of requests is not implemented by the kernel class itself. Instead, there is the file [logtalk_kernel_base_implementation.py](./logtalk_kernel/logtalk_kernel_base_implementation.py) which defines the class `LogtalkKernelBaseImplementation`. When the kernel is started, a (sub)object of this class is created. It handles the starting of and communication with the Logtalk server. For all requests (execution, shutdown, completion, inspection) the kernel receives, a `LogtalkKernelBaseImplementation` method is called. By **creating a subclass** of this and defining the path to it as `kernel_implementation_path`, the **actual implementation code can be replaced**.
-
-If no such path is defined, the path itself or the defined class is invalid, a **default implementation** is used instead. In case of SICStus and SWI-Prolog, the files [swi_kernel_implementation.py](./logtalk_kernel/swi_kernel_implementation.py) and [sicstus_kernel_implementation.py](./logtalk_kernel/sicstus_kernel_implementation.py) are used. Otherwise, the base implementation from the file [logtalk_kernel_base_implementation.py](./logtalk_kernel/logtalk_kernel_base_implementation.py) is loaded.
+The actual kernel code determining the handling of requests is not implemented by the kernel class itself. Instead, there is the file [logtalk_kernel_base_implementation.py](./logtalk_kernel/logtalk_kernel_base_implementation.py) which defines the class `LogtalkKernelBaseImplementation`. When the kernel is started, a (sub)object of this class is created. It handles the starting of and communication with the Logtalk server. For all requests (execution, shutdown, completion, inspection) the kernel receives, a `LogtalkKernelBaseImplementation` method is called. By **creating a subclass** of this and defining the path to it as `kernel_implementation_path`, the **actual implementation code can be replaced**. If no such path is defined, the path itself or the defined class is invalid, a **default implementation** is used instead.
 
 
 ## Development
-
-### Development Install
-
-1. `git clone https://github.com/LogtalkDotOrg/logtalk-jupyter-kernel`
-2. Change to the root directory of the repository
-3. `pip install .`
-4. Install the kernel specification directory:
-    - `python -m logtalk_kernel.install`
-    - For available installation options, see [Install](#install)
-
 
 ### Local Changes
 
@@ -112,23 +112,11 @@ In general, in order for local code adjustments to take effect, the kernel needs
 
 Adjustments of the Logtalk server code are loaded when the server is restarted. Thus, when changing Logtalk code only, instead of restarting the whole kernel, it can be interrupted, which causes the Logtalk server to be restarted.
 
-
-### Upload to PyPI
-
-This kernel is available as a Python package on the [Python Package Index](https://pypi.org/project/prolog-kernel/). A new version of the package can be published in the following way:
-1. Install the requirements build and twine: `pip install build twine`
-2. Increase the version in [pyproject.toml](./pyproject.toml)
-3. Create the distribution files: `python -m build`
-4. Upload the package to PyPI: `twine upload dist/*`
-
-For further information, see the [Packaging Python Projects Tutorial](https://packaging.python.org/en/latest/tutorials/packaging-projects/).
-
-
 ### Debugging
 
 Usually, if the execution of a goal causes an exception, the corresponding Logtalk error message is computed and displayed in the Jupyter frontend. However, in case something goes wrong unexpectedly or the query does not terminate, the **Logtalk server might not be able to send a response to the client**. In that case, the user can only see that the execution does not terminate without any information about the error or output that might have been produced. However, it is possible to write logging messages and access any potential output, which might facilitate finding the cause of the error.
 
-Debugging the server code is not possible in the usual way by tracing invocations. Furthermore, all messages exchanged with the client are written to the standard streams. Therefore, printing helpful debugging messages does not work either. Instead, if `server_logging` is configured, **messages can be written to a log file** by calling `log/1` or `log/2` from the module `jupyter_logging`. By default, only the responses sent to the client are logged.
+Debugging the server code is not possible in the usual way by tracing invocations. Furthermore, all messages exchanged with the client are written to the standard streams. Therefore, printing helpful debugging messages does not work either. Instead, if `server_logging` is configured, **messages can be written to a log file** by calling `log/1` or `log/2` from the `jupyter_logging` object. By default, only the responses sent to the client are logged.
 
 When a query is executed, all its output is written to a file named `.server_output`, which is deleted afterwards by `jupyter_query_handling::delete_output_file`. If an error occurs during the actual execution, the file cannot be deleted and thus, the **output of the goal can be accessed**. Otherwise, the deletion might be prevented.
 
