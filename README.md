@@ -41,19 +41,12 @@ The installation was tested with macOS 12.6.1.
 
 ### Install
 
-The kernel is provided as a Python package on the [Python Package Index](https://pypi.org/) and can be installed with `pip`:
-1. Download the kernel:<br/> `python -m pip install logtalk_kernel`
-2. Install the kernel specification directory:
-    - `python -m logtalk_kernel.install`
-    - There are the following options which can be seen when running `python -m logtalk_kernel.install --help`
-      - `--user`: install to the per-user kernel registry (default if not root and no prefix is specified)
-      - `--sys-prefix`: install to Python's sys.prefix (e.g. virtualenv/conda env)
-      - `--prefix PREFIX`: install to the given prefix: PREFIX/share/jupyter/kernels/ (e.g. virtualenv/conda env)
+From the repo clone directory, type `make`.
 
 
 ### Uninstall
-1. `pip uninstall logtalk_kernel`
-2. `jupyter kernelspec remove logtalk_kernel`
+
+From the repo clone directory, type `make clean`.
 
 
 ### Configuration
