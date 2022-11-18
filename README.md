@@ -3,7 +3,7 @@
 
 A [Jupyter](https://jupyter.org/) kernel for Logtalk based on [prolog-jupyter-kernel](https://github.com/hhu-stups/prolog-jupyter-kernel) and [IPython kernel](https://github.com/ipython/ipykernel).
 
-By default, [SICStus Prolog](https://sicstus.sics.se/) and [SWI-Prolog](https://www.swi-prolog.org/) (which is the actual **default**) backends are supported. The kernel is implemented in a way that basically all functionality except the loading of configuration files can easily be overridden. This is especially useful for **extending the kernel for further Prolog backends** or running code with a different version of a backend. For further information about this, see [Configuration](#configuration).
+By default, [SICStus Prolog](https://sicstus.sics.se/), [SWI-Prolog](https://www.swi-prolog.org/) (which is the actual **default**), and [Trealla Prolog](https://github.com/trealla-prolog/trealla) backends are supported. The kernel is implemented in a way that basically all functionality except the loading of configuration files can easily be overridden. This is especially useful for **extending the kernel for further Prolog backends** or running code with a different version of a backend. For further information about this, see [Configuration](#configuration).
 
 Also see the [JupyterLab Prolog CodeMirror Extension](https://github.com/anbre/jupyterlab-prolog-codemirror-extension) for **syntax highlighting** of Prolog code in JupyterLab.
 
@@ -32,7 +32,7 @@ The directory [notebooks/nbgrader_example](./notebooks/nbgrader_example) provide
 - Logtalk 3.60.0 or later version
 - A **Prolog** installation for the configured backend
   - In order to use the default configuration, SWI-Prolog is needed and needs to be on the PATH
-  - Tested with version 8.5.20 of SWI-Prolog and SICStus 4.7.1
+  - Tested with SWI-Prolog 8.5.20, SICStus 4.7.1, and Trealla Prolog 2.6.9
 - For Windows, installing **graphviz** with pip does not suffice
   - Instead, it can be installed from [here](https://graphviz.org/download/) and added to the PATH (a reboot is required afterwards)
 
@@ -73,7 +73,7 @@ In general, the kernel can be configured to use a different Prolog backend (whic
 - `server_logging`: If set to `True`, a **Logtalk server log file** is created.
   - The name of the file consists of the implementation ID preceded by `.logtalk_server_log_`.
 - `implementation_id`: The ID of the **Prolog backend** with which the server is started.
-  - In order to use the default SWI- or SICStus Prolog backend, the ID `swi` or `sicstus` is expected respectively.
+  - In order to use the default SWI- or SICStus Prolog or Trealla Prolog backends, the ID `swi`, `sicstus`, or `trealla` is expected respectively.
 - `implementation_data`: The **Prolog backend-specific data** which is needed to run the server for code execution.
   - This is required to be a dictionary containing at least an entry for the configured `implementation_id`.
   - Each entry needs to define values for
