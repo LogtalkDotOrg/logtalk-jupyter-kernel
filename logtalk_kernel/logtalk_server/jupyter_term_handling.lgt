@@ -226,7 +226,6 @@ handle_query(Goal, IsDirective, CallRequestId, Stack, Bindings, OriginalTermData
 	% In order to send the goal to the client, it has to be converted to an atom
 	% This has to be done before calling it causes variables to be bound
 	write_term_to_atom(Goal, GoalAtom, [variable_names(Bindings)]),
-	open('/Users/pmoura/wtf/wtf91.txt', write, S2), writeq(S2, write_term_to_atom(Goal, GoalAtom, [variable_names(Bindings)])), close(S2),
 	RecStack = [GoalAtom|Stack],
 	retractall(is_retry(_)),
 	asserta(is_retry(false)),

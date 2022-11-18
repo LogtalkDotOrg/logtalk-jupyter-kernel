@@ -120,7 +120,6 @@
 		retract(request_data(CallRequestId, _)),
 		% Collect the responses and send them to the client
 		term_responses(1, TermResponses),
-		open('/Users/pmoura/wtf/wtfr_sr.txt', write, S1), writeq(S1, send_success_reply(CallRequestId, json(TermResponses))), close(S1),
 		send_success_reply(CallRequestId, json(TermResponses)).
 
 
