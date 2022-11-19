@@ -23,6 +23,7 @@
 		jupyter_term_handling,
 		jupyter_server
 	], [
+		optimize(on)
 %		debug(on),
 %		portability(warning)
 	])

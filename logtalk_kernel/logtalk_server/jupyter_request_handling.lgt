@@ -5,7 +5,7 @@
 % - Checks the method of the request with dispatch_request/4, handles it accordingly and sends a response to the client.
 %   There are five methods:
 %   - call: execute any terms (handled by the object jupyter_term_handling)
-%   - version: retrieve the SICStus version
+%   - version: retrieve the Prolog backend version
 %   - predicates: find built-in and exported predicates
 %   - jupyter_predicate_docs: retrieve the docs of the predicates in the object jupyter
 %   - enable_logging: create a log file to which log messages can be written

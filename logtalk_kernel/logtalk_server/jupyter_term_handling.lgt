@@ -65,26 +65,22 @@
 	% term_response(JsonResponse)
 	:- dynamic(term_response/1).
 
+	% handle_term(+Term, +IsSingleTerm, +CallRequestId, +Stack, +Bindings, -Cont)
+	%
+	% Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the term Term.
+	% Check which type of term Term is and handle it accordingly.
+	% Term can be a query, possible using the ?- prefix operator
+	% Queries
+	handle_term(?-(Query), _IsSingleTerm, CallRequestId, Stack, Bindings, Cont) :- !,
+		handle_query_term(Query, false, CallRequestId, Stack, Bindings, continue, Cont).
+	handle_term(Query, true, CallRequestId, Stack, Bindings, Cont) :-
+		handle_query_term(Query, false, CallRequestId, Stack, Bindings, continue, Cont).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% handle_term(+Term, +IsSingleTerm, +CallRequestId, +Stack, +Bindings, -Cont)
-%
-% Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the term Term.
-% Check which type of term Term is and handle it accordingly.
-% Term can be a query, possible using the ?- prefix operator
-% Queries
-handle_term(?-(Query), _IsSingleTerm, CallRequestId, Stack, Bindings, Cont) :- !,
-	handle_query_term(Query, false, CallRequestId, Stack, Bindings, continue, Cont).
-handle_term(Query, true, CallRequestId, Stack, Bindings, Cont) :-
-	handle_query_term(Query, false, CallRequestId, Stack, Bindings, continue, Cont).
-
-format_to_atom(_,_,Atom) :-  get_preference(verbosity,L), L<2,!, 
-	Atom=''.
-format_to_atom(Msg,Args,Atom) :- 
-	format_to_codes(Msg, Args, Codes),
-	atom_codes(Atom, Codes).
+	format_to_atom(_,_,Atom) :-  get_preference(verbosity,L), L<2,!, 
+		Atom = ''.
+	format_to_atom(Msg,Args,Atom) :- 
+		format_to_codes(Msg, Args, Codes),
+		atom_codes(Atom, Codes).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

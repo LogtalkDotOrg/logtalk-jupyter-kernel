@@ -1,5 +1,5 @@
 
-% This is the main module of the SICStus server.
+% This is the main object of the backend server.
 % The predicate start/0 can be called to start the server which enters a loop handling requests from a client.
 % The requests and corresponding replies are JSON-RPC 2.0 (https://www.jsonrpc.org/specification) messages sent over the standard streams.
 % The handling of those is based on code from 'jsonrpc_server.pl' from SICStus 4.5.1

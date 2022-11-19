@@ -19,22 +19,18 @@
 	:- uses(list, [append/3, delete/3, member/2]).
 	:- uses(jupyter_logging, [log/1, log/2]).
 
-
 	:- multifile(logtalk::message_tokens//2).
-	logtalk::message_tokens(jupyter(no_var_binding(VarName)), _) -->
+	logtalk::message_tokens(jupyter(no_var_binding(VarName)), jupyter) -->
 		['$~w was not bound by a previous query~n'-[VarName]], [nl].
-
 
 	% Define $ to be an operator.
 	% This is needed so that terms containing terms of the form $Var can be read without any exceptions.
 	:- op(1, fx, '$').
 
-
 	:- dynamic(var_bindings/1). % var_bindings(Bindings)
 	% Bindings is a list of Name=Var pairs, where Name is the name of the variable Var of the latest query in which a variable of this name was assigned a value.
 
 	var_bindings([]).
-
 
 	% Store variable var_bindings
 
@@ -53,7 +49,6 @@
 		updated_variables([], Bindings, BoundBindings),
 		assertz(var_bindings(BoundBindings)).
 
-
 	% Reuse stored variable bindings
 	
 	% term_with_stored_var_bindings(+Term, +Bindings, -ExpandedTerm, -UpdatedBindings)
@@ -66,7 +61,6 @@
 	term_with_stored_var_bindings(Term, Bindings, ExpandedTerm, UpdatedBindings) :-
 		expand_term(Term, Bindings, ExpandedTerm, StoredBindings),
 		updated_variables(Bindings, StoredBindings, UpdatedBindings).
-
 
 	% expand_term(+Term, +Bindings, -ExpandedTerm, -StoredBindings)
 	expand_term(Var, _Bindings, Var, []) :-
@@ -86,7 +80,6 @@
 		functor(ExpandedTerm, Name, Arity),
 		expand_args(1, Bindings, Term, ExpandedTerm, StoredBindings).
 
-
 	% expand_args(+ArgNum, +Bindings, +Term, +ExpandedTerm, -StoredBindings)
 	expand_args(ArgNum, Bindings, Term, ExpandedTerm, StoredBindings) :-
 		arg(ArgNum, Term, Arg),
@@ -98,7 +91,6 @@
 		expand_args(NextArgNum, Bindings, Term, ExpandedTerm, ArgsBindings).
 	expand_args(_ArgNum, _Bindings, _Term, _ExpandedTerm, []).
 
-
 	% var_name(+Bindings, +Var, -Name)
 	%
 	% Bindings is a list of Name=Var pairs, where Name is the name of a variable Var.
@@ -107,7 +99,6 @@
 		!.
 	var_name([_Binding|Bindings], Var, Name) :-
 		var_name(Bindings, Var, Name).
-
 
 	% stored_variable_binding(+VarName, -VarValue)
 	%
@@ -119,7 +110,6 @@
 		!.
 	stored_variable_binding(VarName, _VarValue) :-
 		throw(jupyter(no_var_binding(VarName))).
-
 
 	% Update variable list
 

@@ -37,9 +37,6 @@
 	:- uses(jupyter_query_handling, [query_data/4, debug_mode_for_breakpoints/0]).
 	:- uses(jupyter_variable_bindings, [var_bindings/1]).
 
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 	% Help
 
 	% jupyter:predicate_docs(-PredDocs)
@@ -170,10 +167,6 @@
 			'\n\n    Needs to be the only goal of a query.'
 		], Doc).
 
-
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 	% Trace
 
 	% trace(+Goal)
@@ -189,10 +182,6 @@
 		;	notrace
 		),
 		!.
-
-
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 	% Variable bindings
 
@@ -211,10 +200,6 @@
 		format('$~w =~t~12|~p~n', [Name, Value]),
 		print_variable_bindings(Bindings).
 
-
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 	% Previous query data
 
 	% print_query_time
@@ -231,8 +216,6 @@
 	print_query_time :-
 		format('* There is no previous query', []),
 		fail.
-
-
 
 	% print_queries(+Ids)
 	%
@@ -255,7 +238,6 @@
 		),
 		print_queries(QueriesData, []).
 
-
 	% print_queries(+QueriesData, +PreviousNameVarPairs)
 	print_queries([], _PreviousNameVarPairs) :- !.
 	print_queries([QueryData], PreviousNameVarPairs) :-
@@ -266,7 +248,6 @@
 		print_previous_query(QueryData, PreviousNameVarPairs, NewPreviousNameVarPairs, QueryAtom),
 		format('~w,~n', [QueryAtom]),
 		print_queries(QueriesData, NewPreviousNameVarPairs).
-
 
 	% print_previous_query(+QueryData, +PreviousNameVarPairs, -NewPreviousNameVarPairs, -QueryAtom)
 	print_previous_query(term_data(QueryAtom, NameVarPairs)-same, PreviousNameVarPairs, NewPreviousNameVarPairs, QueryAtom) :-
@@ -316,7 +297,6 @@
 		functor(ExpandedTerm, Name, Arity),
 		expand_args(1, NameVarPairs, PreviousNameVarPairs, Term, ExpandedTerm).
 
-
 	% expand_args(+ArgNum, +NameVarPairs, +PreviousNameVarPairs, +Term, +ExpandedTerm)
 	expand_args(ArgNum, NameVarPairs, PreviousNameVarPairs, Term, ExpandedTerm) :-
 		arg(ArgNum, Term, Arg),
@@ -326,7 +306,6 @@
 		expand_term(Arg, NameVarPairs, PreviousNameVarPairs, ExpandedArg),
 		expand_args(NextArgNum, NameVarPairs, PreviousNameVarPairs, Term, ExpandedTerm).
 	expand_args(_ArgNum, _NameVarPairs, _PreviousNameVarPairs, _Term, _ExpandedTerm).
-
 
 	% var_name(+NameVarPairs, +Var, -Name)
 	%

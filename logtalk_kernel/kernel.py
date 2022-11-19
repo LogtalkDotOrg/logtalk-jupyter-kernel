@@ -109,7 +109,7 @@ class LogtalkKernel(Kernel):
                 "-e", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt."],
         "gplgt": ["gplgt",
                 "--quiet",
-                "--entry-goal", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),flush_output,'::'(jupyter_server,start);halt."],
+                "--entry-goal", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt."],
         "gplgt.sh": ["gplgt.sh",
                 "--quiet",
                 "--entry-goal", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt."],

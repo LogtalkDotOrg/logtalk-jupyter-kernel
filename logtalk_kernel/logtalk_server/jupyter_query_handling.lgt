@@ -59,10 +59,6 @@
 	file_name(output, '.server_output').
 	file_name(test, 'test_definition.pl').
 
-
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 	% Call a goal and read all output
 
 	% call_with_output_to_file(+Goal, -Output, -ErrorMessageData)
@@ -103,12 +99,9 @@
 		assert_query_data(CallRequestId, WallTime, term_data(GoalAtom, Bindings), OriginalTermData),
 		cleanup_and_read_output_from_file(Goal, Output).
 
-
 	prepare_call_with_output_to_file :-
 		redirect_output_to_file,
-		retractall(send_reply_on_error),
-		!.
-
+		retractall(send_reply_on_error).
 
 	% Redirects the output of a goal and debugging messages to a file
 	redirect_output_to_file :-
@@ -118,7 +111,6 @@
 		redirect_output_to_stream(current_output, OutputStream),
 		redirect_output_to_stream(user_output, OutputStream),
 		redirect_output_to_stream(user_error, OutputStream).
-
 
 	% call_with_exception_handling(+Goal, -ErrorMessageData)
 	call_with_exception_handling(Goal, ErrorMessageData) :-
@@ -130,7 +122,6 @@
 		).
 
 	debug_mode_for_breakpoints.
-
 
 	% assert_query_data(+CallRequestId,  +Runtime, +TermData, +OriginalTermData)
 	assert_query_data(0, _Runtime, _TermData, _OriginalTermData) :- !.
@@ -149,7 +140,6 @@
 		assertz(query_data(CallRequestId, Runtime, TermData, StoreOriginalTermData)).
 	assert_query_data(_CallRequestId, _Runtime, _TermData, _OriginalTermData).
 
-
 	% cleanup_and_read_output_from_file(+Goal, -Output)
 	%
 	% Output is the output and debugging messages of the goal Goal which was written to the output file.
@@ -160,12 +150,10 @@
 		read_output_from_file(OutputFileName, Goal, Output),
 		delete_output_file(true).
 
-
 	% reset_output_streams(+DeleteFile)
 	reset_output_streams(DeleteFile) :-
 		close(output_to_file_stream),
 		delete_output_file(DeleteFile).
-
 
 	% delete_output_file(+DeleteFile)
 	delete_output_file(true) :-
@@ -173,10 +161,6 @@
 		file_name(output, OutputFileName),
 		catch(delete_file(OutputFileName), _Exception, true).
 	delete_output_file(_).
-
-
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 	% Print and read (error) messages
 
@@ -202,7 +186,6 @@
 		read_atom_from_file(FileName, Message),
 		delete_file(FileName),
 		!.
-
 
 	% redirect_output_to_stream(+StreamAlias, +Stream)
 	:- if(current_logtalk_flag(prolog_dialect, eclipse)).
@@ -233,21 +216,15 @@
 
 	:- endif.
 
-
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 	% Read from a file
 
 	% read_output_from_file(+OutputFileName, +Goal, -Output)
 	read_output_from_file(OutputFileName, _, Output) :-
 		read_atom_from_file(OutputFileName, Output).
 
-
 	% read_atom_from_file(+FileName, -FileContent)
 	%
 	% FileContent is an atom containing the content of the file with name FileName.
-	% If IsSicstusJupyterTrace=true, some of the lines of the file are not included.
 	read_atom_from_file(FileName, FileContent) :-
 		open(FileName, read, Stream),
 		read_lines(Stream, AllLinesCodes),
@@ -263,7 +240,6 @@
 		).
 	read_atom_from_file(_FileName, '').
 
-
 	% read_lines(+Stream, -Lines)
 	read_lines(Stream, NewLines) :-
 		read_line_to_codes(Stream, Line),
@@ -273,7 +249,6 @@
 			NewLines = [[10|Line]|Lines],
 			read_lines(Stream, Lines)
 		).
-
 
 	% remove_output_lines(++Lines, -NewLines)
 	%
