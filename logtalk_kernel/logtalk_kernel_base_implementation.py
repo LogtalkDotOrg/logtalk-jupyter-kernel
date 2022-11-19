@@ -304,6 +304,7 @@ class LogtalkKernelBaseImplementation:
         except json.decoder.JSONDecodeError as exception:
             self.logger.debug('The Response object is no valid JSON object: ' + str(response_string))
             self.logger.debug(len(str(response_string)))
+            self.logger.debug(ord(str(response_string)))
             raise
 
 

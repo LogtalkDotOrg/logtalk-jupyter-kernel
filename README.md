@@ -12,6 +12,7 @@ This project is a fork of the [prolog-jupyter-kernel](https://github.com/hhu-stu
 - [SICStus Prolog 4.5.1 or later](https://sicstus.sics.se/)
 - [SWI-Prolog 8.4.3 or later](https://www.swi-prolog.org/) (default)
 - [Trealla Prolog 2.6.9 or later](https://github.com/trealla-prolog/trealla)
+- [YAP 7.2.1 or later](https://github.com/vscosta) (requires Logtalk git version)
 
 The kernel is implemented in a way that basically all functionality except the loading of configuration files can easily be overridden. This is especially useful for **extending the kernel for further Prolog backends** or running code with a different version of a backend. For further information about this, see [Configuration](#configuration).
 
