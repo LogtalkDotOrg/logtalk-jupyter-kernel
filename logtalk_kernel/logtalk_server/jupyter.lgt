@@ -25,7 +25,9 @@
 		retry/0,
 		set_prolog_backend/1,      % set_prolog_backend(+Backend)
 		trace/1,                   % trace(+Goal)
-		update_completion_data/0
+		update_completion_data/0,
+		version/4,
+		version/0
 	]).
 
 	:- uses(debugger, [leash/1, trace/0, notrace/0]).
@@ -36,6 +38,12 @@
 	:- uses(jupyter_logging, [log/1, log/2]).
 	:- uses(jupyter_query_handling, [query_data/4, debug_mode_for_breakpoints/0]).
 	:- uses(jupyter_variable_bindings, [var_bindings/1]).
+	:- uses(jupyter_preferences, [version/4]).
+
+	version :-
+		version(Major, Minor, Patch, Suffix),
+		%jupyter_tools:format_log('Version ~w.~w.~w-~w~n',[Maj,Min,Patch,Suffix]),
+		format('Version ~w.~w.~w-~w of Jupyter-Logtalk-Kernel~n', [Major, Minor, Patch, Suffix]).
 
 	% Help
 

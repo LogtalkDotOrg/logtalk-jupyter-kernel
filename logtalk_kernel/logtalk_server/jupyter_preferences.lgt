@@ -4,14 +4,15 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-11,
+		date is 2022-11-21,
 		comment is 'Preferecnes management.'
 	]).
 
 	:- public([
 		set_preference/2, set_preference/3, 
 		get_preference/2, get_preferences/1,
-		reset_preferences/0
+		reset_preferences/0,
+		version/4
 	]).
 
 	:- initialization(init_preferences).
@@ -22,6 +23,8 @@
 	:- uses(logtalk, [
 		print_message(debug, jupyter, Message) as dbg(Message)
 	]).
+
+	version(0, 1, 0, 'nightly').
 
 	preference_definition(verbosity,1,natural,'Verbosity level, 0=off, 10=maximal').
 
