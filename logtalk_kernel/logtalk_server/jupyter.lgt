@@ -4,7 +4,7 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-16,
+		date is 2022-11-21,
 		comment is 'This object provides special predicates which can be used in call requests by the client. Some of these predicates need to be the only goal of a query. Otherwise, they cannot be determined as special predicates and do not work as expected.'
 	]).
 
@@ -189,7 +189,7 @@
 	%
 	% Print the previous variable bindings which can be reused with a term of the form $Var.
 	print_variable_bindings :-
-		jupyter_variable_bindings::var_bindings(Bindings),
+		var_bindings(Bindings),
 		(	Bindings == [] ->
 			format('No previous variable bindings~n', [])
 		;	print_variable_bindings(Bindings)
@@ -208,7 +208,7 @@
 	print_query_time :-
 		findall(
 			Goal-Runtime,
-			jupyter_query_handling::query_data(_CallRequestId, Runtime, term_data(Goal, _NameVarPairs), _OriginalTermData),
+			query_data(_CallRequestId, Runtime, term_data(Goal, _NameVarPairs), _OriginalTermData),
 			GoalRuntimes
 		),
 		append(_PreviousGoalRuntimes, [Goal-Runtime], GoalRuntimes),
@@ -228,12 +228,12 @@
 
 	print_queries(Ids) :-
 		(	var(Ids) ->
-			findall(Id, jupyter_query_handling::query_data(Id, _, _, _),Ids)
+			findall(Id, query_data(Id, _, _, _),Ids)
 		;	true
 		),
 		findall(
 			TermData-OriginalTermData, 
-			(member(Id, Ids), jupyter_query_handling::query_data(Id, _Runtime, TermData, OriginalTermData)),
+			(member(Id, Ids), query_data(Id, _Runtime, TermData, OriginalTermData)),
 			QueriesData
 		),
 		print_queries(QueriesData, []).

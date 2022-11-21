@@ -10,7 +10,7 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-13,
+		date is 2022-11-21,
 		comment is 'Main object of the server.'
 	]).
 
@@ -20,7 +20,6 @@
 	]).
 
 	:- uses(jupyter_logging, [log/1, log/2]).
-	:- uses(jupyter, []).
 	:- uses(jupyter_request_handling, [loop/3]).
 	:- uses(jupyter_term_handling, [assert_sld_data/4]).
 	:- uses(jupyter_preferences, [set_preference/2]).
@@ -32,7 +31,7 @@
 		setup,
 		set_preference(verbosity,JupyterKernelVerbosityLevel), % useful for testing purposes
 		% Start the loop handling requests from the client
-		jupyter_request_handling::loop(continue, [], _ContOut).
+		loop(continue, [], _ContOut).
 
 	setup :-
 		% The tests in jupyter_server_tests.pl need to be started without printing informational messages

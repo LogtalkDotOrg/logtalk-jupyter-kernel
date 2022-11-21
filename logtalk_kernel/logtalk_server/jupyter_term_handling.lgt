@@ -28,7 +28,7 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-16,
+		date is 2022-11-21,
 		comment is 'This object provides predicates to handle terms received from the client, compute their results and assert them with term_response/1.'
 	]).
 
@@ -53,7 +53,7 @@
 
 	:- uses(jupyter_logging, [log/1, log/2]).
 	:- uses(jupyter_query_handling, [call_with_output_to_file/3, call_query_with_output_to_file/7, redirect_output_to_file/0]).
-	:- uses(jupyter_jsonrpc, [send_error_reply/3]).
+	:- uses(jupyter_jsonrpc, [send_error_reply/3, json_error_term/5]).
 	:- uses(jupyter_request_handling, [loop/3]).
 	:- uses(jupyter_preferences, [set_preference/3, get_preference/2, get_preferences/1]).
 	:- uses(jupyter_variable_bindings, [term_with_stored_var_bindings/4, store_var_bindings/1]).
@@ -114,7 +114,7 @@ handle_query_term(Term, IsDirective, CallRequestId, Stack, Bindings, LoopCont, C
 
 % replace_previous_variable_bindings(+Term, +Bindings, -UpdatedTerm, -UpdatedBindings, -Exception)
 replace_previous_variable_bindings(Term, Bindings, UpdatedTerm, UpdatedBindings, Exception) :-
-	catch(jupyter_variable_bindings::term_with_stored_var_bindings(Term, Bindings, UpdatedTerm, UpdatedBindings), Exception, true).
+	catch(term_with_stored_var_bindings(Term, Bindings, UpdatedTerm, UpdatedBindings), Exception, true).
 
 is_query_alias(retry,jupyter::retry).
 is_query_alias(halt,jupyter::halt).
@@ -245,7 +245,7 @@ handle_query(Goal, IsDirective, CallRequestId, Stack, Bindings, OriginalTermData
 		% The loop will
 		% - exit right away if LoopCont=cut
 		% - fail if it receives a request to retry Goal
-		jupyter_request_handling::loop(LoopCont, RecStack, RecCont),
+		loop(LoopCont, RecStack, RecCont),
 		(	RecCont = cut,
 			!,
 			Cont = continue
@@ -281,7 +281,7 @@ handle_query(Goal, IsDirective, CallRequestId, Stack, Bindings, OriginalTermData
 
 
 	update_variable_bindings(BindingsWithoutSingletons) :-
-		jupyter_variable_bindings::store_var_bindings(BindingsWithoutSingletons).
+		store_var_bindings(BindingsWithoutSingletons).
 
 
 	% retry_message_and_output(+GoalAtom, +Output, -RetryMessageAndOutput)
@@ -385,7 +385,7 @@ json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName-VarAtom|J
 			% Tell caller that the current query is a retry
 			asserta(is_retry(true)),
 			% Redirect all output to a file
-			jupyter_query_handling::redirect_output_to_file,
+			redirect_output_to_file,
 			fail
 		;	% No active call
 			assert_error_response(no_active_call, null, '', [])
@@ -421,7 +421,7 @@ json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName-VarAtom|J
 % The header of the table will contain the names of the variables occurring in Goal.
 % Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the goal Goal.
 handle_print_table_with_findall(Bindings, Goal) :-
-	jupyter_query_handling::call_with_output_to_file(jupyter_term_handling::findall_results_and_var_names(Goal, Bindings, Results, VarNames), Output, ErrorMessageData),
+	call_with_output_to_file(jupyter_term_handling::findall_results_and_var_names(Goal, Bindings, Results, VarNames), Output, ErrorMessageData),
 	!,
 	% Success or exception from findall_results_and_var_names/4
 	(	nonvar(ErrorMessageData) ->
@@ -1185,7 +1185,7 @@ handle_update_completion_data.
 	% AdditionalData is a list containing Key=Value pairs providing additional data for the client.
 	assert_error_response(ErrorCode, ErrorMessageData, Output, AdditionalData) :-
 		dbg('ERROR ~w:~n ~w~n~w~n ~w~n'+[ErrorCode,ErrorMessageData,Output,AdditionalData]),
-		jupyter_jsonrpc::json_error_term(ErrorCode, ErrorMessageData, Output, AdditionalData, ErrorData),
+		json_error_term(ErrorCode, ErrorMessageData, Output, AdditionalData, ErrorData),
 		assertz(term_response(json([status-error, error-ErrorData]))).
 
 :- end_object.
