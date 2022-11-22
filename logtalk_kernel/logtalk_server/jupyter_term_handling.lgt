@@ -28,7 +28,7 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-21,
+		date is 2022-11-22,
 		comment is 'This object provides predicates to handle terms received from the client, compute their results and assert them with term_response/1.'
 	]).
 
@@ -36,7 +36,9 @@
 		assert_sld_data/4,        % assert_sld_data(Port, Goal, Frame, ParentFrame)
 		handle_term/6,            % handle_term(+Term, +IsSingleTerm, +CallRequestId, +Stack, +Bindings, -Cont)
 		term_response/1,           % term_response(JsonResponse),
-		findall_results_and_var_names/4
+		findall_results_and_var_names/4,
+		dot_subnode/3,
+		dot_subtree/3
 	]).
 
 	:- meta_predicate(findall_results_and_var_names(*, *, *, *)).
@@ -118,16 +120,28 @@ replace_previous_variable_bindings(Term, Bindings, UpdatedTerm, UpdatedBindings,
 
 is_query_alias(retry,jupyter::retry).
 is_query_alias(halt,jupyter::halt).
-is_query_alias(eclipse,jupyter::set_prolog_backend(eclipselgt)) :- \+ user::current_predicate(eclipse/0).
-is_query_alias(gnu,jupyter::set_prolog_backend(gplgt)) :- \+ user::current_predicate(gnu/0).
-is_query_alias(lvm,jupyter::set_prolog_backend(lvmlgt)) :- \+ user::current_predicate(lvm/0).
-is_query_alias(sicstus,jupyter::set_prolog_backend(sicstuslgt)) :-  \+ user::current_predicate(sicstus/0).
-is_query_alias(swi,jupyter::set_prolog_backend(swilgt)) :- \+ user::current_predicate(swi/0).
-is_query_alias(trealla,jupyter::set_prolog_backend(tplgt)) :-  \+ user::current_predicate(trealla/0).
-is_query_alias(yap,jupyter::set_prolog_backend(yaplgt)) :-  \+ user::current_predicate(yap/0).
-is_query_alias(show_graph(Nodes,Edges),jupyter::show_graph(Nodes,Edges)) :-  \+ user::current_predicate(show_graph/2).
-is_query_alias(print_queries,jupyter::print_queries) :-  \+ user::current_predicate(print_queries/0).
-is_query_alias(print_queries(L),jupyter::print_queries(L)) :-  \+ user::current_predicate(print_queries/1).
+is_query_alias(eclipse,jupyter::set_prolog_backend(eclipselgt)) :-
+	\+ user::current_predicate(eclipse/0).
+is_query_alias(gnu,jupyter::set_prolog_backend(gplgt)) :-
+	\+ user::current_predicate(gnu/0).
+is_query_alias(lvm,jupyter::set_prolog_backend(lvmlgt)) :-
+	\+ user::current_predicate(lvm/0).
+is_query_alias(sicstus,jupyter::set_prolog_backend(sicstuslgt)) :-
+	\+ user::current_predicate(sicstus/0).
+is_query_alias(swi,jupyter::set_prolog_backend(swilgt)) :-
+	\+ user::current_predicate(swi/0).
+is_query_alias(trealla,jupyter::set_prolog_backend(tplgt)) :-
+	\+ user::current_predicate(trealla/0).
+is_query_alias(yap,jupyter::set_prolog_backend(yaplgt)) :-
+	\+ user::current_predicate(yap/0).
+is_query_alias(show_graph(Nodes,Edges),jupyter::show_graph(Nodes,Edges)) :-
+	\+ user::current_predicate(show_graph/2).
+is_query_alias(show_term(Term), jupyter::show_graph(jupyter_term_handling::dot_subnode(_,_,Term),jupyter_term_handling::dot_subtree/3)) :-
+	\+ user::current_predicate(show_term/1).
+is_query_alias(print_queries,jupyter::print_queries) :-
+	\+ user::current_predicate(print_queries/0).
+is_query_alias(print_queries(L),jupyter::print_queries(L)) :-
+	\+ user::current_predicate(print_queries/1).
 
 
 % handle_query_term_(+Query, +IsDirective, +CallRequestId, +Stack, +Bindings, +OriginalTermData, +LoopCont, -Cont)
@@ -819,19 +833,23 @@ sld_tree_edge_atoms([_GoalCodes-Current-Parent|SldData], [EdgeAtom|Edges]) :-
 % If LabelIndex=0, the edges are not labelled.
 handle_print_transition_graph(NodePredSpec, EdgePredSpec, FromIndex, ToIndex, LabelIndex) :-
 	% Check that the predicate specification and indices are correct
-	module_name_expanded_pred_spec(EdgePredSpec, Module:PredName/PredArity,PredTerm),
+	expanded_pred_spec(EdgePredSpec, Object::PredName/PredArity,PredTerm),
 	check_indices(PredArity, FromIndex, ToIndex, LabelIndex),
 	!,
-	PredTerm =.. [PredName|ArgList],
+	PredTerm =.. [PredName| ArgList],
 	% compute all possible nodes
-	(	NodePredSpec=true
-	->	EdgeCall = Module:PredTerm
-	;	findall(node(NodeName,NodeDotDesc),get_transition_graph_node_atom(NodePredSpec,NodeName,NodeDotDesc),Nodes),
+	(	NodePredSpec = true
+	->	EdgeCall = Object::PredTerm
+	;	findall(
+			node(NodeName, NodeDotDesc),
+			get_transition_graph_node_atom(NodePredSpec, NodeName, NodeDotDesc),
+			Nodes
+		),
 		sort(Nodes,SNodes),
 		maplist(get_node_desc,SNodes,NodeDescAtoms),
 		nth1(FromIndex, ArgList, FromNode),
 		nth1(ToIndex, ArgList, ToNode),
-		EdgeCall = (member(node(FromNode,_),SNodes),Module:PredTerm,member(node(ToNode,_),SNodes)) 
+		EdgeCall = (member(node(FromNode,_),SNodes), Object::PredTerm, member(node(ToNode,_),SNodes)) 
 		% only take nodes into account which are declared, % TO DO: we could only apply restriction to FromNode
 	),
 	% Compute all possible transitions
@@ -850,14 +868,18 @@ get_node_desc(node(_,Desc),Desc).
 % generate dot node name and dot description atom
 % example fact for NodePredSpec:
 % node(a,[label/'A',shape/rect, style/filled, fillcolor/yellow]).
-get_transition_graph_node_atom(NodePredSpec,NodeName,NodeDotDesc) :-
-	module_name_expanded_pred_spec(NodePredSpec, Module:PredName/_PredArity, NodeCall),
+get_transition_graph_node_atom(NodePredSpec, NodeName, NodeDotDesc) :-
+	expanded_pred_spec(NodePredSpec, Object::PredName/_PredArity, NodeCall),
 	NodeCall =.. [PredName|ArgList],
-	ArgList = [NodeName|ArgTail], % first argument is the identifier/name of the node
-	call(Module:NodeCall), % generate solutions for the node predicate
-	(	ArgTail = [DotList|_], % we have a potential argument with infos about the style, label, ...
+	% first argument is the identifier/name of the node
+	ArgList = [NodeName|ArgTail],
+	% generate solutions for the node predicate
+	Object::NodeCall,
+	(	ArgTail = [DotList|_],
+		% we have a potential argument with infos about the style, label, ...
 		findall(dot_attr(Attr,Val),get_dot_node_attribute(Attr,Val,DotList),Attrs),
-		Attrs = [_|_] % we have found at least one attribute
+		Attrs = [_|_]
+		% we have found at least one attribute
 	->	phrase(gen_dot_node_desc(NodeName,Attrs),Codes),
 		atom_codes(NodeDotDesc,Codes)
 	;	NodeDotDesc = ''
@@ -867,39 +889,45 @@ get_transition_graph_node_atom(NodePredSpec,NodeName,NodeDotDesc) :-
 
 % provide a default version of the command which automatically sets from,to and label index.
 % e.g. we can call jupyter::print_transition_graph(edge/2).
-handle_print_transition_graph(NodePredSpec,EdgePredSpec) :-
-	module_name_expanded_pred_spec(EdgePredSpec, _Module:_PredName/PredArity,_),
-	FromIndex=1, ToIndex=PredArity,
+handle_print_transition_graph(NodePredSpec, EdgePredSpec) :-
+	expanded_pred_spec(EdgePredSpec, _Object::_PredName/PredArity, _),
+	FromIndex = 1, ToIndex = PredArity,
 	(	PredArity =< 2 ->
-		LabelIndex=0
-	;	LabelIndex=2
+		LabelIndex = 0
+	;	LabelIndex = 2
 	),
-	handle_print_transition_graph(NodePredSpec,EdgePredSpec, FromIndex, ToIndex, LabelIndex).
+	handle_print_transition_graph(NodePredSpec, EdgePredSpec, FromIndex, ToIndex, LabelIndex).
 
 % expand module name to determine arity and provide a predicate call
 % can be called with M:p/n or p/n or M:p or M:p(arg1,...)
 % in the latter case the call arguments are passed through
 % TODO: maybe get rid of this using meta_predicate annotations
-% module_name_expanded_pred_spec(+PredSpec, -MPredSpec)
-module_name_expanded_pred_spec(PredSpec, Module:PredName/PredArity,PredCall) :- 
-	get_module(PredSpec,Module,PredName/PredArity),!,
-	functor(PredCall,PredName,PredArity).
-module_name_expanded_pred_spec(PredSpec, Module:PredName/PredArity,PredCall) :-
-	get_module(PredSpec,Module,PredName),
+% expanded_pred_spec(+PredSpec, -MPredSpec)
+expanded_pred_spec(PredSpec, Object::PredName/PredArity, PredCall) :- 
+	get_object(PredSpec, Object, PredName/PredArity),
+	!,
+	functor(PredCall, PredName, PredArity).
+expanded_pred_spec(PredSpec, Object::PredName/PredArity, PredCall) :-
+	get_object(PredSpec, Object, PredName),
 	atom(PredName),  % just predicate name w/o arity
-	current_predicate(Module:PredName/Arity),!,
-	PredArity=Arity,
+	Object::current_predicate(PredName/Arity),
+	!,
+	PredArity = Arity,
 	functor(PredCall,PredName,PredArity).
-module_name_expanded_pred_spec(PredSpec, Module:PredName/PredArity,PredCall) :-
-	get_module(PredSpec,Module,PredCall),
-	functor(PredCall,PredName,PredArity),
-	PredArity>0,!.
-module_name_expanded_pred_spec(PredSpec, _ , _) :-
+expanded_pred_spec(PredSpec, Object::PredName/PredArity, PredCall) :-
+	get_object(PredSpec, Object, PredCall),
+	functor(PredCall, PredName, PredArity),
+	PredArity > 0,
+	!.
+expanded_pred_spec(PredSpec, _ , _) :-
 	assert_error_response(exception, message_data(error, jupyter(print_transition_graph_pred_spec(PredSpec))), '', []),
 	fail.
 
-get_module(Module:Term,M,T) :- !, M=Module,T=Term.
-get_module(Term,user,Term).
+get_object(Object0::Term0, Object, Term) :-
+	!,
+	Object = Object0,
+	Term = Term0.
+get_object(Term, user, Term).
 
 % check_indices(+PredArity, +FromIndex, +ToIndex, +LabelIndex)
 check_indices(PredArity, FromIndex, ToIndex, LabelIndex) :-
@@ -1055,13 +1083,41 @@ valid_dot_node_style(none).
 % | ?- jupyter_term_handling::gen_node_desc(a,[dot_attr(label,b),dot_attr(color,c)],A,[]), format("~s~n",[A]).
 % a [label="b", color="c"]
 gen_dot_node_desc(NodeName,Attrs) --> "\"", gen_atom(NodeName),"\" [", gen_node_attr_codes(Attrs),"]",[10].
+
 gen_node_attr_codes([]) --> "".
 gen_node_attr_codes([dot_attr(Attr,Val)]) --> !, gen_atom(Attr),"=\"",gen_atom(Val),"\"".
 gen_node_attr_codes([dot_attr(Attr,Val)|Tail]) --> 
    gen_atom(Attr),"=\"",gen_atom(Val),"\", ",
    gen_node_attr_codes(Tail).
-gen_atom(Atom,In,Out) :- format_to_codes('~w',Atom,Codes), append(Codes,Out,In).
 
+gen_atom(Atom, In, Out) :-
+	format_to_codes('~w', [Atom], Codes),
+	append(Codes, Out, In).
+
+% Convenience predicates for visualising Prolog terms (show_term/1) using show_graph:
+% jupyter::show_graph(dot_subnode(_,_,Term),dot_subtree/3)
+
+dot_subtree(Term,Nr,SubTerm) :-
+	nonvar(Term),
+	% obtain arguments of the term
+	Term =.. [_|ArgList],
+	% get sub-argument and its position number
+	nth1(Nr,ArgList,SubTerm).
+
+% recursive and transitive closure of subtree
+dot_rec_subtree(Term, Sub) :-
+	Term = Sub.
+dot_rec_subtree(Term, Sub) :-
+	dot_subtree(Term, _, X),
+	dot_rec_subtree(X, Sub).
+
+% the node predicate for all subterms of a formula
+dot_subnode(Sub,[shape/S, label/F],Formula) :- 
+	dot_rec_subtree(Formula,Sub), % any sub-formula Sub of Formula is a node in the graphical rendering
+	(	var(Sub) ->
+		S = ellipse, F=Sub
+	;	functor(Sub,F,_), (atom(Sub) -> S = egg ; number(Sub) -> S = oval ; S = rect)
+	).
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

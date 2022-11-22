@@ -4,7 +4,7 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-21,
+		date is 2022-11-22,
 		comment is 'This object provides special predicates which can be used in call requests by the client. Some of these predicates need to be the only goal of a query. Otherwise, they cannot be determined as special predicates and do not work as expected.'
 	]).
 
@@ -22,6 +22,7 @@
 		print_table/2,             % print_table(+ValuesLists, +VariableNames)
 		print_transition_graph/4,  % print_transition_graph(+PredSpec, +FromIndex, +ToIndex, +LabelIndex)
 		print_variable_bindings/0,
+		show_term/1,
 		retry/0,
 		set_prolog_backend/1,      % set_prolog_backend(+Backend)
 		trace/1,                   % trace(+Goal)
@@ -136,7 +137,13 @@
 			'\n    If LabelIndex=0, no label is shown.',
 			'\n\n    Needs to be the only goal of a query.'
 		], Doc).
-	predicate_doc('jupyter::print_variable_bindings/0', Doc) :-
+	predicate_doc('jupyter::show_term/1', Doc) :-
+		atomic_list_concat([
+			'jupyter::show_term(+Term)',
+			'\n\n    Displays a Prolog term as a graph.',
+			'\n\n    Needs to be the only goal of a query.'
+		], Doc).
+   predicate_doc('jupyter::print_variable_bindings/0', Doc) :-
 		atomic_list_concat([
 			'jupyter::print_variable_bindings',
 			'\n\n    Prints variable bindings from previous queries.',
