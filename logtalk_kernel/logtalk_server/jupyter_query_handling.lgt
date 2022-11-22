@@ -28,12 +28,14 @@
 		remove_output_lines_for/1,         % remove_output_lines_for(Type),
 		retrieve_message/2,                % retrieve_message(+ErrorMessageData, -Message)
 		send_reply_on_error/0,
-		debug_mode_for_breakpoints/0
+		debug_mode_for_breakpoints/0,
+		safe_call_without_sending_error_replies/1
 	]).
 
 	:- meta_predicate(call_with_output_to_file(*, *, *)).
 	:- meta_predicate(call_query_with_output_to_file(*, *, *, *, *, *, *)).
 	:- meta_predicate(call_with_exception_handling(*, *)).
+	:- meta_predicate(safe_call_without_sending_error_replies(*)).
 
 	:- uses(debugger, [notrace/0]).
 	:- uses(list, [append/2, append/3, length/2]).
@@ -52,12 +54,21 @@
 
 	% If send_reply_on_error exists, an error reply is sent to the client if an unhandled error occurs and is printed with print_message/2.
 	% This predicate is retracted when an error message is to be produced from an error term and therefore printed.
+	% TODO: this is very ugly, we need to get rid of this.
 	send_reply_on_error.
 
 	file_name(stdout, '.server_stdout').
 	file_name(message_output, '.message_output').
 	file_name(output, '.server_output').
 	file_name(test, 'test_definition.pl').
+
+	safe_call_without_sending_error_replies(Goal) :-
+		retractall(send_reply_on_error),
+		% call_cleanup(Goal, assert(send_reply_on_error)).
+		(	catch(Goal, Error, (assertz(send_reply_on_error), throw(Error))) ->
+			assertz(send_reply_on_error)
+		;	assertz(send_reply_on_error)
+		).
 
 	% Call a goal and read all output
 

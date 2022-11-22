@@ -38,9 +38,16 @@
 		% In order for those messages to be printed during an execution, a corresponding Prolog flag has to be set
 		set_logtalk_flag(report, on).
 
+	:- multifile(logtalk::trace_event/2).
+	:- dynamic(logtalk::trace_event/2).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% the Logtalk runtime calls all defined logtalk::trace_event/2 hooks using
+	% a failure-driven loop; thus we don't have to worry about handling all
+	% events or failing after handling an event to give other hooks a chance
+	logtalk::trace_event(top_goal(Goal, _), _) :-
+		assert_sld_data(call, Goal, _Frame, _ParentFrame).
+	logtalk::trace_event(goal(Goal, _), _) :-
+		assert_sld_data(call, Goal, _Frame, _ParentFrame).
 
 	:- multifile(logtalk::message_prefix_stream/4).
 	:- dynamic(logtalk::message_prefix_stream/4).

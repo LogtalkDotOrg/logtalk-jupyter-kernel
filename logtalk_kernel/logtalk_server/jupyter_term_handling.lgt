@@ -54,7 +54,7 @@
 	:- uses(user, [atomic_list_concat/2]).
 
 	:- uses(jupyter_logging, [log/1, log/2]).
-	:- uses(jupyter_query_handling, [call_with_output_to_file/3, call_query_with_output_to_file/7, redirect_output_to_file/0]).
+	:- uses(jupyter_query_handling, [call_with_output_to_file/3, call_query_with_output_to_file/7, redirect_output_to_file/0, safe_call_without_sending_error_replies/1]).
 	:- uses(jupyter_jsonrpc, [send_error_reply/3, json_error_term/5]).
 	:- uses(jupyter_request_handling, [loop/3]).
 	:- uses(jupyter_preferences, [set_preference/3, get_preference/2, get_preferences/1]).
@@ -142,7 +142,8 @@ is_query_alias(print_queries,jupyter::print_queries) :-
 	\+ user::current_predicate(print_queries/0).
 is_query_alias(print_queries(L),jupyter::print_queries(L)) :-
 	\+ user::current_predicate(print_queries/1).
-
+is_query_alias(show_sld_tree(L),jupyter::print_sld_tree(L)) :-
+	\+ user::current_predicate(show_sld_tree/1).
 
 % handle_query_term_(+Query, +IsDirective, +CallRequestId, +Stack, +Bindings, +OriginalTermData, +LoopCont, -Cont)
 handle_query_term_(Call, IsDirective, CallRequestId, Stack,
@@ -616,10 +617,10 @@ assert_sld_data(call, MGoal, Current, Parent) :-
 	;	Goal = MGoal
 	),
 	% Assert the goal as character codes so that the variable names can be preserved and replaced consistently
-	write_term_to_codes(Goal, GoalCodes, []),
+	write_term_to_codes(Goal, GoalCodes, [quoted(true)]),
 	assertz(sld_data(GoalCodes, Current, Parent)).
 assert_sld_data(_Port, _MGoal, _Current, _Parent) :-
-	collect_sld_data. % SLD data is to be colleted, but not for ports other than call
+	collect_sld_data. % SLD data is to be collected, but not for ports other than call
 
 
 % handle_print_sld_tree(+Goal, +Bindings)
@@ -634,9 +635,12 @@ handle_print_sld_tree(Goal, Bindings) :-
 	                                                 _OriginalTermData, Output, _ExceptionMessage, _IsFailure),
 	retractall(collect_sld_data),
 	% Compute the graph file content
-	sld_graph_file_content(GraphFileContentAtom),
+	catch(safe_call_without_sending_error_replies(sld_graph_file_content(GraphFileContentAtom)),InternalException,true),
 	% Assert the result response
-	(	nonvar(Exception) -> % Exception
+	(	nonvar(InternalException) -> 
+		!,
+		assert_error_response(exception, message_data(error, InternalException), Output, [])
+	;	nonvar(Exception) -> % Exception
 		!,
 		assert_error_response(exception, message_data(error, Exception), Output, [print_sld_tree-GraphFileContentAtom])
 	;	IsFailure == true -> % Failure
@@ -738,7 +742,7 @@ sld_tree_node_atoms([], _CurrentReplacementAtom, _VariableNameReplacements, []) 
 sld_tree_node_atoms([GoalCodes-Current-_Parent|SldData], CurrentReplacementAtom, VariableNameReplacements, [Node|Nodes]) :-
 	% Read the goal term from the codes with the option variable_names/1 so that variable names can be replaced consistently
 	append(GoalCodes, [46], GoalCodesWithFullStop),
-	read_term_from_codes(GoalCodesWithFullStop, GoalTerm, [variable_names(VariableNames)]),
+	safe_read_term_from_codes_with_vars(GoalCodesWithFullStop, GoalTerm, [variable_names(VariableNames)]),
 	% Replace the variable names
 	replace_variable_names(VariableNames, CurrentReplacementAtom, VariableNameReplacements, NextReplacementAtom, NewVariableNameReplacements),
 	% Create the atom
@@ -746,6 +750,14 @@ sld_tree_node_atoms([GoalCodes-Current-_Parent|SldData], CurrentReplacementAtom,
 	atom_codes(Node, NodeCodes),
 	sld_tree_node_atoms(SldData, NextReplacementAtom, NewVariableNameReplacements, Nodes).
 
+% catch exceptions; ensure that we do not have to restart server if some internal mishap occurs
+% e.g., due to missing quoting, unicode issues or change in operator declarations
+safe_read_term_from_codes_with_vars(GoalCodesWithFullStop, GoalTerm, VariableNames) :-
+	catch(
+		read_term_from_codes(GoalCodesWithFullStop, GoalTerm, [variable_names(VariableNames)]),
+		Exception,
+		(VariableNames = [], GoalTerm = Exception)
+	).
 
 % replace_variable_names(+VariableNames, +CurrentReplacementAtom, +VariableNameReplacements, -NextReplacementAtom, -NewVariableNameReplacements)
 replace_variable_names([], CurrentReplacementAtom, VariableNameReplacements, CurrentReplacementAtom, VariableNameReplacements) :- !.
