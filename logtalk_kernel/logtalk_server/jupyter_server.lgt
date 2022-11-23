@@ -70,33 +70,39 @@
 
 	:- multifile(logtalk::message_tokens//2).
 	logtalk::message_tokens(jupyter(JupyterMessageTerm), jupyter) -->
-		juypter_message(JupyterMessageTerm).
+		message_tokens(JupyterMessageTerm).
+	logtalk::message_tokens(MessageTerm, jupyter) -->
+		message_tokens(MessageTerm).
 
-	juypter_message(goal_failed(Goal)) -->
+	message_tokens(goal_failed(Goal)) -->
 		['~w - goal failed'-[Goal]], [nl].
 
-	juypter_message(invalid_table_values_lists_length) -->
+	message_tokens(invalid_table_values_lists_length) -->
 		['The values lists need to be of the same length'-[]], [nl].
-	juypter_message(invalid_table_variable_names) -->
+	message_tokens(invalid_table_variable_names) -->
 		['The list of names needs to be empty or of the same length as the values lists and contain ground terms only'-[]], [nl].
-	juypter_message(leash_pred) -->
+	message_tokens(leash_pred) -->
 		['The leash mode cannot be changed in a Jupyter application as no user interaction can be provided at a breakpoint'-[]], [nl].
-	juypter_message(no_single_goal(Predicate)) -->
+	message_tokens(no_single_goal(Predicate)) -->
 		['~w needs to be the only goal in a term'-[Predicate]], [nl].
-	juypter_message(print_transition_graph_indices(Arity)) -->
+	message_tokens(print_transition_graph_indices(Arity)) -->
 		['All indices need to be less or equal to the provided predicate arity ~w'-[Arity]], [nl].
-	juypter_message(print_transition_graph_pred_spec(PredSpec)) -->
+	message_tokens(print_transition_graph_pred_spec(PredSpec)) -->
 		['Incorrect predicate specification: ~w'-[PredSpec]], [nl],
 		['It needs to be of the form PredName/PredArity or Object::PredName/PredArity'-[]], [nl].
-	juypter_message(prolog_impl_id_no_atom) -->
+	message_tokens(prolog_impl_id_no_atom) -->
 		['The Prolog backend ID needs to be an atom'-[]], [nl].
-	juypter_message(single_test_directive) -->
+	message_tokens(single_test_directive) -->
 		['The definition of a unit test cannot be split across multiple cells'-[]], [nl].
-	juypter_message(trace_pred(TracePredSpec)) -->
+	message_tokens(trace_pred(TracePredSpec)) -->
 		['~w cannot be used in a Jupyter application'-[TracePredSpec]], [nl],
 		['However, there is juypter:trace(Goal)'-[]], [nl].
-	juypter_message(no_answer_given) -->
+	message_tokens(no_answer_given) -->
 		% Used for the code stub for manually graded tasks of nbgrader assignments
 		['No answer given'-[]], [nl].
+
+	message_tokens(error(Error, Context)) -->
+		['Error:   ~q'-[Error], nl],
+		['Context: ~q'-[Context], nl].
 
 :- end_object.
