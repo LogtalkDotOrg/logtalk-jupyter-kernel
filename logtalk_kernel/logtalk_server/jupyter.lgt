@@ -42,13 +42,13 @@
 	:- uses(jupyter_preferences, [version/4]).
 
 	version :-
-		version(Major, Minor, Patch, Suffix),
-		%jupyter_tools:format_log('Version ~w.~w.~w-~w~n',[Maj,Min,Patch,Suffix]),
-		format('Version ~w.~w.~w-~w of Jupyter-Logtalk-Kernel~n', [Major, Minor, Patch, Suffix]).
+		version(Major, Minor, Patch, Status),
+		%log('Version ~w.~w.~w-~w~n',[Maj,Min,Patch,Status]),
+		format('Version ~w.~w.~w-~w of Jupyter-Logtalk-Kernel~n', [Major, Minor, Patch, Status]).
 
 	% Help
 
-	% jupyter:predicate_docs(-PredDocs)
+	% jupyter::predicate_docs(-PredDocs)
 	%
 	% PredDocs is a list with elements of the form Pred=Doc, where Pred is a predicate exported by this module and Doc is its documentation as an atom.
 	predicate_docs(PredDocs) :-
@@ -214,8 +214,6 @@
 	print_variable_bindings([Name=Value|Bindings]) :-
 		format('$~w =~t~12|~p~n', [Name, Value]),
 		print_variable_bindings(Bindings).
-
-	% Previous query data
 
 	% print_query_time
 	%

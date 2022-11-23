@@ -36,11 +36,11 @@
 	log(Term) :-
 		log('~w~n', Term).
 
-	log(Control, Arguments) :-
+	log(Format, Arguments) :-
 		% Write to the log file
 		stream_property(_, alias(log_stream)),
 		!,
-		format(log_stream, Control, Arguments),
+		format(log_stream, Format, Arguments),
 		flush_output(log_stream).
 	log(_Control, _Arguments).
 	% No new log file could be opened

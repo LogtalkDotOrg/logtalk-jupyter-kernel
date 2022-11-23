@@ -4,17 +4,34 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-15,
+		date is 2022-11-23,
 		comment is 'This object andles all reading, writing, and parsing of JSON messages. It is based on jsonrpc_server.pl and jsonrpc_client.pl from SICStus 4.5.1.'
 	]).
 
-	:- public([
-		json_error_term/5,           % json_error_term(+ErrorCode, +ErrorMessageData, +Output, +AdditionalData, -JsonErrorTerm)
-		next_jsonrpc_message/1,      % next_jsonrpc_message(-Message)
-		parse_json_terms_request/3,  % parse_json_terms_request(+Params, -TermsAndVariables, -ParsingErrorMessageData)
-		send_error_reply/3,          % send_error_reply(+Id, +ErrorCode, +ErrorMessage)
-		send_json_request/6,         % send_json_request(+Method, +Params, +Id, +InputStream, +OutputStream, -Reply)
-		send_success_reply/2         % send_success_reply(+Id, +Result)
+	:- public(json_error_term/5).
+	% json_error_term(+ErrorCode, +ErrorMessageData, +Output, +AdditionalData, -JsonErrorTerm)
+
+	:- public(next_jsonrpc_message/1).
+	:- mode(next_jsonrpc_message(-json), one).
+	:- info(next_jsonrpc_message/1, [
+		comment is 'Returns the next JSON-RPC message.',
+		argnames is ['Message']
+	]).
+
+	:- public(parse_json_terms_request/3).
+	% parse_json_terms_request(+Params, -TermsAndVariables, -ParsingErrorMessageData)
+
+	:- public(send_error_reply/3).
+	% send_error_reply(+Id, +ErrorCode, +ErrorMessage)
+
+	:- public(send_json_request/6).
+	% send_json_request(+Method, +Params, +Id, +InputStream, +OutputStream, -Reply)
+
+	:- public(send_success_reply/2).
+	:- mode(send_success_reply(+integer, +nonvar), one).
+	:- info(send_success_reply/2, [
+		comment is 'Sends a successful request result.',
+		argnames is ['Id', 'Result']
 	]).
 
 	:- uses(list, [append/3, member/2]).
@@ -27,12 +44,7 @@
 		parse(line(Stream),JSON) as json_read(Stream,JSON)
 	]).
 
-
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 	% Create JSON-RPC objects
-
 
 	% Create a JSON-RPC Request object (http://www.jsonrpc.org/specification#request_object)
 	jsonrpc_request(Method, Params, Id, json([jsonrpc-'2.0',id-Id,method-Method,params-Params])).
@@ -58,13 +70,10 @@
 	jsonrpc_error(Code, Message, json([code-Code,message-Message])).
 
 
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 	% json_error_term(+ErrorCode, +ErrorMessageData, +Output, +AdditionalData, -JsonErrorTerm)
 	%
 	% ErrorCode is one of the error codes defined by error_object_code/3 (e.g. exception).
-	% ErrorMessageData is a term of the form message_data(Kind, Term) so that the acutal error message can be retrieved with print_message(Kind, Term)
+	% ErrorMessageData is a term of the form message_data(Kind, Term) so that the actual error message can be retrieved with print_message(Kind, jupyter, Term)
 	% Output is the output of the term which was executed.
 	% AdditionalData is a list containing Key-Value pairs providing additional data for the client.
 	json_error_term(ErrorCode, ErrorMessageData, Output, AdditionalData, JsonErrorTerm) :-
@@ -82,12 +91,8 @@
 	error_data(PrologMessage, Output, AdditionalData, json([prolog_message-PrologMessage, output-Output|AdditionalData])).
 
 
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 	% Send responses
 
-	% send_success_reply(+Id, +Result)
 	send_success_reply(Id, Result) :-
 		nonvar(Id),
 		!,
@@ -98,7 +103,7 @@
 	% send_error_reply(+Id, +ErrorCode, +PrologMessage)
 	%
 	% ErrorCode is one of the error codes defined by error_object_code/3 (e.g. exception).
-	% PrologMessage is an error message as output by print_message/2.
+	% PrologMessage is an error message as output by print_message/3.
 	send_error_reply(Id, ErrorCode, PrologMessage) :-
 		error_object_code(ErrorCode, NumericErrorCode, JsonRpcErrorMessage),
 		json_error_term(NumericErrorCode, JsonRpcErrorMessage, json([prolog_message-PrologMessage]), RPCError),
@@ -134,9 +139,6 @@
 	error_object_code(unhandled_exception, -4715, 'Unhandled exception').
 
 
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 	% Send json request and read the response
 
 	% send_json_request(+Method, +Params, +Id, +InputStream, +OutputStream, -Reply)
@@ -152,9 +154,6 @@
 		% Read the response
 		json_read(OutputStream, Reply).
 
-
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 	% Read and write json messages
 
@@ -204,9 +203,6 @@
 		).
 
 
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 	% Parse json messages
 
 	% parse_json_terms_request(+Params, -TermsAndVariables, -ParsingErrorMessageData)
@@ -255,7 +251,6 @@
 		;	true
 		).
 
-
 	% terms_from_codes(+Codes, -TermsAndVariables, -ParsingErrorMessageData)
 	terms_from_codes(Codes, TermsAndVariables, ParsingErrorMessageData) :-
 		catch(
@@ -263,7 +258,6 @@
 			Exception,
 			ParsingErrorMessageData = message_data(error, Exception)
 		).
-
 
 	% read_terms_and_vars(+Codes, -TermsAndVariables)
 	read_terms_and_vars(Codes, NewTermsAndVariables) :-
@@ -273,10 +267,6 @@
 		;	NewTermsAndVariables = [Term-Variables|TermsAndVariables],
 			read_terms_and_vars(Tail, TermsAndVariables)
 		).
-
-
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 	% json_member(+Object, +Name, -Value)
 	%

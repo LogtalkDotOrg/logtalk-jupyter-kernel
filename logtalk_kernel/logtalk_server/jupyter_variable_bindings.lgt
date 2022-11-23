@@ -6,15 +6,24 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-11,
+		date is 2022-11-23,
 		comment is 'This object provides predicates to reuse previous values of variables in a query.'
 	]).
 
-	:- public([
-		store_var_bindings/1,            % store_var_bindings(+Bindings)
-		term_with_stored_var_bindings/4, % term_with_stored_var_bindings(+Term, +Bindings, -ExpandedTerm, -UpdatedBindings)
-		var_bindings/1                   % var_bindings(-Bindings)
+	:- public(store_var_bindings/1).
+	:- mode(store_var_bindings(+list), one).
+	:- info(store_var_bindings/1, [
+		comment is 'Stores variable bindings.',
+		argnames is ['Bindings']
 	]).
+
+	:- public(term_with_stored_var_bindings/4).
+	% term_with_stored_var_bindings(+Term, +Bindings, -ExpandedTerm, -UpdatedBindings)
+
+	:- public(var_bindings/1).
+	:- dynamic(var_bindings/1).
+	% Bindings is a list of Name=Var pairs, where Name is the name of the variable Var of the latest query in which a variable of this name was assigned a value.
+	% var_bindings(-Bindings)
 
 	:- uses(list, [append/3, delete/3, member/2]).
 	:- uses(jupyter_logging, [log/1, log/2]).
@@ -27,8 +36,6 @@
 	% This is needed so that terms containing terms of the form $Var can be read without any exceptions.
 	:- op(1, fx, '$').
 
-	:- dynamic(var_bindings/1). % var_bindings(Bindings)
-	% Bindings is a list of Name=Var pairs, where Name is the name of the variable Var of the latest query in which a variable of this name was assigned a value.
 
 	var_bindings([]).
 

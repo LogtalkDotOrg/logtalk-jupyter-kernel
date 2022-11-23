@@ -28,20 +28,27 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-22,
+		date is 2022-11-23,
 		comment is 'This object provides predicates to handle terms received from the client, compute their results and assert them with term_response/1.'
 	]).
 
-	:- public([
-		assert_sld_data/4,        % assert_sld_data(Port, Goal, Frame, ParentFrame)
-		handle_term/6,            % handle_term(+Term, +IsSingleTerm, +CallRequestId, +Stack, +Bindings, -Cont)
-		term_response/1,           % term_response(JsonResponse),
-		findall_results_and_var_names/4,
-		dot_subnode/3,
-		dot_subtree/3
-	]).
-
+	:- public(assert_sld_data/4).
+	% assert_sld_data(Port, Goal, Frame, ParentFrame)
+	
+	:- public(handle_term/6).
+	% handle_term(+Term, +IsSingleTerm, +CallRequestId, +Stack, +Bindings, -Cont)
+	
+	:- public(term_response/1).
+	:- dynamic(term_response/1).
+	% term_response(JsonResponse),
+	
+	:- public(findall_results_and_var_names/4).
 	:- meta_predicate(findall_results_and_var_names(*, *, *, *)).
+	
+	:- public(dot_subnode/3).
+	
+	:- public(dot_subtree/3).
+
 	:- meta_predicate(call_with_sld_failure_handling(*, *)).
 
 	:- uses(debugger, [debug/0, trace/0, notrace/0]).
@@ -64,9 +71,6 @@
 	:- private(is_retry/1).
 	:- dynamic(is_retry/1).
 
-	% term_response(JsonResponse)
-	:- dynamic(term_response/1).
-
 	% handle_term(+Term, +IsSingleTerm, +CallRequestId, +Stack, +Bindings, -Cont)
 	%
 	% Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the term Term.
@@ -85,70 +89,67 @@
 		atom_codes(Atom, Codes).
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% Queries
 
-% Queries
+	% In case of any other query not handled by any of the predicates defined above, the query is called by jupyter_query_handling::call_query_with_output_to_file/7.
+	% Before calling it, any $Var terms are replaced by corresponding values from previous queries.
+	% Additionally, the output of the goal and debugging messages are redirected to a file so that it can be read in and sent to the client.
 
-% In case of any other query not handled by any of the predicates defined above, the query is called by jupyter_query_handling::call_query_with_output_to_file/7.
-% Before calling it, any $Var terms are replaced by corresponding values from previous queries.
-% Additionally, the output of the goal and debugging messages are redirected to a file so that it can be read in and sent to the client.
+	% jupyter_query_handling:call_query_with_output_to_file/7 leaves a choice point.
+	% This way, when a 'retry' term is encountered in a future request, its failing causes the goal to be retried.
 
-% jupyter_query_handling:call_query_with_output_to_file/7 leaves a choice point.
-% This way, when a 'retry' term is encountered in a future request, its failing causes the goal to be retried.
-
-% handle_query_term(+Term, +IsDirective, +CallRequestId, +Stack, +Bindings, +LoopCont, -Cont)
-handle_query_term(Term, IsDirective, CallRequestId, Stack, Bindings, LoopCont, Cont) :-
-	% Before executing a query, replace any of its subterms of the form $Var by the latest value of the variable Var from a previous query.
-	replace_previous_variable_bindings(Term, Bindings, UpdatedTerm, UpdatedBindings, Exception),
-	(	nonvar(Exception) ->
-		assert_error_response(exception, message_data(error, Exception), '', []),
-		Cont = continue
-	;	% Create a term_data(TermAtom, Bindings) term.
-		% If the term is a query, the term_data term is used to assert the original term data in case terms of the form $Var were replaced.
-		% The term data is needed when accessing previous queries (e.g. with jupyter::print_queries/1).
-		% Bindings needs to be copied so that the term can be read from the atom without any of the variables being instantiated by calling the term.
-		copy_term(Bindings, BindingsCopy),
-		write_term_to_atom(Term, TermAtom, [variable_names(Bindings)]),
-		handle_query_term_(UpdatedTerm, IsDirective, CallRequestId, Stack, UpdatedBindings, term_data(TermAtom, BindingsCopy), LoopCont, Cont)
-	).
+	% handle_query_term(+Term, +IsDirective, +CallRequestId, +Stack, +Bindings, +LoopCont, -Cont)
+	handle_query_term(Term, IsDirective, CallRequestId, Stack, Bindings, LoopCont, Cont) :-
+		% Before executing a query, replace any of its subterms of the form $Var by the latest value of the variable Var from a previous query.
+		replace_previous_variable_bindings(Term, Bindings, UpdatedTerm, UpdatedBindings, Exception),
+		(	nonvar(Exception) ->
+			assert_error_response(exception, message_data(error, Exception), '', []),
+			Cont = continue
+		;	% Create a term_data(TermAtom, Bindings) term.
+			% If the term is a query, the term_data term is used to assert the original term data in case terms of the form $Var were replaced.
+			% The term data is needed when accessing previous queries (e.g. with jupyter::print_queries/1).
+			% Bindings needs to be copied so that the term can be read from the atom without any of the variables being instantiated by calling the term.
+			copy_term(Bindings, BindingsCopy),
+			write_term_to_atom(Term, TermAtom, [variable_names(Bindings)]),
+			handle_query_term_(UpdatedTerm, IsDirective, CallRequestId, Stack, UpdatedBindings, term_data(TermAtom, BindingsCopy), LoopCont, Cont)
+		).
 
 
-% replace_previous_variable_bindings(+Term, +Bindings, -UpdatedTerm, -UpdatedBindings, -Exception)
-replace_previous_variable_bindings(Term, Bindings, UpdatedTerm, UpdatedBindings, Exception) :-
-	catch(term_with_stored_var_bindings(Term, Bindings, UpdatedTerm, UpdatedBindings), Exception, true).
+	% replace_previous_variable_bindings(+Term, +Bindings, -UpdatedTerm, -UpdatedBindings, -Exception)
+	replace_previous_variable_bindings(Term, Bindings, UpdatedTerm, UpdatedBindings, Exception) :-
+		catch(term_with_stored_var_bindings(Term, Bindings, UpdatedTerm, UpdatedBindings), Exception, true).
 
-is_query_alias(retry,jupyter::retry).
-is_query_alias(halt,jupyter::halt).
-is_query_alias(eclipse,jupyter::set_prolog_backend(eclipselgt)) :-
-	\+ user::current_predicate(eclipse/0).
-is_query_alias(gnu,jupyter::set_prolog_backend(gplgt)) :-
-	\+ user::current_predicate(gnu/0).
-is_query_alias(lvm,jupyter::set_prolog_backend(lvmlgt)) :-
-	\+ user::current_predicate(lvm/0).
-is_query_alias(sicstus,jupyter::set_prolog_backend(sicstuslgt)) :-
-	\+ user::current_predicate(sicstus/0).
-is_query_alias(swi,jupyter::set_prolog_backend(swilgt)) :-
-	\+ user::current_predicate(swi/0).
-is_query_alias(trealla,jupyter::set_prolog_backend(tplgt)) :-
-	\+ user::current_predicate(trealla/0).
-is_query_alias(yap,jupyter::set_prolog_backend(yaplgt)) :-
-	\+ user::current_predicate(yap/0).
-is_query_alias(show_graph(Nodes,Edges),jupyter::show_graph(Nodes,Edges)) :-
-	\+ user::current_predicate(show_graph/2).
-is_query_alias(show_term(Term), jupyter::show_graph(jupyter_term_handling::dot_subnode(_,_,Term),jupyter_term_handling::dot_subtree/3)) :-
-	\+ user::current_predicate(show_term/1).
-is_query_alias(print_queries,jupyter::print_queries) :-
-	\+ user::current_predicate(print_queries/0).
-is_query_alias(print_queries(L),jupyter::print_queries(L)) :-
-	\+ user::current_predicate(print_queries/1).
-is_query_alias(show_sld_tree(L),jupyter::print_sld_tree(L)) :-
-	\+ user::current_predicate(show_sld_tree/1).
+	is_query_alias(retry, jupyter::retry).
+	is_query_alias(halt, jupyter::halt).
+	is_query_alias(eclipse, jupyter::set_prolog_backend(eclipselgt)) :-
+		\+ user::current_predicate(eclipse/0).
+	is_query_alias(gnu, jupyter::set_prolog_backend(gplgt)) :-
+		\+ user::current_predicate(gnu/0).
+	is_query_alias(lvm, jupyter::set_prolog_backend(lvmlgt)) :-
+		\+ user::current_predicate(lvm/0).
+	is_query_alias(sicstus, jupyter::set_prolog_backend(sicstuslgt)) :-
+		\+ user::current_predicate(sicstus/0).
+	is_query_alias(swi, jupyter::set_prolog_backend(swilgt)) :-
+		\+ user::current_predicate(swi/0).
+	is_query_alias(trealla, jupyter::set_prolog_backend(tplgt)) :-
+		\+ user::current_predicate(trealla/0).
+	is_query_alias(yap, jupyter::set_prolog_backend(yaplgt)) :-
+		\+ user::current_predicate(yap/0).
+	is_query_alias(show_graph(Nodes,Edges), jupyter::show_graph(Nodes,Edges)) :-
+		\+ user::current_predicate(show_graph/2).
+	is_query_alias(show_term(Term), jupyter::show_graph(jupyter_term_handling::dot_subnode(_,_,Term),jupyter_term_handling::dot_subtree/3)) :-
+		\+ user::current_predicate(show_term/1).
+	is_query_alias(print_queries, jupyter::print_queries) :-
+		\+ user::current_predicate(print_queries/0).
+	is_query_alias(print_queries(L), jupyter::print_queries(L)) :-
+		\+ user::current_predicate(print_queries/1).
+	is_query_alias(show_sld_tree(L), jupyter::print_sld_tree(L)) :-
+		\+ user::current_predicate(show_sld_tree/1).
 
 % handle_query_term_(+Query, +IsDirective, +CallRequestId, +Stack, +Bindings, +OriginalTermData, +LoopCont, -Cont)
 handle_query_term_(Call, IsDirective, CallRequestId, Stack,
                    Bindings, OriginalTermData, LoopCont, Cont) :- 
-  %  jupyter_tools:format_log('Call: ~w~n',[Call]),
+  % log('Call: ~w~n',[Call]),
   is_query_alias(Call,Alias),
   !,
   handle_query_term_(Alias, IsDirective, CallRequestId, Stack,
@@ -1223,10 +1224,6 @@ handle_update_completion_data.
 %		NextCharacterCode is CurrentCharacterCode + 1,
 %		name_var_pairs(Variables, NextCharacterCode, Bindings).
 
-
-
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 	% Assert the term responses
 

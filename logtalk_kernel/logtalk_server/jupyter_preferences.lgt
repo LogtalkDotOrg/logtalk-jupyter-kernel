@@ -8,6 +8,8 @@
 		comment is 'Preferecnes management.'
 	]).
 
+	:- initialization(init_preferences).
+
 	:- public(set_preference/2).
 	:- mode(set_preference(+atom, +nonvar), one).
 	:- info(set_preference/2, [
@@ -49,10 +51,13 @@
 		argnames is ['Major', 'Minor', 'Patch', 'Status']
 	]).
 
-	:- initialization(init_preferences).
-
 	:- private(preference_value_/2).
 	:- dynamic(preference_value_/2).
+	:- mode(preference_value_(?atom, ?nonvar), zero_or_more).
+	:- info(preference_value_/2, [
+		comment is 'Table of preference values.',
+		argnames is ['Preference', 'Value']
+	]).
 
 	:- uses(logtalk, [
 		print_message(debug, jupyter, Message) as dbg(Message)
@@ -67,10 +72,10 @@
 
 	set_preference(Name, OldValue, NewValue) :-
 		preference_definition(Name, _, Type, _Desc),
-		check_type(Type, Value),
+		check_type(Type, NewValue),
 		retract(preference_value_(Name, OldValue)), !,
 		dbg('Changing preference ~w from ~w to ~w~n'+[Name, OldValue, NewValue]),
-		assertz(preference_value_(Name, Value)).
+		assertz(preference_value_(Name, NewValue)).
 
 	check_type(natural,Val) :- integer(Val), Val >= 0.
 	check_type(integer,Val) :- integer(Val).

@@ -15,25 +15,41 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-13,
+		date is 2022-11-23,
 		comment is 'This object provides predicates to redirect the output of a query execution to a file and read it from the file.'
 	]).
 
-	:- public([
-		call_query_with_output_to_file/7,  % call_query_with_output_to_file(+Goal, +CallRequestId, +Bindings, +OriginalTermData, -Output, -ErrorMessageData -IsFailure)
-		call_with_output_to_file/3,        % call_with_output_to_file(+Goal, -Output, -ErrorMessageData)
-		delete_output_file/1,              % delete_output_file(+DeleteFile)
-		query_data/4,                      % query_data(-CallRequestId, -Runtime, -TermData, -OriginalTermData)
-		redirect_output_to_file/0,
-		remove_output_lines_for/1,         % remove_output_lines_for(Type),
-		retrieve_message/2,                % retrieve_message(+ErrorMessageData, -Message)
-		send_reply_on_error/0,
-		debug_mode_for_breakpoints/0,
-		safe_call_without_sending_error_replies/1
-	]).
-
-	:- meta_predicate(call_with_output_to_file(*, *, *)).
+	:- public(call_query_with_output_to_file/7).
 	:- meta_predicate(call_query_with_output_to_file(*, *, *, *, *, *, *)).
+	% call_query_with_output_to_file(+Goal, +CallRequestId, +Bindings, +OriginalTermData, -Output, -ErrorMessageData -IsFailure)
+	
+	:- public(call_with_output_to_file/3).
+	:- meta_predicate(call_with_output_to_file(*, *, *)).
+	% call_with_output_to_file(+Goal, -Output, -ErrorMessageData)
+	
+	:- public(delete_output_file/1).
+	% delete_output_file(+DeleteFile)
+	
+	:- public(query_data/4).
+	:- dynamic(query_data/4).
+	% query_data(-CallRequestId, -Runtime, -TermData, -OriginalTermData)
+	
+	:- public(redirect_output_to_file/0).
+	
+	:- public(remove_output_lines_for/1).
+	:- dynamic(remove_output_lines_for/1).
+	% remove_output_lines_for(Type)
+	
+	:- public(retrieve_message/2).
+	% retrieve_message(+ErrorMessageData, -Message)
+	
+	:- public(send_reply_on_error/0).
+	:- dynamic(send_reply_on_error/0).
+
+	:- public(debug_mode_for_breakpoints/0).
+	
+	:- public(safe_call_without_sending_error_replies/1).
+
 	:- meta_predicate(call_with_exception_handling(*, *)).
 	:- meta_predicate(safe_call_without_sending_error_replies(*)).
 
@@ -45,12 +61,7 @@
 	:- uses(term_io, [write_term_to_codes/3]).
 	:- uses(jupyter_logging, [log/1, log/2]).
 
-	% query_data(CallRequestId, Runtime, TermData, OriginalTermData)
-	:- dynamic(query_data/4).
-
 	% TermData and OriginalTermData are terms of the form term_data(TermAtom, Bindings)
-	:- dynamic(remove_output_lines_for/1).  % remove_output_lines_for(Type),
-	:- dynamic(send_reply_on_error/0).
 
 	% If send_reply_on_error exists, an error reply is sent to the client if an unhandled error occurs and is printed with print_message/2.
 	% This predicate is retracted when an error message is to be produced from an error term and therefore printed.
