@@ -10,13 +10,21 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-21,
+		date is 2022-11-23,
 		comment is 'Main object of the server.'
 	]).
 
-	:- public([
-		start/0,
-		start/1
+	:- public(start/0).
+	:- mode(start, one).
+	:- info(start/0, [
+		comment is 'Starts the server at the default verbosity level (1).'
+	]).
+
+	:- public(start/1).
+	:- mode(start(+integer), one).
+	:- info(start/1, [
+		comment is 'Starts the server at the given verbosity level (0..10).',
+		argnames is ['VerbosityLevel']
 	]).
 
 	:- uses(jupyter_logging, [log/1, log/2]).
@@ -25,7 +33,7 @@
 	:- uses(jupyter_preferences, [set_preference/2]).
 
 	start :-
-		start(10).
+		start(1).
 
 	start(JupyterKernelVerbosityLevel) :-
 		setup,
