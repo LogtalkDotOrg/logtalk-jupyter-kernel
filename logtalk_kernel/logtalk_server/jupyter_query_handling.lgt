@@ -146,7 +146,8 @@
 	debug_mode_for_breakpoints.
 
 	% assert_query_data(+CallRequestId,  +Runtime, +TermData, +OriginalTermData)
-	assert_query_data(0, _Runtime, _TermData, _OriginalTermData) :- !.
+	assert_query_data(0, _Runtime, _TermData, _OriginalTermData) :-
+		!.
 	% Do not assert query data for requests with ID 0
 	% With requests with this ID, the kernel can request additional data (e.g. for inspection in the case of SWI-Prolog)
 	assert_query_data(CallRequestId, Runtime, TermData, OriginalTermData) :-
@@ -280,7 +281,7 @@
 		remove_output_lines_for(sld_tree_breakpoint_messages),
 		!,
 		retractall(remove_output_lines_for(sld_tree_breakpoint_messages)),
-		% The output was produced by a call of jupyter:print_sld_tree
+		% The output was produced by a call of jupyter::print_sld_tree
 		% The first two lines are of the following form:
 		% "% The debugger will first leap -- showing spypoints (debug)"
 		% "% Generic spypoint added, BID=1"
