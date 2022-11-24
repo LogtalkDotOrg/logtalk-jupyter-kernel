@@ -11,6 +11,7 @@ For further information, see 'kernel.py'.
 import json
 import logging
 import os
+import platform
 import subprocess
 
 from graphviz import render
@@ -69,13 +70,22 @@ class LogtalkKernelBaseImplementation:
         self.logtalk_proc = None
 
         # Start the Logtalk server
-        self.logtalk_proc = subprocess.Popen(
-            program_arguments,
-            stdout=subprocess.PIPE,
-            stdin=subprocess.PIPE,
-            stderr=subprocess.DEVNULL,
-            encoding='UTF-8'
-        )
+        if platform.system() == 'Windows':
+            self.logtalk_proc = subprocess.Popen(
+                ["pwsh.exe"] + program_arguments,
+                stdout=subprocess.PIPE,
+                stdin=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+                encoding='UTF-8'
+            )
+        else:
+            self.logtalk_proc = subprocess.Popen(
+                program_arguments,
+                stdout=subprocess.PIPE,
+                stdin=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+                encoding='UTF-8'
+            )
 
         # Test if the server was started correctly by requesting the Prolog backend identifier
         try:
