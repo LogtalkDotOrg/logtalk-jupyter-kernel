@@ -71,21 +71,17 @@ class LogtalkKernelBaseImplementation:
 
         # Start the Logtalk server
         if platform.system() == 'Windows':
-            self.logtalk_proc = subprocess.Popen(
-                ["pwsh.exe"] + program_arguments,
-                stdout=subprocess.PIPE,
-                stdin=subprocess.PIPE,
-                stderr=subprocess.DEVNULL,
-                encoding='UTF-8'
-            )
+            extended_program_arguments = ["pwsh.exe", "-ExecutionPolicy", "Unrestricted", "-Command"] + program_arguments
         else:
-            self.logtalk_proc = subprocess.Popen(
-                program_arguments,
-                stdout=subprocess.PIPE,
-                stdin=subprocess.PIPE,
-                stderr=subprocess.DEVNULL,
-                encoding='UTF-8'
-            )
+            extended_program_arguments = program_arguments
+        self.logtalk_proc = subprocess.Popen(
+            extended_program_arguments,
+            stdout=subprocess.PIPE,
+            stdin=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            encoding='UTF-8'
+        )
+        self.logger.debug(str(self.logtalk_proc))
 
         # Test if the server was started correctly by requesting the Prolog backend identifier
         try:

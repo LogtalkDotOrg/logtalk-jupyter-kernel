@@ -33,6 +33,7 @@ This is especially useful for extending the kernel for further Prolog backends.
 import importlib.util
 import logging
 import os
+import platform
 import sys
 
 from inspect import getmembers, isclass
@@ -86,7 +87,10 @@ class LogtalkKernel(Kernel):
     #backend_id = Unicode('sicstuslgt').tag(config=True)
     #backend_id = Unicode('sicstuslgt.sh').tag(config=True)
     #backend_id = Unicode('sicstuslgt.ps1').tag(config=True)
-    backend_id = Unicode('swilgt').tag(config=True)
+    if platform.system() == 'Windows':
+        backend_id = Unicode('swilgt.ps1').tag(config=True)
+    else:
+        backend_id = Unicode('swilgt').tag(config=True)
     #backend_id = Unicode('swilgt.sh').tag(config=True)
     #backend_id = Unicode('swilgt.ps1').tag(config=True)
     #backend_id = Unicode('tplgt').tag(config=True)
@@ -100,22 +104,28 @@ class LogtalkKernel(Kernel):
     default_program_arguments = {
         "eclipselgt": ["eclipselgt",
                 "-P",
-                "-e", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt."],
+                "-e", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt.",
+                "--", "--quiet"],
         "eclipselgt.sh": ["eclipselgt.sh",
                 "-P",
-                "-e", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt."],
+                "-e", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt.",
+                "--", "--quiet"],
         "eclipselgt.ps1": ["eclipselgt.ps1",
                 "-P",
-                "-e", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt."],
+                "-e", """set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt.""",
+                "--", "--quiet"],
         "gplgt": ["gplgt",
                 "--quiet",
-                "--entry-goal", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt"],
+                "--entry-goal", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt",
+                "--", "--quiet"],
         "gplgt.sh": ["gplgt.sh",
                 "--quiet",
-                "--entry-goal", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt"],
+                "--entry-goal", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt",
+                "--", "--quiet"],
         "gplgt.ps1": ["gplgt.ps1",
                 "--quiet",
-                "--entry-goal", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt"],
+                "--entry-goal", """set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt""",
+                "--", "--quiet"],
         "lvmlgt": ["lvmlgt",
                 "-q",
                 "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt."],
@@ -124,7 +134,7 @@ class LogtalkKernel(Kernel):
                 "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt."],
         "lvmlgt.ps1": ["lvmlgt.ps1",
                 "-q",
-                "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt."],
+                "-g", """set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt."""],
         "sicstuslgt": ["sicstuslgt",
                 "--noinfo",
                 "--goal", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt.",
@@ -135,7 +145,7 @@ class LogtalkKernel(Kernel):
                 "--nologo"],
         "sicstuslgt.ps1": ["sicstuslgt.ps1",
                 "--noinfo",
-                "--goal", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt.",
+                "--goal", """set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt.""",
                 "--nologo"],
         "swilgt": ["swilgt",
                 "-q",
@@ -145,7 +155,7 @@ class LogtalkKernel(Kernel):
                 "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt"],
         "swilgt.ps1": ["swilgt.ps1",
                 "-q",
-                "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt"],
+                "-g", """set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt"""],
         "tplgt": ["tplgt",
                 "-q",
                 "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt"],
@@ -154,7 +164,7 @@ class LogtalkKernel(Kernel):
                 "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt"],
         "tplgt.ps1": ["tplgt.ps1",
                 "-q",
-                "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt"],
+                "-g", """set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt"""],
         "yaplgt": ["yaplgt",
                 "-q",
                 "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt"],
@@ -163,7 +173,7 @@ class LogtalkKernel(Kernel):
                 "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt"],
         "yaplgt.ps1": ["yaplgt.ps1",
                 "-q",
-                "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt"]
+                "-g", """set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt"""]
     }
 
     # The implementation specific data which is needed to run the Logtalk server for code execution.

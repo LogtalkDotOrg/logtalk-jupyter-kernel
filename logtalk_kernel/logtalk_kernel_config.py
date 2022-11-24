@@ -1,3 +1,5 @@
+import platform
+
 c = get_config()
 
 ## If set to True, the logging level is set to DEBUG by the kernel so that Python debugging messages are logged.
@@ -22,7 +24,10 @@ c = get_config()
 #c.LogtalkKernel.backend_id = "sicstuslgt"
 #c.LogtalkKernel.backend_id = "sicstuslgt.sh"
 #c.LogtalkKernel.backend_id = "sicstuslgt.ps1"
-c.LogtalkKernel.backend_id = "swilgt"
+if platform.system() == 'Windows':
+    c.LogtalkKernel.backend_id = "swilgt.ps1"
+else:
+    c.LogtalkKernel.backend_id = "swilgt"
 #c.LogtalkKernel.backend_id = "swilgt.sh"
 #c.LogtalkKernel.backend_id = "swilgt.ps1"
 #c.LogtalkKernel.backend_id = "tplgt"
