@@ -61,6 +61,7 @@ class LogtalkKernelBaseImplementation:
             # The third element of the list is the path to the Logtalk source code relative to the directory this file is located in
             # In order for it to be found, the path needs to be extended by the location of this file
             program_arguments[3] = program_arguments[3].replace("logtalk_server/loader.lgt", os.path.join(path, os.path.join("logtalk_server", "loader.lgt")))
+            program_arguments[3] = program_arguments[3].replace("\\", "\\\\")
 
         # Log the program arguments and the directory from which the program is tried to be started
         self.logger.debug('Trying to start the Logtalk server from ' + str(os.getcwd()) + ' with arguments: ' + str(program_arguments))

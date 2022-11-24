@@ -44,7 +44,7 @@ The directory [notebooks/nbgrader_example](./notebooks/nbgrader_example) provide
 - For Windows, installing **Graphviz** with `pip` does not suffice
   - Instead, it can be installed from [here](https://graphviz.org/download/) and added to the `PATH` (a reboot is required afterwards)
 
-The installation was tested with macOS 12.6.1 and Ubuntu 20.0.4.
+The installation was tested with macOS 12.6.1, Ubuntu 20.0.4, and Windows 10.
 
 
 ### Install
