@@ -219,10 +219,11 @@
 
 	:- elif(current_logtalk_flag(prolog_dialect, gnu)).
 
-		redirect_output_to_stream(current_output, _).
-		redirect_output_to_stream(user_output, Stream) :-
+		redirect_output_to_stream(current_output, Stream) :-
+			!,
 			set_output(Stream).
-		redirect_output_to_stream(user_error, _).
+		redirect_output_to_stream(Alias, Stream) :-
+			set_stream_alias(Stream, Alias).
 
 	:- elif(predicate_property(set_stream(_,_), built_in)).
 
