@@ -158,7 +158,7 @@
 		write(Stream, Terms),
 		close(Stream),
 		assertz(request_data(CallRequestId, [])),
-		handle_term(logtalk_load(File), true, CallRequestId, Stack, [], Cont).
+		handle_term(logtalk_load(File, [reload(always)]), true, CallRequestId, Stack, [], Cont).
 	dispatch_request(call, Message, Stack, Cont) :-
 		!,
 		Message = request(_Method,CallRequestId,Params,_RPC),
