@@ -139,6 +139,8 @@
 		\+ user::current_predicate(show_graph/2).
 	is_query_alias(show_term(Term), jupyter::show_graph(jupyter_term_handling::dot_subnode(_,_,Term),jupyter_term_handling::dot_subtree/3)) :-
 		\+ user::current_predicate(show_term/1).
+	is_query_alias(print_table(T), jupyter::print_table(T)) :-
+		\+ user::current_predicate(print_table/1).
 	is_query_alias(print_queries, jupyter::print_queries) :-
 		\+ user::current_predicate(print_queries/0).
 	is_query_alias(print_queries(L), jupyter::print_queries(L)) :-
