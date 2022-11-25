@@ -571,9 +571,6 @@ class LogtalkKernelBaseImplementation:
         if 'print_transition_graph' in dict:
             if self.handle_print_graph(dict['print_transition_graph']):
                 failure_keys.append(['print_transition_graph'])
-        if 'retracted_clauses' in dict:
-            if self.handle_retracted_clauses(dict['retracted_clauses']):
-                failure_keys.append(['retracted_clauses'])
         if 'set_prolog_backend_id' in dict:
             if self.handle_set_prolog_backend(dict['set_prolog_backend_id']):
                 failure_keys.append(['set_prolog_backend_id'])
@@ -680,46 +677,6 @@ class LogtalkKernelBaseImplementation:
 
         display_data = {'data': {'text/plain': table_markdown_string, 'text/markdown': table_markdown_string.replace('$', '\$').replace('~', '\~')}, 'metadata': {}}
         self.kernel.send_response(self.kernel.iopub_socket, 'display_data', display_data)
-
-
-    def handle_retracted_clauses(self, retracted_clauses):
-        """
-        Handles the displaying of clauses which were retracted.
-        Since this might not always be of interest for the user, a HTML <details> tag is used with which information can be displayed which can be expanded.
-        The dictionary retracted_clauses contains the retracted clauses.
-        It contains a single element of which the key is the predicate spec and the value is a string of the actual clauses which were retracted as output by listing/1.
-
-        Example
-        ------
-        {'user:app/3': 'app([], A, A).\napp([A|B], C, [A|D]) :-\n        app(B, C, D).\n'}
-        """
-        if retracted_clauses:
-            style = """
-            <style>
-            details  {
-              font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace; font-size: 13px;
-            }
-
-            details > summary {
-              cursor: pointer;
-            }
-            </style>
-            """
-
-            pred_spec = list(retracted_clauses.keys())[0]
-            listing = retracted_clauses[pred_spec]
-
-            # Create an expandable message saying that clauses have been retracted
-            html = '<details><summary>Previously defined clauses of ' + pred_spec + ' were retracted (click to expand)</summary><pre>' + listing + '</pre></details>'
-            plain_text = 'Previously defined clauses of ' + pred_spec + ' were retracted:\n' + listing
-
-            display_data = {
-                'data': {
-                    'text/plain': plain_text,
-                    'text/html': style + html },
-                'metadata': {
-                    'application/json' : {}}}
-            self.kernel.send_response(self.kernel.iopub_socket, 'display_data', display_data)
 
 
     def handle_set_prolog_backend(self, prolog_impl_id):
