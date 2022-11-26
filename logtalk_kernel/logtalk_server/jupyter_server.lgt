@@ -69,6 +69,8 @@
 	message_prefix_stream(error,       '!     ', user_output).
 
 	:- multifile(logtalk::message_tokens//2).
+	:- dynamic(logtalk::message_tokens//2).
+
 	logtalk::message_tokens(jupyter(JupyterMessageTerm), jupyter) -->
 		message_tokens(JupyterMessageTerm).
 	logtalk::message_tokens(MessageTerm, jupyter) -->

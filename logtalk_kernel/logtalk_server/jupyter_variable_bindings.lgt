@@ -29,6 +29,8 @@
 	:- uses(jupyter_logging, [log/1, log/2]).
 
 	:- multifile(logtalk::message_tokens//2).
+	:- dynamic(logtalk::message_tokens//2).
+
 	logtalk::message_tokens(jupyter(no_var_binding(VarName)), jupyter) -->
 		['$~w was not bound by a previous query~n'-[VarName]], [nl].
 
