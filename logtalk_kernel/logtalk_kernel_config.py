@@ -54,147 +54,147 @@ else:
 #    "eclipselgt": {
 #        "failure_response": "No",
 #        "success_response": "Yes",
-#        "error_prefix": "! ",
+#        "error_prefix": "!     ",
 #        "informational_prefix": "% ",
 #        "program_arguments": "default"
 #    },
 #    "eclipselgt.sh": {
 #        "failure_response": "No",
 #        "success_response": "Yes",
-#        "error_prefix": "! ",
+#        "error_prefix": "!     ",
 #        "informational_prefix": "% ",
 #        "program_arguments": "default"
 #    },
 #    "eclipselgt.ps1": {
 #        "failure_response": "No",
 #        "success_response": "Yes",
-#        "error_prefix": "! ",
+#        "error_prefix": "!     ",
 #        "informational_prefix": "% ",
 #        "program_arguments": "default"
 #    },
 #    "gplgt": {
 #        "failure_response": "no",
 #        "success_response": "yes",
-#        "error_prefix": "! ",
+#        "error_prefix": "!     ",
 #        "informational_prefix": "% ",
 #        "program_arguments": "default"
 #    },
 #    "gplgt.sh": {
 #        "failure_response": "no",
 #        "success_response": "yes",
-#        "error_prefix": "! ",
+#        "error_prefix": "!     ",
 #        "informational_prefix": "% ",
 #        "program_arguments": "default"
 #    },
 #    "gplgt.ps1": {
 #        "failure_response": "no",
 #        "success_response": "yes",
-#        "error_prefix": "! ",
+#        "error_prefix": "!     ",
 #        "informational_prefix": "% ",
 #        "program_arguments": "default"
 #    },
 #    "lvmlgt": {
 #        "failure_response": "false",
 #        "success_response": "true",
-#        "error_prefix": "! ",
+#        "error_prefix": "!     ",
 #        "informational_prefix": "% ",
 #        "program_arguments": "default"
 #    },
 #    "lvmlgt.sh": {
 #        "failure_response": "false",
 #        "success_response": "true",
-#        "error_prefix": "! ",
+#        "error_prefix": "!     ",
 #        "informational_prefix": "% ",
 #        "program_arguments": "default"
 #    },
 #    "lvmlgt.ps1": {
 #        "failure_response": "false",
 #        "success_response": "true",
-#        "error_prefix": "! ",
+#        "error_prefix": "!     ",
 #        "informational_prefix": "% ",
 #        "program_arguments": "default"
 #    },
 #    "sicstuslgt": {
 #        "failure_response": "no",
 #        "success_response": "yes",
-#        "error_prefix": "! ",
+#        "error_prefix": "!     ",
 #        "informational_prefix": "% ",
 #        "program_arguments": "default"
 #    },
 #    "sicstuslgt.sh": {
 #        "failure_response": "no",
 #        "success_response": "yes",
-#        "error_prefix": "! ",
+#        "error_prefix": "!     ",
 #        "informational_prefix": "% ",
 #        "program_arguments": "default"
 #    },
 #    "sicstuslgt.ps1": {
 #        "failure_response": "no",
 #        "success_response": "yes",
-#        "error_prefix": "! ",
+#        "error_prefix": "!     ",
 #        "informational_prefix": "% ",
 #        "program_arguments": "default"
 #    },
 #    "swilgt": {
 #        "failure_response": "false",
 #        "success_response": "true",
-#        "error_prefix": "! ",
+#        "error_prefix": "!     ",
 #        "informational_prefix": "% ",
 #        "program_arguments": "default"
 #    },
 #    "swilgt.sh": {
 #        "failure_response": "false",
 #        "success_response": "true",
-#        "error_prefix": "! ",
+#        "error_prefix": "!     ",
 #        "informational_prefix": "% ",
 #        "program_arguments": "default"
 #    },
 #    "swilgt.ps1": {
 #        "failure_response": "false",
 #        "success_response": "true",
-#        "error_prefix": "! ",
+#        "error_prefix": "!     ",
 #        "informational_prefix": "% ",
 #        "program_arguments": "default"
 #    },
 #    "tplgt": {
 #        "failure_response": "false",
 #        "success_response": "true",
-#        "error_prefix": "! ",
+#        "error_prefix": "!     ",
 #        "informational_prefix": "% ",
 #        "program_arguments": "default"
 #    },
 #    "tplgt.sh": {
 #        "failure_response": "false",
 #        "success_response": "true",
-#        "error_prefix": "! ",
+#        "error_prefix": "!     ",
 #        "informational_prefix": "% ",
 #        "program_arguments": "default"
 #    },
 #    "tplgt.ps1": {
 #        "failure_response": "false",
 #        "success_response": "true",
-#        "error_prefix": "! ",
+#        "error_prefix": "!     ",
 #        "informational_prefix": "% ",
 #        "program_arguments": "default"
 #    },
 #    "yaplgt": {
 #        "failure_response": "no",
 #        "success_response": "yes",
-#        "error_prefix": "! ",
+#        "error_prefix": "!     ",
 #        "informational_prefix": "% ",
 #        "program_arguments": "default"
 #    },
 #    "yaplgt.sh": {
 #        "failure_response": "no",
 #        "success_response": "yes",
-#        "error_prefix": "! ",
+#        "error_prefix": "!     ",
 #        "informational_prefix": "% ",
 #        "program_arguments": "default"
 #    },
 #    "yaplgt.ps1": {
 #        "failure_response": "no",
 #        "success_response": "yes",
-#        "error_prefix": "! ",
+#        "error_prefix": "!     ",
 #        "informational_prefix": "% ",
 #        "program_arguments": "default"
 #    }

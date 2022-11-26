@@ -471,7 +471,8 @@ class LogtalkKernelBaseImplementation:
 
         The dictionary response_dict contains the key 'error'.
         The corresponding value is a dictionary containing the error data.
-        The member 'data' can contain members 'prolog_message (e.g. a more specific error message) and 'output' (output of the request before the error occurred).
+        The member 'data' can contain members 'logtalk_message (e.g. a more specific error message)
+        and 'output' (output of the request before the error occurred).
 
         Example
         ------
@@ -482,7 +483,7 @@ class LogtalkKernelBaseImplementation:
             "code": -4712,
             "message": "Exception",
             "data": {
-                "prolog_message": "! Type error in argument 2 of (is)/2\n! expected evaluable, but found x/0\n! goal:  3 is 1+x",
+                "logtalk_message": "! Type error in argument 2 of (is)/2\n! expected evaluable, but found x/0\n! goal:  3 is 1+x",
                 "output": "test"
             }
         }
@@ -503,23 +504,23 @@ class LogtalkKernelBaseImplementation:
 
         if error_code == -4711:
             ename = 'failure'
-            if error['data']['prolog_message'] != '':
-                output += '\n' + error['data']['prolog_message']
-                response_text = error['data']['prolog_message']
+            if error['data']['logtalk_message'] != '':
+                output += '\n' + error['data']['logtalk_message']
+                response_text = error['data']['logtalk_message']
             else:
                 output += '\n' + self.backend_data["failure_response"]
                 response_text = self.backend_data["failure_response"]
         elif error_code == -4712:
-            # Exception: "prolog_message" contains the error message
+            # Exception: "logtalk_message" contains the error message
             ename = 'exception'
-            output += '\n' + error['data']['prolog_message']
-            response_text = error['data']['prolog_message'] + '\n'
+            output += '\n' + error['data']['logtalk_message']
+            response_text = error['data']['logtalk_message'] + '\n'
         elif error_code == -4715:
             # Unhandled exception: the server needs to be restarted
             ename = 'unhandled exception'
-            output += '\n' + error['data']['prolog_message']
+            output += '\n' + error['data']['logtalk_message']
             self.kill_logtalk_server()
-            response_text = error['data']['prolog_message'] + '\n' + self.backend_data["error_prefix"] + 'The Logtalk server needs to be restarted'
+            response_text = error['data']['logtalk_message'] + '\n' + self.backend_data["error_prefix"] + 'The Logtalk server needs to be restarted'
         else:
             ename = 'error'
             output += '\n' + error['message']
@@ -679,6 +680,6 @@ class LogtalkKernelBaseImplementation:
         self.kernel.send_response(self.kernel.iopub_socket, 'display_data', display_data)
 
 
-    def handle_set_prolog_backend(self, prolog_impl_id):
+    def handle_set_prolog_backend(self, prolog_backend_id):
         """The user requested to change the active Prolog backend, which needs to be handled by the kernel."""
-        return self.kernel.change_prolog_implementation(prolog_impl_id)
+        return self.kernel.change_prolog_backend(prolog_backend_id)

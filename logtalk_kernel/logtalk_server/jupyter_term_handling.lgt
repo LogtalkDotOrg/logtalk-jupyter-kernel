@@ -1148,7 +1148,7 @@ dot_subnode(Sub,[shape/S, label/F],Formula) :-
 		!,
 		assert_success_response(query, [], '', [set_prolog_backend_id-Backend]).
 	handle_set_prolog_backend(_Backend) :-
-		assert_error_response(exception, message_data(error, jupyter(prolog_impl_id_no_atom)), '', []).
+		assert_error_response(exception, message_data(error, jupyter(prolog_backend_id_no_atom)), '', []).
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

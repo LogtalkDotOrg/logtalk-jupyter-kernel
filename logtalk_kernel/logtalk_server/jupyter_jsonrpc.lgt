@@ -77,18 +77,18 @@
 	% Output is the output of the term which was executed.
 	% AdditionalData is a list containing Key-Value pairs providing additional data for the client.
 	json_error_term(ErrorCode, ErrorMessageData, Output, AdditionalData, JsonErrorTerm) :-
-		jupyter_query_handling::retrieve_message(ErrorMessageData, PrologMessage),
-		error_data(PrologMessage, Output, AdditionalData, ErroData),
+		jupyter_query_handling::retrieve_message(ErrorMessageData, LogtalkMessage),
+		error_data(LogtalkMessage, Output, AdditionalData, ErroData),
 		error_object_code(ErrorCode, NumericErrorCode, JsonRpcErrorMessage),
 		jsonrpc_error(NumericErrorCode, JsonRpcErrorMessage, ErroData, JsonErrorTerm).
 
 
-	% error_data(+PrologMessage, +Output, +AdditionalData, -ErrorData)
-	error_data(PrologMessage, Output, AdditionalData, json([prolog_message-PrologMessage|AdditionalData])) :-
+	% error_data(+LogtalkMessage, +Output, +AdditionalData, -ErrorData)
+	error_data(LogtalkMessage, Output, AdditionalData, json([logtalk_message-LogtalkMessage|AdditionalData])) :-
 		var(Output),
 		!.
-	error_data(PrologMessage, '', AdditionalData, json([prolog_message-PrologMessage|AdditionalData])) :- !.
-	error_data(PrologMessage, Output, AdditionalData, json([prolog_message-PrologMessage, output-Output|AdditionalData])).
+	error_data(LogtalkMessage, '', AdditionalData, json([logtalk_message-LogtalkMessage|AdditionalData])) :- !.
+	error_data(LogtalkMessage, Output, AdditionalData, json([logtalk_message-LogtalkMessage, output-Output|AdditionalData])).
 
 
 	% Send responses
@@ -100,13 +100,13 @@
 		write_message(JSONResponse).
 
 
-	% send_error_reply(+Id, +ErrorCode, +PrologMessage)
+	% send_error_reply(+Id, +ErrorCode, +LogtalkMessage)
 	%
 	% ErrorCode is one of the error codes defined by error_object_code/3 (e.g. exception).
-	% PrologMessage is an error message as output by print_message/3.
-	send_error_reply(Id, ErrorCode, PrologMessage) :-
+	% LogtalkMessage is an error message as output by print_message/3.
+	send_error_reply(Id, ErrorCode, LogtalkMessage) :-
 		error_object_code(ErrorCode, NumericErrorCode, JsonRpcErrorMessage),
-		json_error_term(NumericErrorCode, JsonRpcErrorMessage, json([prolog_message-PrologMessage]), RPCError),
+		json_error_term(NumericErrorCode, JsonRpcErrorMessage, json([logtalk_message-LogtalkMessage]), RPCError),
 		jsonrpc_error_response(RPCError, Id, RPCResult),
 		write_message(RPCResult).
 
@@ -207,8 +207,8 @@
 
 	% parse_json_terms_request(+Params, -TermsAndVariables, -ParsingErrorMessageData)
 	%
-	% Reads Prolog terms from the given 'code' string in Params.
-	% In general, the code needs to be valid Prolog syntax.
+	% Reads terms from the given 'code' string in Params.
+	% In general, the code needs to be valid Logtalk syntax.
 	% However, if a missing terminating full-stop causes the only syntax error (in case of SICStus Prolog), the terms can be parsed anyway.
 	% Does not bind TermsAndVariables if the code parameter in Params is malformed or if there is an error when reading the terms.
 	% If an error occurred while reading Prolog terms from the 'code' parameter, ParsingErrorMessageData is bound.
@@ -223,8 +223,8 @@
 
 	% terms_from_atom(+TermsAtom, -TermsAndVariables, -ParsingErrorMessageData)
 	%
-	% The atom TermsAtom should form valid Prolog term syntax (the last term does not need to be terminated by a full-stop).
-	% Reads all Prolog terms from TermsAtom.
+	% The atom TermsAtom should form valid Logtalk term syntax (the last term does not need to be terminated by a full-stop).
+	% Reads all terms from TermsAtom.
 	% TermsAndVariables is a list with elements of the form Term-Variables.
 	% Variables is a list of variable name and variable mappings (of the form [Name-Var, ...]) which occur in the corresponding term Term.
 	% ParsingErrorMessageData is instantiated to a term of the form message_data(Kind, Term) if a syntax error was encountered when reading the terms.
@@ -241,7 +241,7 @@
 		% Try reading the terms from the codes
 		terms_from_codes(GoalCodes, TermsAndVariables, ParsingErrorMessageData),
 		(	nonvar(ParsingErrorMessageData)
-		->	% No valid Prolog syntax
+		->	% No valid Logtalk syntax
 			% The error might have been caused by a missing terminating full-stop
 			(	append(_, [46], GoalCodes) % NOTE: the dot could be on a comment line.
 			;	% If the last code of the GoalCodes list does not represent a full-stop, add one and try reading the term(s) again
