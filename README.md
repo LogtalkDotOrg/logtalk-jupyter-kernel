@@ -50,10 +50,11 @@ The installation was tested with macOS 12.6.1, Ubuntu 20.0.4, and Windows 10.
 
 ### Install
 
-1. `git clone https://github.com/LogtalkDotOrg/logtalk-jupyter-kernel`
-2. Change to the root directory of the repository
-3. `pip install .`
-4. `make`.
+1. `pip install --upgrade jupyterlab`
+2. `git clone https://github.com/LogtalkDotOrg/logtalk-jupyter-kernel`
+3. Change to the root directory of the repository
+4. `pip install .`
+5. `make`.
 
 If you get errors when running `pip` or `make`, you may need to use `pip3` instead and update the `Makefile` file to use `pip3` and `python3`.
 
