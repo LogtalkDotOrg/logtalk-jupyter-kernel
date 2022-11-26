@@ -10,32 +10,32 @@ c = get_config()
 # Default:
 # c.LogtalkKernel.server_logging = False
 
-## The Prolog backend with which the server is started.
+## The Prolog backend integration script with which the server is started.
 # Default:
-#c.LogtalkKernel.backend_id = "eclipselgt"
-#c.LogtalkKernel.backend_id = "eclipselgt.sh"
-#c.LogtalkKernel.backend_id = "eclipselgt.ps1"
-#c.LogtalkKernel.backend_id = "gplgt"
-#c.LogtalkKernel.backend_id = "gplgt.sh"
-#c.LogtalkKernel.backend_id = "gplgt.ps1"
-#c.LogtalkKernel.backend_id = "lvmlgt"
-#c.LogtalkKernel.backend_id = "lvmlgt.sh"
-#c.LogtalkKernel.backend_id = "lvmlgt.ps1"
-#c.LogtalkKernel.backend_id = "sicstuslgt"
-#c.LogtalkKernel.backend_id = "sicstuslgt.sh"
-#c.LogtalkKernel.backend_id = "sicstuslgt.ps1"
 if platform.system() == 'Windows':
+    #c.LogtalkKernel.backend_id = "eclipselgt.ps1"
+    #c.LogtalkKernel.backend_id = "gplgt.ps1"
+    #c.LogtalkKernel.backend_id = "lvmlgt.ps1"
+    #c.LogtalkKernel.backend_id = "sicstuslgt.ps1"
     c.LogtalkKernel.backend_id = "swilgt.ps1"
+    #c.LogtalkKernel.backend_id = "tplgt.ps1"
+    #c.LogtalkKernel.backend_id = "yaplgt.ps1"
 else:
+    #c.LogtalkKernel.backend_id = "eclipselgt"
+    #c.LogtalkKernel.backend_id = "eclipselgt.sh"
+    #c.LogtalkKernel.backend_id = "gplgt"
+    #c.LogtalkKernel.backend_id = "gplgt.sh"
+    #c.LogtalkKernel.backend_id = "lvmlgt"
+    #c.LogtalkKernel.backend_id = "lvmlgt.sh"
+    #c.LogtalkKernel.backend_id = "sicstuslgt"
+    #c.LogtalkKernel.backend_id = "sicstuslgt.sh"
     c.LogtalkKernel.backend_id = "swilgt"
-#c.LogtalkKernel.backend_id = "swilgt.sh"
-#c.LogtalkKernel.backend_id = "swilgt.ps1"
-#c.LogtalkKernel.backend_id = "tplgt"
-#c.LogtalkKernel.backend_id = "tplgt.sh"
-#c.LogtalkKernel.backend_id = "tplgt.ps1"
-#c.LogtalkKernel.backend_id = "yaplgt"
-#c.LogtalkKernel.backend_id = "yaplgt.sh"
-#c.LogtalkKernel.backend_id = "yaplgt.ps1"
+    #c.LogtalkKernel.backend_id = "swilgt.sh"
+    #c.LogtalkKernel.backend_id = "swilgt.ps1"
+    #c.LogtalkKernel.backend_id = "tplgt"
+    #c.LogtalkKernel.backend_id = "tplgt.sh"
+    #c.LogtalkKernel.backend_id = "yaplgt"
+    #c.LogtalkKernel.backend_id = "yaplgt.sh"
 
 ## The implementation specific data which is needed to run the Logtalk server for code execution.
 ## This is required to be a dictionary containing at least an entry for the configured backend_id.
@@ -51,7 +51,63 @@ else:
 ## This can be used to override some of the kernel's basic behavior.
 # Default:
 # c.LogtalkKernel.backend_data = {
-#    "swilgt": {
+#    "eclipselgt": {
+#        "failure_response": "No",
+#        "success_response": "Yes",
+#        "error_prefix": "! ",
+#        "informational_prefix": "% ",
+#        "program_arguments": "default"
+#    },
+#    "eclipselgt.sh": {
+#        "failure_response": "No",
+#        "success_response": "Yes",
+#        "error_prefix": "! ",
+#        "informational_prefix": "% ",
+#        "program_arguments": "default"
+#    },
+#    "eclipselgt.ps1": {
+#        "failure_response": "No",
+#        "success_response": "Yes",
+#        "error_prefix": "! ",
+#        "informational_prefix": "% ",
+#        "program_arguments": "default"
+#    },
+#    "gplgt": {
+#        "failure_response": "no",
+#        "success_response": "yes",
+#        "error_prefix": "! ",
+#        "informational_prefix": "% ",
+#        "program_arguments": "default"
+#    },
+#    "gplgt.sh": {
+#        "failure_response": "no",
+#        "success_response": "yes",
+#        "error_prefix": "! ",
+#        "informational_prefix": "% ",
+#        "program_arguments": "default"
+#    },
+#    "gplgt.ps1": {
+#        "failure_response": "no",
+#        "success_response": "yes",
+#        "error_prefix": "! ",
+#        "informational_prefix": "% ",
+#        "program_arguments": "default"
+#    },
+#    "lvmlgt": {
+#        "failure_response": "false",
+#        "success_response": "true",
+#        "error_prefix": "! ",
+#        "informational_prefix": "% ",
+#        "program_arguments": "default"
+#    },
+#    "lvmlgt.sh": {
+#        "failure_response": "false",
+#        "success_response": "true",
+#        "error_prefix": "! ",
+#        "informational_prefix": "% ",
+#        "program_arguments": "default"
+#    },
+#    "lvmlgt.ps1": {
 #        "failure_response": "false",
 #        "success_response": "true",
 #        "error_prefix": "! ",
@@ -59,6 +115,83 @@ else:
 #        "program_arguments": "default"
 #    },
 #    "sicstuslgt": {
+#        "failure_response": "no",
+#        "success_response": "yes",
+#        "error_prefix": "! ",
+#        "informational_prefix": "% ",
+#        "program_arguments": "default"
+#    },
+#    "sicstuslgt.sh": {
+#        "failure_response": "no",
+#        "success_response": "yes",
+#        "error_prefix": "! ",
+#        "informational_prefix": "% ",
+#        "program_arguments": "default"
+#    },
+#    "sicstuslgt.ps1": {
+#        "failure_response": "no",
+#        "success_response": "yes",
+#        "error_prefix": "! ",
+#        "informational_prefix": "% ",
+#        "program_arguments": "default"
+#    },
+#    "swilgt": {
+#        "failure_response": "false",
+#        "success_response": "true",
+#        "error_prefix": "! ",
+#        "informational_prefix": "% ",
+#        "program_arguments": "default"
+#    },
+#    "swilgt.sh": {
+#        "failure_response": "false",
+#        "success_response": "true",
+#        "error_prefix": "! ",
+#        "informational_prefix": "% ",
+#        "program_arguments": "default"
+#    },
+#    "swilgt.ps1": {
+#        "failure_response": "false",
+#        "success_response": "true",
+#        "error_prefix": "! ",
+#        "informational_prefix": "% ",
+#        "program_arguments": "default"
+#    },
+#    "tplgt": {
+#        "failure_response": "false",
+#        "success_response": "true",
+#        "error_prefix": "! ",
+#        "informational_prefix": "% ",
+#        "program_arguments": "default"
+#    },
+#    "tplgt.sh": {
+#        "failure_response": "false",
+#        "success_response": "true",
+#        "error_prefix": "! ",
+#        "informational_prefix": "% ",
+#        "program_arguments": "default"
+#    },
+#    "tplgt.ps1": {
+#        "failure_response": "false",
+#        "success_response": "true",
+#        "error_prefix": "! ",
+#        "informational_prefix": "% ",
+#        "program_arguments": "default"
+#    },
+#    "yaplgt": {
+#        "failure_response": "no",
+#        "success_response": "yes",
+#        "error_prefix": "! ",
+#        "informational_prefix": "% ",
+#        "program_arguments": "default"
+#    },
+#    "yaplgt.sh": {
+#        "failure_response": "no",
+#        "success_response": "yes",
+#        "error_prefix": "! ",
+#        "informational_prefix": "% ",
+#        "program_arguments": "default"
+#    },
+#    "yaplgt.ps1": {
 #        "failure_response": "no",
 #        "success_response": "yes",
 #        "error_prefix": "! ",

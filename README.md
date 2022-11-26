@@ -54,7 +54,7 @@ The installation was tested with macOS 12.6.1, Ubuntu 20.0.4, and Windows 10.
 2. `git clone https://github.com/LogtalkDotOrg/logtalk-jupyter-kernel`
 3. Change to the root directory of the repository
 4. `pip install .`
-5. `make`.
+5. `make`
 
 If you get errors when running `pip` or `make`, you may need to use `pip3` instead and update the `Makefile` file to use `pip3` and `python3`.
 
@@ -81,8 +81,8 @@ In general, the kernel can be configured to use a different Prolog backend (whic
 
 - `server_logging`: If set to `True`, a **Logtalk server log file** is created.
   - The name of the file consists of the implementation ID preceded by `.logtalk_server_log_`.
-- `implementation_id`: The ID of the **Prolog backend integration script** with which the server is started.
-- `implementation_data`: The **Prolog backend-specific data** which is needed to run the server for code execution.
+- `backend_id`: The ID of the **Prolog backend integration script** with which the server is started.
+- `backend_data`: The **Prolog backend-specific data** which is needed to run the server for code execution.
   - This is required to be a dictionary containing at least an entry for the configured `implementation_id`.
   - Each entry needs to define values for
     - `failure_response`: The output which is displayed if a query **fails**
@@ -94,7 +94,7 @@ In general, the kernel can be configured to use a different Prolog backend (whic
   - Additionally, a `kernel_implementation_path` can be provided, which needs to be an **absolute path to a Python file**:
     - The corresponding module is required to define a subclass of `LogtalkKernelBaseImplementation` named `LogtalkKernelImplementation`. This can be used to override some of the kernel's basic behavior (see [Overriding the Kernel Implementation](#overriding-the-kernel-implementation)).
 
-In addition to configuring the Prolog backend to be used, a `jupyter::set_prolog_backend(+Backend)` predicate is provided to **change the Prolog backend on the fly**. In order for this to work, the configured `implementation_data` dictionary needs to contain data for more than one Prolog backend. For example (in a notebook code cell):
+In addition to configuring the Prolog backend to be used, a `jupyter::set_prolog_backend(+Backend)` predicate is provided to **change the Prolog backend on the fly**. In order for this to work, the configured `backend_data` dictionary needs to contain data for more than one Prolog backend. For example (in a notebook code cell):
 
 	jupyter::set_prolog_backend('lvmlgt.sh).
 

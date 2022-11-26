@@ -73,32 +73,32 @@ class LogtalkKernel(Kernel):
     # If set to True, a log file is created by the Logtalk server.
     server_logging = Bool(False).tag(config=True)
 
-    # The Prolog backend script with which the server is started.
-    # It is required that the backend_data dictionary contains an item with this key.
-    #backend_id = Unicode('eclipselgt').tag(config=True)
-    #backend_id = Unicode('eclipselgt.sh').tag(config=True)
-    #backend_id = Unicode('eclipselgt.ps1').tag(config=True)
-    #backend_id = Unicode('gplgt').tag(config=True)
-    #backend_id = Unicode('gplgt.sh').tag(config=True)
-    #backend_id = Unicode('gplgt.ps1').tag(config=True)
-    #backend_id = Unicode('lvmlgt').tag(config=True)
-    #backend_id = Unicode('lvmlgt.sh').tag(config=True)
-    #backend_id = Unicode('lvmlgt.ps1').tag(config=True)
-    #backend_id = Unicode('sicstuslgt').tag(config=True)
-    #backend_id = Unicode('sicstuslgt.sh').tag(config=True)
-    #backend_id = Unicode('sicstuslgt.ps1').tag(config=True)
+    # The Prolog backend integration script with which the server is started.
+    # It is required that the backend_data dictionary contains an item with the script name.
     if platform.system() == 'Windows':
+        #backend_id = Unicode('eclipselgt.ps1').tag(config=True)
+        #backend_id = Unicode('gplgt.ps1').tag(config=True)
+        #backend_id = Unicode('lvmlgt.ps1').tag(config=True)
+        #backend_id = Unicode('sicstuslgt.ps1').tag(config=True)
         backend_id = Unicode('swilgt.ps1').tag(config=True)
+        #backend_id = Unicode('tplgt.ps1').tag(config=True)
+        #backend_id = Unicode('yaplgt.ps1').tag(config=True)
     else:
+        #backend_id = Unicode('eclipselgt').tag(config=True)
+        #backend_id = Unicode('eclipselgt.sh').tag(config=True)
+        #backend_id = Unicode('gplgt').tag(config=True)
+        #backend_id = Unicode('gplgt.sh').tag(config=True)
+        #backend_id = Unicode('lvmlgt').tag(config=True)
+        #backend_id = Unicode('lvmlgt.sh').tag(config=True)
+        #backend_id = Unicode('sicstuslgt').tag(config=True)
+        #backend_id = Unicode('sicstuslgt.sh').tag(config=True)
         backend_id = Unicode('swilgt').tag(config=True)
-    #backend_id = Unicode('swilgt.sh').tag(config=True)
-    #backend_id = Unicode('swilgt.ps1').tag(config=True)
-    #backend_id = Unicode('tplgt').tag(config=True)
-    #backend_id = Unicode('tplgt.sh').tag(config=True)
-    #backend_id = Unicode('tplgt.ps1').tag(config=True)
-    #backend_id = Unicode('yaplgt').tag(config=True)
-    #backend_id = Unicode('yaplgt.sh').tag(config=True)
-    #backend_id = Unicode('yaplgt.ps1').tag(config=True)
+        #backend_id = Unicode('swilgt.sh').tag(config=True)
+        #backend_id = Unicode('swilgt.ps1').tag(config=True)
+        #backend_id = Unicode('tplgt').tag(config=True)
+        #backend_id = Unicode('tplgt.sh').tag(config=True)
+        #backend_id = Unicode('yaplgt').tag(config=True)
+        #backend_id = Unicode('yaplgt.sh').tag(config=True)
 
     # The default program arguments for supported Prolog backends
     default_program_arguments = {
