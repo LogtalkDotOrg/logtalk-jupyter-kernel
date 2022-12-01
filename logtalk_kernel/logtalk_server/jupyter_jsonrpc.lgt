@@ -4,7 +4,7 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-23,
+		date is 2022-12-01,
 		comment is 'This object andles all reading, writing, and parsing of JSON messages. It is based on jsonrpc_server.pl and jsonrpc_client.pl from SICStus 4.5.1.'
 	]).
 
@@ -165,9 +165,23 @@
 		parse_message(RPC, Message).
 
 	% read_message(-JsonRpcMessage)
-	read_message(JsonRpcMessage) :-
-		current_input(In),
-		json_read(In, JsonRpcMessage).
+	:- if(current_logtalk_flag(prolog_dialect, eclipse)).
+
+		read_message(JsonRpcMessage) :-
+			current_input(In),
+			(	at_end_of_stream(In) ->
+				peek_code(In, _)
+			;	true
+			),
+			json_read(In, JsonRpcMessage).
+
+	:- else.
+
+		read_message(JsonRpcMessage) :-
+			current_input(In),
+			json_read(In, JsonRpcMessage).
+
+	:- endif.
 
 	% parse_message(+RPC, -Message)
 	parse_message(RPC, Message) :-

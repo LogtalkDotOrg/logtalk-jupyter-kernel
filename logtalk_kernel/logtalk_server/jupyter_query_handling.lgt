@@ -15,7 +15,7 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-23,
+		date is 2022-12-01,
 		comment is 'This object provides predicates to redirect the output of a query execution to a file and read it from the file.'
 	]).
 
@@ -130,9 +130,7 @@
 		file_name(output, OutputFileName),
 		open(OutputFileName, write, OutputStream, [alias(output_to_file_stream)]),
 		% Set the streams to which the goal's output and debugging messages are written by default
-		redirect_output_to_stream(current_output, OutputStream),
-		redirect_output_to_stream(user_output, OutputStream),
-		redirect_output_to_stream(user_error, OutputStream).
+		redirect_output_to_stream(OutputStream).
 
 	% call_with_exception_handling(+Goal, -ErrorMessageData)
 	call_with_exception_handling(Goal, ErrorMessageData) :-
@@ -175,7 +173,7 @@
 
 	% reset_output_streams(+DeleteFile)
 	reset_output_streams(DeleteFile) :-
-		close(output_to_file_stream),
+		terminate_redirect_output_to_stream(output_to_file_stream),
 		delete_output_file(DeleteFile).
 
 	% delete_output_file(+DeleteFile)
@@ -198,13 +196,13 @@
 		% Open a file to print the message to it
 		file_name(message_output, FileName),
 		open(FileName, write, Stream),
-		redirect_output_to_stream(user_output, Stream),
+		redirect_output_to_stream(Stream),
 		% Do not send an error reply when printing the error message
 		% Use catch/3, because send_reply_on_error might have been retracted by call_with_output_to_file/3
 		catch(retractall(send_reply_on_error), _Exception, true),
 		print_message(Kind, jupyter, Term),
 		assertz(send_reply_on_error),
-		close(Stream),
+		terminate_redirect_output_to_stream(Stream),
 		% Read the error message from the file
 		read_atom_from_file(FileName, Message),
 		delete_file(FileName),
@@ -213,32 +211,50 @@
 	% redirect_output_to_stream(+Alias, +Stream)
 	:- if(current_logtalk_flag(prolog_dialect, eclipse)).
 
-		redirect_output_to_stream(current_output, Stream) :-
-			!,
-			set_output(Stream).
-		redirect_output_to_stream(Alias, Stream) :-
-			set_stream(Alias, Stream).
+		redirect_output_to_stream(Stream) :-
+	        set_stream(output, Stream),
+	        set_stream(log_output, Stream),
+	        set_stream(warning_output, Stream),
+	        set_stream(user_output, Stream),
+	        set_stream(error, Stream),
+	        set_stream(user_error, Stream).
+			
+		terminate_redirect_output_to_stream(_) :-
+			close(user_output),
+			close(output),
+			close(log_output),
+			close(warning_output),
+			close(user_error),
+			close(error).
 
 	:- elif(current_logtalk_flag(prolog_dialect, gnu)).
 
-		redirect_output_to_stream(current_output, Stream) :-
-			!,
-			set_output(Stream).
 		redirect_output_to_stream(Alias, Stream) :-
-			set_stream_alias(Stream, Alias).
+			set_stream_alias(Stream, user_output),
+			set_stream_alias(Stream, user_error).
+
+		terminate_redirect_output_to_stream(Stream) :-
+			close(Stream).
 
 	:- elif(predicate_property(set_stream(_,_), built_in)).
 
-		redirect_output_to_stream(Alias, Stream) :-
-			set_stream(Stream, alias(Alias)).
+		redirect_output_to_stream(Stream) :-
+			set_stream(Stream, alias(current_output)),
+			set_stream(Stream, alias(user_output)),
+			set_stream(Stream, alias(user_error)).
+
+		terminate_redirect_output_to_stream(Stream) :-
+			close(Stream).
 
 	:- elif(current_logtalk_flag(prolog_dialect, sicstus)).
 
-		redirect_output_to_stream(current_output, Stream) :-
-			!,
-			set_output(Stream).
-		redirect_output_to_stream(Alias, Stream) :-
-			set_prolog_flag(Alias, Stream).
+		redirect_output_to_stream(Stream) :-
+			set_output(Stream),
+			set_prolog_flag(user_output, Stream),
+			set_prolog_flag(user_error, Stream).
+
+		terminate_redirect_output_to_stream(Stream) :-
+			close(Stream).
 
 	:- endif.
 
