@@ -1,0 +1,11 @@
+{
+  "argv": [
+      "python3",
+      "-m",
+      "logtalk_kernel",
+      "-f",
+      "{connection_file}"
+  ],
+  "display_name": "Logtalk",
+  "language": "logtalk"
+}
