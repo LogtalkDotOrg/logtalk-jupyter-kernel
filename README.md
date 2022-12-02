@@ -55,6 +55,8 @@ The installation was tested with macOS 12.6.1, Ubuntu 20.0.4, and Windows 10.
 3. Change to the root directory of the repository
 5. `make install`
 
+If `make install` fails with a permission error, you can retry using `sudo make install` or repeat its last step using `python3 -m logtalk_kernel.install --user`.
+
 
 ### Uninstall
 

@@ -1,7 +1,7 @@
 
 install:
 	python3 -m pip install -e .
-	python3 -m prolog_kernel.install
+	python3 -m logtalk_kernel.install
 
 clean:
 	python3 -m pip uninstall logtalk_kernel
