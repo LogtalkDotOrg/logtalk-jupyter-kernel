@@ -3,7 +3,7 @@
 
 A [Jupyter](https://jupyter.org/) kernel for Logtalk based on [prolog-jupyter-kernel](https://github.com/hhu-stups/prolog-jupyter-kernel) and [IPython kernel](https://github.com/ipython/ipykernel).
 
-This project is a fork of the [prolog-jupyter-kernel](https://github.com/hhu-stups/prolog-jupyter-kernel) project (developed by Anne Brecklinghaus in her Master's thesis at the University of Düsseldorf under the supervision of Michael Leuschel and Philipp Körner) and still under development. Major changes are committed and more are expected. Furthermore, no liability is accepted for correctness and completeness.
+This project is a fork of the [prolog-jupyter-kernel](https://github.com/hhu-stups/prolog-jupyter-kernel) project (developed by Anne Brecklinghaus in her Master's thesis at the University of Düsseldorf under the supervision of Michael Leuschel and Philipp Körner) and still under development. It includes back-ports of recent patches and improvements by Michael Leuschel, David Geleßus, and Silas Kraume. Major changes are committed and more are expected. Furthermore, no liability is accepted for correctness and completeness.
 
 
 ## Supported Prolog backends
@@ -37,12 +37,12 @@ The directory [notebooks/nbgrader_example](./notebooks/nbgrader_example) provide
   - Tested with Python 3.10.8
 - **Jupyter** installation with JupyterLab and/or Juypter Notebook
   - Tested with
-    - `jupyter_core`: 4.10.0
+    - `jupyter_core`: 5.1.0
     - `jupyterlab`: 3.5.0
-    - `notebook`: 6.4.8
+    - `notebook`: 6.5.2
 - Logtalk 3.60.0 or later version
 - One or more supported Prolog backends (see above)
-- For Windows, installing **Graphviz** with `pip` does not suffice
+- For Windows, installing **Graphviz** with `python3 -m pip` does not suffice
   - Instead, it can be installed from [here](https://graphviz.org/download/) and added to the `PATH` (a reboot is required afterwards)
 
 The installation was tested with macOS 12.6.1, Ubuntu 20.0.4, and Windows 10.
@@ -50,13 +50,11 @@ The installation was tested with macOS 12.6.1, Ubuntu 20.0.4, and Windows 10.
 
 ### Install
 
-1. `pip install --upgrade jupyterlab`
+1. `python3 -m pip install --upgrade jupyterlab`
 2. `git clone https://github.com/LogtalkDotOrg/logtalk-jupyter-kernel`
 3. Change to the root directory of the repository
-4. `pip install .`
-5. `make`
+5. `make install`
 
-If you get errors when running `pip` or `make`, you may need to use `pip3` instead and update the `Makefile` file to use `pip3` and `python3`.
 
 ### Uninstall
 
