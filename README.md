@@ -96,7 +96,9 @@ In general, the kernel can be configured to use a different Prolog backend (whic
 
 In addition to configuring the Prolog backend to be used, a `jupyter::set_prolog_backend(+Backend)` predicate is provided to **change the Prolog backend on the fly**. In order for this to work, the configured `backend_data` dictionary needs to contain data for more than one Prolog backend. For example (in a notebook code cell):
 
-	jupyter::set_prolog_backend('lvmlgt.sh).
+	jupyter::set_prolog_backend('lvmlgt.sh').
+
+The predicate argument is the name of the integration script used to run Logtalk. On Windows, always use the PowerShell scripts (e.g. `sicstuslgt.ps1`). On POSIX systems, use the ones that work for your Logtalk installation (e.g. if you're using Logtalk with Trealla Prolog with a setup that requires the `.sh` extension when running the integration script, then use `tplgt.sh` instead of just `tplgt`).
 
 **Troubleshooting:**
 In case of SICStus Prolog, if the given **`program_arguments` are invalid** (e.g. if the Prolog code file does not exist), the kernel waits for a response from the server which it will never receive. In that state it is **not able to log any exception** and instead, nothing happens.
