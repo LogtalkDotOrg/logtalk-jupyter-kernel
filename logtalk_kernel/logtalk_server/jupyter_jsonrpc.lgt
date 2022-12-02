@@ -4,7 +4,7 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-12-01,
+		date is 2022-12-02,
 		comment is 'This object andles all reading, writing, and parsing of JSON messages. It is based on jsonrpc_server.pl and jsonrpc_client.pl from SICStus 4.5.1.'
 	]).
 
@@ -175,11 +175,23 @@
 			),
 			json_read(In, JsonRpcMessage).
 
+		flush_message(Stream) :-
+			% write lf instead of crlf always (allows running on Windows)
+			set_stream_property(Stream, end_of_line, lf),
+			% Terminate the line (assuming single-line output).
+			nl(Stream),
+			flush_output(Stream).
+
 	:- else.
 
 		read_message(JsonRpcMessage) :-
 			current_input(In),
 			json_read(In, JsonRpcMessage).
+
+		flush_message(Stream) :-
+			% Terminate the line (assuming single-line output).
+			nl(Stream),
+			flush_output(Stream).
 
 	:- endif.
 
@@ -211,9 +223,7 @@
 			send_error_reply(@(null), invalid_json_response, ExceptionAtom)
 		;	current_output(Out),
 			json_write(Out, JSON),
-			% Terminate the line (assuming single-line output).
-			nl(Out),
-			flush_output(Out)
+			flush_message(Out)
 		).
 
 
