@@ -53,9 +53,9 @@ The installation was tested with macOS 12.6.1, Ubuntu 20.0.4, and Windows 10.
 1. `python3 -m pip install --upgrade jupyterlab`
 2. `git clone https://github.com/LogtalkDotOrg/logtalk-jupyter-kernel`
 3. Change to the root directory of the repository
-5. `make install`
+4. `make install`
 
-If `make install` fails with a permission error, you can retry using `sudo make install` or repeat its last step using `python3 -m logtalk_kernel.install --user`.
+By default, `make install` uses `sys.prefix`. If it fails with a permission error, you can retry using either `sudo make install` or repeat its last step using `python3 -m logtalk_kernel.install --user` or `python3 -m logtalk_kernel.install --prefix PREFIX`.
 
 
 ### Uninstall
@@ -83,14 +83,14 @@ In general, the kernel can be configured to use a different Prolog backend (whic
   - The name of the file consists of the implementation ID preceded by `.logtalk_server_log_`.
 - `backend_id`: The ID of the **Prolog backend integration script** with which the server is started.
 - `backend_data`: The **Prolog backend-specific data** which is needed to run the server for code execution.
-  - This is required to be a dictionary containing at least an entry for the configured `implementation_id`.
+  - This is required to be a dictionary containing at least an entry for the configured `backend_id`.
   - Each entry needs to define values for
     - `failure_response`: The output which is displayed if a query **fails**
     - `success_response`: The output which is displayed if a query **succeeds without any variable bindings**
     - `error_prefix`: The prefix that is output for **error messages**
     - `informational_prefix`: The prefix that is output for **informational messages**
     - `program_arguments`: **Command line arguments** with which the Logtalk server can be started
-      - For SICStus and SWI-Prolog, the default Prolog backend used by the kernel can be used by configuring the string `"default"`.
+      - All supported Prolog backends can be used by configuring the string `"default"`.
   - Additionally, a `kernel_implementation_path` can be provided, which needs to be an **absolute path to a Python file**:
     - The corresponding module is required to define a subclass of `LogtalkKernelBaseImplementation` named `LogtalkKernelImplementation`. This can be used to override some of the kernel's basic behavior (see [Overriding the Kernel Implementation](#overriding-the-kernel-implementation)).
 
