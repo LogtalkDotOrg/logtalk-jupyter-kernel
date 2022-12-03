@@ -111,7 +111,7 @@ The actual kernel code determining the handling of requests is not implemented b
 
 ### Local Changes
 
-In general, in order for local code adjustments to take effect, the kernel needs to be reinstalled. When installing the local project in *editable* mode with `pip install -e .` (e.g. by running `make`), restarting the kernel suffices.
+In general, in order for local code adjustments to take effect, the kernel needs to be reinstalled. When installing the local project in *editable* mode with `python3 -m pip install -e .` (e.g. by running `make`), restarting the kernel suffices.
 
 Adjustments of the Logtalk server code are loaded when the server is restarted. Thus, when changing Logtalk code only, instead of restarting the whole kernel, it can be interrupted, which causes the Logtalk server to be restarted.
 
