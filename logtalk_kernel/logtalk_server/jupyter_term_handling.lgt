@@ -28,7 +28,7 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-23,
+		date is 2022-12-03,
 		comment is 'This object provides predicates to handle terms received from the client, compute their results and assert them with term_response/1.'
 	]).
 
@@ -536,7 +536,7 @@ handle_trace(TracePredSpec) :-
 % VarNames is the list of variable names from Bindings.
 findall_results_and_var_names(Goal, Bindings, JsonParsableResultsLists, VarNames) :-
 	var_names_and_values(Bindings, VarNames, Vars),
-	findall(Vars, Goal, ResultsLists),
+	findall(Vars, {Goal}, ResultsLists),
 	json_parsable_results_lists(ResultsLists, VarNames, Bindings, JsonParsableResultsLists).
 
 
