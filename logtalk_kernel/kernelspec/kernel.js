@@ -3,8 +3,8 @@ define(["codemirror/lib/codemirror"], function(CodeMirror) {
 
   return {
     onload: function() {
-      console.info("Loading Prolog kernel.js");
-      CodeMirror.defineMode("prolog", function(config, parserConfig) {
+      console.info("Loading Logtalk kernel.js");
+      CodeMirror.defineMode("logtalk", function(config, parserConfig) {
         return {
           startState: function() {
             return {
@@ -83,7 +83,7 @@ define(["codemirror/lib/codemirror"], function(CodeMirror) {
         };
       });
 
-      CodeMirror.defineMIME("text/x-prolog", "prolog");
+      CodeMirror.defineMIME("text/x-logtalk", "logtalk");
     },
   };
 });
