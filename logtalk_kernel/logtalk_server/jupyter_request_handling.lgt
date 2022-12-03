@@ -28,6 +28,8 @@
 	:- public(loop/3).  % loop(+ContIn, +Stack, -ContOut)
 
 	:- uses(term_io, [format_to_atom/3, write_term_to_atom/3]).
+	:- uses(user, [atomic_list_concat/2]).
+
 	:- uses(jupyter_logging, [create_log_file/1, log/1, log/2]).
 	:- uses(jupyter_jsonrpc, [send_success_reply/2, send_error_reply/3, next_jsonrpc_message/1, parse_json_terms_request/3]).
 	:- uses(jupyter_term_handling, [handle_term/6, term_response/1]).
@@ -272,8 +274,7 @@
 		;	Goal = Goal0
 		),
 		!,
-		user::atomic_list_concat(['print_table(', Goal, ').'], Rest).
-
+		atomic_list_concat(['print_table(', Goal, ').'], Rest).
 	goal_cell_magic(Code, Rest) :-
 		atom_concat('@tree\n', Term0, Code),
 		(	sub_atom(Term0, _, 1, 0, '.') ->
@@ -281,6 +282,6 @@
 		;	Term = Term0
 		),
 		!,
-		user::atomic_list_concat(['show_term(', Term, ').'], Rest).
+		atomic_list_concat(['show_term(', Term, ').'], Rest).
 
 :- end_object.
