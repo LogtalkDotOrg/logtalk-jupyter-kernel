@@ -61,9 +61,21 @@ By default, `make install` uses `sys.prefix`. If it fails with a permission erro
 From the repo clone directory, type `make clean`.
 
 
-## Running using JupyterLab
+## Running
 
-Simply start JupyterLab and then click on the Logtalk Notebook or Logtalk Console icons in the Launcher.
+Logtalk notebooks can be run using JupyterLab, Jupyter notebook, or VSCode.
+
+### Running using JupyterLab
+
+Simply start JupyterLab (e.g. by typing `jupyter-lab` in a shell) and then click on the Logtalk Notebook (or Logtalk Console) icon in the Launcher or open an existing notebook.
+
+### Running using Jupyter notebook
+
+Simply start Jupyter notebook (e.g. by typing `jupyter notebook` in a shell) and then open an existing notebook.
+
+### Running using VSCode
+
+Simply open an existing notebook. Ensure that the Logtalk plug-in for VSCode is installed for an optimal experience.
 
 ### Configuration
 
