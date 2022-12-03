@@ -22,11 +22,9 @@ Also see the [JupyterLab Prolog CodeMirror Extension](https://github.com/anbre/j
 
 ## Examples
 
-The directory [notebooks](./notebooks) contains some example Juypter notebooks. Note that all of them can be viewed with [nbviewer](https://nbviewer.org/) without having to install the kernel.
+The directory [notebooks](./notebooks) contains some example Juypter notebooks, including a Logtalk short tutorial. Note that all of them can be viewed with [nbviewer](https://nbviewer.org/) without having to install the kernel.
 
 The notebook in [notebooks/slides](./notebooks/slides) was created for a **slideshow** giving a rough overview of the kernel's features and its implementation.
-
-The directory [notebooks/nbgrader_example](./notebooks/nbgrader_example) provides an example of a **course directory** for the [nbgrader extension](https://nbgrader.readthedocs.io/en/stable/).
 
 
 ## Installation
