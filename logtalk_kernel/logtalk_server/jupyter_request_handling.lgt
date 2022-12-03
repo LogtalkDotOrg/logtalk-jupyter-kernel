@@ -21,7 +21,7 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-21,
+		date is 2022-12-03,
 		comment is 'This object provides predicates to start a loop reading and handling JSON RPC requests.'
 	]).
 
@@ -160,6 +160,13 @@
 		assertz(request_data(CallRequestId, [])),
 		handle_term(logtalk_load(File, [reload(always)]), true, CallRequestId, Stack, [], Cont).
 	dispatch_request(call, Message, Stack, Cont) :-
+		Message = request(Method,CallRequestId,Params,RPC),
+		Params = json([code-Code]),
+		goal_cell_magic(Code, Rest),
+		!,
+		RestMessage = request(Method,CallRequestId,json([code-Rest]),RPC),
+		dispatch_request(call, RestMessage, Stack, Cont).
+	dispatch_request(call, Message, Stack, Cont) :-
 		!,
 		Message = request(_Method,CallRequestId,Params,_RPC),
 		parse_json_terms_request(Params, TermsAndVariables, ParsingErrorMessageData),
@@ -257,5 +264,23 @@
 		Rest is 6 + Length + 1,
 		sub_atom(Code, Rest, _, 0, Terms),
 		!.
+
+	goal_cell_magic(Code, Rest) :-
+		atom_concat('@table\n', Goal0, Code),
+		(	sub_atom(Goal0, _, 1, 0, '.') ->
+			sub_atom(Goal0, 0, _, 1, Goal)
+		;	Goal = Goal0
+		),
+		!,
+		user::atomic_list_concat(['print_table(', Goal, ').'], Rest).
+
+	goal_cell_magic(Code, Rest) :-
+		atom_concat('@tree\n', Term0, Code),
+		(	sub_atom(Term0, _, 1, 0, '.') ->
+			sub_atom(Term0, 0, _, 1, Term)
+		;	Term = Term0
+		),
+		!,
+		user::atomic_list_concat(['show_term(', Term, ').'], Rest).
 
 :- end_object.
