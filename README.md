@@ -92,11 +92,22 @@ In general, the kernel can be configured to use a different Prolog backend (whic
   - Additionally, a `kernel_implementation_path` can be provided, which needs to be an **absolute path to a Python file**:
     - The corresponding module is required to define a subclass of `LogtalkKernelBaseImplementation` named `LogtalkKernelImplementation`. This can be used to override some of the kernel's basic behavior (see [Overriding the Kernel Implementation](#overriding-the-kernel-implementation)).
 
+### Changing the Prolog backend in the fly
+
 In addition to configuring the Prolog backend to be used, a `jupyter::set_prolog_backend(+Backend)` predicate is provided to **change the Prolog backend on the fly**. In order for this to work, the configured `backend_data` dictionary needs to contain data for more than one Prolog backend. For example (in a notebook code cell):
 
 	jupyter::set_prolog_backend('lvmlgt.sh').
 
 The predicate argument is the name of the integration script used to run Logtalk. On Windows, always use the PowerShell scripts (e.g. `sicstuslgt.ps1`). On POSIX systems, use the ones that work for your Logtalk installation (e.g. if you're using Logtalk with Trealla Prolog with a setup that requires the `.sh` extension when running the integration script, then use `tplgt.sh` instead of just `tplgt`).
+
+When running on Windows or in a POSIX system where the calling the integration scripts doesn't require typing the `.sh` extension, the following shortcuts can be used:
+
+- ECLiPSe: `eclipse`
+- LVM : `lvm`
+- SICStus Prolog: `sicstus`
+- SWI-Prolog (default backend): `swi` 
+- Trealla Prolog: `trealla`
+- YAP: `yap`
 
 **Troubleshooting:**
 In case of SICStus Prolog, if the given **`program_arguments` are invalid** (e.g. if the Prolog code file does not exist), the kernel waits for a response from the server which it will never receive. In that state it is **not able to log any exception** and instead, nothing happens.

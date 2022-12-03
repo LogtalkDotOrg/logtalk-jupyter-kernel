@@ -121,20 +121,37 @@
 
 	is_query_alias(retry, jupyter::retry).
 	is_query_alias(halt, jupyter::halt).
-	is_query_alias(eclipse, jupyter::set_prolog_backend(eclipselgt)) :-
-		\+ user::current_predicate(eclipse/0).
-	is_query_alias(gnu, jupyter::set_prolog_backend(gplgt)) :-
-		\+ user::current_predicate(gnu/0).
-	is_query_alias(lvm, jupyter::set_prolog_backend(lvmlgt)) :-
-		\+ user::current_predicate(lvm/0).
-	is_query_alias(sicstus, jupyter::set_prolog_backend(sicstuslgt)) :-
-		\+ user::current_predicate(sicstus/0).
-	is_query_alias(swi, jupyter::set_prolog_backend(swilgt)) :-
-		\+ user::current_predicate(swi/0).
-	is_query_alias(trealla, jupyter::set_prolog_backend(tplgt)) :-
-		\+ user::current_predicate(trealla/0).
-	is_query_alias(yap, jupyter::set_prolog_backend(yaplgt)) :-
-		\+ user::current_predicate(yap/0).
+	:- if(os::operating_system_type(windows)).
+		is_query_alias(eclipse, jupyter::set_prolog_backend('eclipselgt.ps1')) :-
+			\+ user::current_predicate(eclipse/0).
+		is_query_alias(gnu, jupyter::set_prolog_backend('gplgt.ps1')) :-
+			\+ user::current_predicate(gnu/0).
+		is_query_alias(lvm, jupyter::set_prolog_backend('lvmlgt.ps1')) :-
+			\+ user::current_predicate(lvm/0).
+		is_query_alias(sicstus, jupyter::set_prolog_backend('sicstuslgt.ps1')) :-
+			\+ user::current_predicate(sicstus/0).
+		is_query_alias(swi, jupyter::set_prolog_backend('swilgt.ps1')) :-
+			\+ user::current_predicate(swi/0).
+		is_query_alias(trealla, jupyter::set_prolog_backend('tplgt.ps1')) :-
+			\+ user::current_predicate(trealla/0).
+		is_query_alias(yap, jupyter::set_prolog_backend('yaplgt.ps1')) :-
+			\+ user::current_predicate(yap/0).
+	:- else.
+		is_query_alias(eclipse, jupyter::set_prolog_backend(eclipselgt)) :-
+			\+ user::current_predicate(eclipse/0).
+		is_query_alias(gnu, jupyter::set_prolog_backend(gplgt)) :-
+			\+ user::current_predicate(gnu/0).
+		is_query_alias(lvm, jupyter::set_prolog_backend(lvmlgt)) :-
+			\+ user::current_predicate(lvm/0).
+		is_query_alias(sicstus, jupyter::set_prolog_backend(sicstuslgt)) :-
+			\+ user::current_predicate(sicstus/0).
+		is_query_alias(swi, jupyter::set_prolog_backend(swilgt)) :-
+			\+ user::current_predicate(swi/0).
+		is_query_alias(trealla, jupyter::set_prolog_backend(tplgt)) :-
+			\+ user::current_predicate(trealla/0).
+		is_query_alias(yap, jupyter::set_prolog_backend(yaplgt)) :-
+			\+ user::current_predicate(yap/0).
+	:- endif.
 	is_query_alias(show_graph(Nodes,Edges), jupyter::show_graph(Nodes,Edges)) :-
 		\+ user::current_predicate(show_graph/2).
 	is_query_alias(show_term(Term), jupyter::show_graph(jupyter_term_handling::dot_subnode(_,_,Term),jupyter_term_handling::dot_subtree/3)) :-
