@@ -274,7 +274,7 @@
 		;	Goal = Goal0
 		),
 		!,
-		atomic_list_concat(['print_table(', Goal, ').'], Rest).
+		atomic_list_concat(['print_table((', Goal, ')).'], Rest).
 	goal_cell_magic(Code, Rest) :-
 		atom_concat('@tree\n', Term0, Code),
 		(	sub_atom(Term0, _, 1, 0, '.') ->
