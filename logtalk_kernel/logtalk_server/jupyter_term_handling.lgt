@@ -82,9 +82,11 @@
 	handle_term(Query, true, CallRequestId, Stack, Bindings, Cont) :-
 		handle_query_term(Query, false, CallRequestId, Stack, Bindings, continue, Cont).
 
-	format_to_atom(_,_,Atom) :-  get_preference(verbosity,L), L<2,!, 
+	format_to_atom(_,_,Atom) :-
+		get_preference(verbosity,L), L < 2,
+		!, 
 		Atom = ''.
-	format_to_atom(Msg,Args,Atom) :- 
+	format_to_atom(Msg,Args,Atom) :-
 		format_to_codes(Msg, Args, Codes),
 		atom_codes(Atom, Codes).
 
@@ -553,7 +555,8 @@ handle_trace(TracePredSpec) :-
 % VarNames is the list of variable names from Bindings.
 findall_results_and_var_names(Goal, Bindings, JsonParsableResultsLists, VarNames) :-
 	var_names_and_values(Bindings, VarNames, Vars),
-	findall(Vars, {Goal}, ResultsLists),
+	% avoid a linter warning and ensure Goal is called in "user"
+	{findall(Vars, Goal, ResultsLists)},
 	json_parsable_results_lists(ResultsLists, VarNames, Bindings, JsonParsableResultsLists).
 
 
