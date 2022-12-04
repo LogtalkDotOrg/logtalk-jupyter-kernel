@@ -35,8 +35,8 @@
 	:- public(assert_sld_data/4).
 	% assert_sld_data(Port, Goal, Frame, ParentFrame)
 	
-	:- public(handle_term/6).
-	% handle_term(+Term, +IsSingleTerm, +CallRequestId, +Stack, +Bindings, -Cont)
+	:- public(handle_term/5).
+	% handle_term(+Term, +CallRequestId, +Stack, +Bindings, -Cont)
 	
 	:- public(term_response/1).
 	:- dynamic(term_response/1).
@@ -71,15 +71,15 @@
 	:- private(is_retry/1).
 	:- dynamic(is_retry/1).
 
-	% handle_term(+Term, +IsSingleTerm, +CallRequestId, +Stack, +Bindings, -Cont)
+	% handle_term(+Term, +CallRequestId, +Stack, +Bindings, -Cont)
 	%
 	% Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the term Term.
 	% Check which type of term Term is and handle it accordingly.
 	% Term can be a query, possible using the ?- prefix operator
 	% Queries
-	handle_term(?-(Query), _IsSingleTerm, CallRequestId, Stack, Bindings, Cont) :- !,
+	handle_term(?-(Query), CallRequestId, Stack, Bindings, Cont) :- !,
 		handle_query_term(Query, false, CallRequestId, Stack, Bindings, continue, Cont).
-	handle_term(Query, true, CallRequestId, Stack, Bindings, Cont) :-
+	handle_term(Query, CallRequestId, Stack, Bindings, Cont) :-
 		handle_query_term(Query, false, CallRequestId, Stack, Bindings, continue, Cont).
 
 	format_to_atom(_,_,Atom) :-
@@ -228,15 +228,6 @@ handle_query_term_(trace, _IsDirective, _CallRequestId, _Stack,
 handle_query_term_(debugger::leash(_Ports), _IsDirective, _CallRequestId, _Stack,
                     _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   assert_error_response(exception, message_data(error, jupyter(leash_pred)), '', []).
-%:- if(sicstus).
-%% abolish
-%handle_query_term_(abolish(Predicates), _IsDirective, CallRequestId, _Stack,
-%                   _Bindings, OriginalTermData, _LoopCont, continue) :- !,
-%  handle_abolish(abolish(Predicates), CallRequestId, OriginalTermData).
-%handle_query_term_(abolish(Predicates, Options), _IsDirective, CallRequestId, _Stack,
-%                   _Bindings, OriginalTermData, _LoopCont, continus) :- !,
-%  handle_abolish(abolish(Predicates, Options), CallRequestId, OriginalTermData).
-%:- endif.
 % Any other query
 handle_query_term_(Query, IsDirective, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont) :-
   handle_query(Query, IsDirective, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont).

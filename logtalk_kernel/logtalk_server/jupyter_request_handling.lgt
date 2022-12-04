@@ -32,7 +32,7 @@
 
 	:- uses(jupyter_logging, [create_log_file/1, log/1, log/2]).
 	:- uses(jupyter_jsonrpc, [send_success_reply/2, send_error_reply/3, next_jsonrpc_message/1, parse_json_terms_request/3]).
-	:- uses(jupyter_term_handling, [handle_term/6, term_response/1]).
+	:- uses(jupyter_term_handling, [handle_term/5, term_response/1]).
 	:- uses(jupyter_query_handling, [send_reply_on_error/0, retrieve_message/2]).
 	:- uses(jupyter, [predicate_docs/1]).
 
@@ -96,7 +96,7 @@
 		% Continue processing terms of the current request
 		retract(request_data(CallRequestId, TermsAndVariables)),
 		assertz(request_data(CallRequestId, RemainingTermsAndVariables)),
-		handle_term(Term, false, CallRequestId, Stack, Variables, Cont).
+		handle_term(Term, CallRequestId, Stack, Variables, Cont).
 	handle_next_term_or_request(Stack, Cont) :-
 		% All terms of the current request have been processed -> send their results to the client
 		request_data(_CallRequestId, []),
@@ -160,7 +160,7 @@
 		write(Stream, Terms),
 		close(Stream),
 		assertz(request_data(CallRequestId, [])),
-		handle_term(logtalk_load(File, [reload(always)]), true, CallRequestId, Stack, [], Cont).
+		handle_term(logtalk_load(File, [reload(always)]), CallRequestId, Stack, [], Cont).
 	dispatch_request(call, Message, Stack, Cont) :-
 		Message = request(Method,CallRequestId,Params,RPC),
 		Params = json([code-Code]),
@@ -187,13 +187,13 @@
 			% The request contains one term
 			% Normally this is a goal which is to be evaluated
 			assertz(request_data(CallRequestId, [])),
-			handle_term(Term, true, CallRequestId, Stack, Variables, Cont)
+			handle_term(Term, CallRequestId, Stack, Variables, Cont)
 		;	% The request contains multiple terms
 			% Process the first term and assert the remaining ones
 			% This is needed so that "retry." terms can fail into the previous call
 			TermsAndVariables = [Term-Variables|RemainingTermsAndVariables],
 			assertz(request_data(CallRequestId, RemainingTermsAndVariables)),
-			handle_term(Term, false, CallRequestId, Stack, Variables, Cont)
+			handle_term(Term, CallRequestId, Stack, Variables, Cont)
 		).
 	dispatch_request(backend, Message, _Stack, continue) :-
 		!,
