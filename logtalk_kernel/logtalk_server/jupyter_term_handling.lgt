@@ -78,9 +78,9 @@
 	% Term can be a query, possible using the ?- prefix operator
 	% Queries
 	handle_term(?-(Query), CallRequestId, Stack, Bindings, Cont) :- !,
-		handle_query_term(Query, false, CallRequestId, Stack, Bindings, continue, Cont).
+		handle_query_term(Query, CallRequestId, Stack, Bindings, continue, Cont).
 	handle_term(Query, CallRequestId, Stack, Bindings, Cont) :-
-		handle_query_term(Query, false, CallRequestId, Stack, Bindings, continue, Cont).
+		handle_query_term(Query, CallRequestId, Stack, Bindings, continue, Cont).
 
 	format_to_atom(_,_,Atom) :-
 		get_preference(verbosity,L), L < 2,
@@ -100,8 +100,8 @@
 	% jupyter_query_handling:call_query_with_output_to_file/7 leaves a choice point.
 	% This way, when a 'retry' term is encountered in a future request, its failing causes the goal to be retried.
 
-	% handle_query_term(+Term, +IsDirective, +CallRequestId, +Stack, +Bindings, +LoopCont, -Cont)
-	handle_query_term(Term, IsDirective, CallRequestId, Stack, Bindings, LoopCont, Cont) :-
+	% handle_query_term(+Term, +CallRequestId, +Stack, +Bindings, +LoopCont, -Cont)
+	handle_query_term(Term, CallRequestId, Stack, Bindings, LoopCont, Cont) :-
 		% Before executing a query, replace any of its subterms of the form $Var by the latest value of the variable Var from a previous query.
 		replace_previous_variable_bindings(Term, Bindings, UpdatedTerm, UpdatedBindings, Exception),
 		(	nonvar(Exception) ->
@@ -113,7 +113,7 @@
 			% Bindings needs to be copied so that the term can be read from the atom without any of the variables being instantiated by calling the term.
 			copy_term(Bindings, BindingsCopy),
 			write_term_to_atom(Term, TermAtom, [variable_names(Bindings)]),
-			handle_query_term_(UpdatedTerm, IsDirective, CallRequestId, Stack, UpdatedBindings, term_data(TermAtom, BindingsCopy), LoopCont, Cont)
+			handle_query_term_(UpdatedTerm, CallRequestId, Stack, UpdatedBindings, term_data(TermAtom, BindingsCopy), LoopCont, Cont)
 		).
 
 
@@ -167,76 +167,75 @@
 	is_query_alias(show_sld_tree(L), jupyter::print_sld_tree(L)) :-
 		\+ user::current_predicate(show_sld_tree/1).
 
-% handle_query_term_(+Query, +IsDirective, +CallRequestId, +Stack, +Bindings, +OriginalTermData, +LoopCont, -Cont)
-handle_query_term_(Call, IsDirective, CallRequestId, Stack,
+% handle_query_term_(+Query, +CallRequestId, +Stack, +Bindings, +OriginalTermData, +LoopCont, -Cont)
+handle_query_term_(Call, CallRequestId, Stack,
                    Bindings, OriginalTermData, LoopCont, Cont) :- 
   % log('Call: ~w~n',[Call]),
   is_query_alias(Call,Alias),
   !,
-  handle_query_term_(Alias, IsDirective, CallRequestId, Stack,
+  handle_query_term_(Alias, CallRequestId, Stack,
                    Bindings, OriginalTermData, LoopCont, Cont).
 % retry
-handle_query_term_(jupyter::retry, _IsDirective, _CallRequestId, Stack,
+handle_query_term_(jupyter::retry, _CallRequestId, Stack,
                    _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_retry(Stack).
 % halt
-handle_query_term_(jupyter::halt, _IsDirective, _CallRequestId, _Stack, 
+handle_query_term_(jupyter::halt, _CallRequestId, _Stack, 
                    _Bindings, _OriginalTermData, _LoopCont, done) :- !,
   % By unifying Cont=done, the loop reading and handling messages is stopped
   handle_halt.
 % jupyter predicates
-handle_query_term_(jupyter::print_sld_tree(Goal), _IsDirective, _CallRequestId, _Stack, 
+handle_query_term_(jupyter::print_sld_tree(Goal), _CallRequestId, _Stack, 
                    Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_print_sld_tree(Goal, Bindings).
-handle_query_term_(jupyter::print_table(Goal), _IsDirective, _CallRequestId, _Stack,
+handle_query_term_(jupyter::print_table(Goal), _CallRequestId, _Stack,
                     Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_print_table_with_findall(Bindings, Goal).
-handle_query_term_(jupyter::print_table(ValuesLists, VariableNames), _IsDirective, _CallRequestId, _Stack, 
+handle_query_term_(jupyter::print_table(ValuesLists, VariableNames), _CallRequestId, _Stack, 
                    Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_print_table(Bindings, ValuesLists, VariableNames).
 handle_query_term_(jupyter::print_transition_graph(PredSpec, FromIndex, ToIndex, LabelIndex),
-                   _IsDirective, _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+                   _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_print_transition_graph(true,PredSpec, FromIndex, ToIndex, LabelIndex).
 handle_query_term_(jupyter::print_transition_graph(PredSpec, FromIndex, ToIndex),
-                  _IsDirective, _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+                  _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_print_transition_graph(true,PredSpec, FromIndex, ToIndex, 0).
 handle_query_term_(jupyter::show_graph(NodeSpec,PredSpec),
-                  _IsDirective, _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+                  _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_print_transition_graph(NodeSpec,PredSpec).
-handle_query_term_(jupyter::set_prolog_backend(Backend), _IsDirective, _CallRequestId, _Stack,
+handle_query_term_(jupyter::set_prolog_backend(Backend), _CallRequestId, _Stack,
                    _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_set_prolog_backend(Backend).
 handle_query_term_(jupyter::update_completion_data, 
-                   _IsDirective, _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+                   _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_update_completion_data.
 handle_query_term_(jupyter::set_preference(Pref,Value), 
-                   _IsDirective, _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+                   _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_set_preference(Pref,Value).
 % trace
-handle_query_term_(trace, _IsDirective, _CallRequestId, _Stack, 
+handle_query_term_(trace, _CallRequestId, _Stack, 
                    _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_trace(trace/0).
 %:- if(swi).
-%handle_query_term_(trace(_Pred), _IsDirective, _CallRequestId, _Stack,
+%handle_query_term_(trace(_Pred), _CallRequestId, _Stack,
 %                   _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
 %  handle_trace(trace/1).
-%handle_query_term_(trace(_Pred, _Ports), _IsDirective, _CallRequestId, _Stack,
+%handle_query_term_(trace(_Pred, _Ports), _CallRequestId, _Stack,
 %                   _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
 %  handle_trace(trace/2).
 %:- endif.
 % leash/1
-handle_query_term_(debugger::leash(_Ports), _IsDirective, _CallRequestId, _Stack,
+handle_query_term_(debugger::leash(_Ports), _CallRequestId, _Stack,
                     _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   assert_error_response(exception, message_data(error, jupyter(leash_pred)), '', []).
 % Any other query
-handle_query_term_(Query, IsDirective, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont) :-
-  handle_query(Query, IsDirective, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont).
+handle_query_term_(Query, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont) :-
+  handle_query(Query, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont).
 
 
-% handle_query(+Goal, +IsDirective, +CallRequestId, +Stack, +Bindings, +OriginalTermData, +LoopCont, -Cont)
+% handle_query(+Goal, +CallRequestId, +Stack, +Bindings, +OriginalTermData, +LoopCont, -Cont)
 %
 % Goal is the current term of the request which is to be handled.
-% IsDirective=true if the Goal was encountered as a directive.
 %  In that case, no variable bindings are sent to the client.
 % CallRequestId is the ID of the current call request.
 %  It is needed for juypter:print_queries/1.
@@ -246,7 +245,7 @@ handle_query_term_(Query, IsDirective, CallRequestId, Stack, Bindings, OriginalT
 % LoopCont is one of continue and cut.
 %  If LoopCont = cut, the recurse loop (jupyter_request_handling:loop/3) will exit right away without making retrys of a term possible.
 % Cont will be processed by jupyter_request_handling::loop/3.
-handle_query(Goal, IsDirective, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont) :-
+handle_query(Goal, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont) :-
 	% In order to send the goal to the client, it has to be converted to an atom
 	% This has to be done before calling it causes variables to be bound
 	write_term_to_atom(Goal, GoalAtom, [variable_names(Bindings)]),
@@ -264,11 +263,11 @@ handle_query(Goal, IsDirective, CallRequestId, Stack, Bindings, OriginalTermData
 	;	IsFailure == true -> % Failure
 		!,
 		% Also happens when 'retry' message requested a new solution and found none.
-		assert_query_failure_response(IsDirective, GoalAtom, RetryMessageAndOutput),
+		assert_error_response(failure, null, RetryMessageAndOutput, []),
 		Cont = continue
 	;	% Success
 		handle_result_variable_bindings(Bindings, ResultBindings),
-		assert_query_success_response(IsDirective, ResultBindings, RetryMessageAndOutput),
+		assert_success_response(query, ResultBindings, RetryMessageAndOutput, []),
 		% Start a new recursive loop so that the current goal can be retried
 		% The loop will
 		% - exit right away if LoopCont=cut
@@ -283,29 +282,12 @@ handle_query(Goal, IsDirective, CallRequestId, Stack, Bindings, OriginalTermData
 	),
 	!.
 
-	% assert_query_failure_response(+IsDirective, +GoalAtom, +Output)
-	assert_query_failure_response(true, GoalAtom, Output) :-
-		% For directives, output an error message displaying the failure
-		!,
-		assert_error_response(failure, message_data(warning, jupyter(goal_failed(GoalAtom))), Output, []).
-	assert_query_failure_response(_IsDirective, _GoalAtom, Output) :-
-		assert_error_response(failure, null, Output, []).
-
 
 	% output_and_failure_message(+Output, +FailureMessage, -OutputAndFailureMessage)
 	output_and_failure_message('', FailureMessage, FailureMessage) :- !.
 	output_and_failure_message(Output, FailureMessage, OutputAndFailureMessage) :-
 		atom_concat('\n', FailureMessage, FailureMessageWithNl),
 		atom_concat(Output, FailureMessageWithNl, OutputAndFailureMessage).
-
-
-	% assert_query_success_response(+IsDirective, +ResultBindings, +Output)
-	assert_query_success_response(true, _ResultBindings, Output) :-
-		% For directives, no bindings are output
-		!,
-		assert_success_response(directive, [], Output, []).
-	assert_query_success_response(_IsDirective, ResultBindings, Output) :-
-		assert_success_response(query, ResultBindings, Output, []).
 
 
 	update_variable_bindings(BindingsWithoutSingletons) :-
