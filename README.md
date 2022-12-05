@@ -1,7 +1,7 @@
 
 # Hercutalk - A Jupyter Kernel for Logtalk
 
-A [Jupyter](https://jupyter.org/) kernel for Logtalk based on [prolog-jupyter-kernel](https://github.com/hhu-stups/prolog-jupyter-kernel) and [IPython kernel](https://github.com/ipython/ipykernel).
+A [Jupyter](https://jupyter.org/) kernel for [Logtalk](https://logtalk.org/) based on [prolog-jupyter-kernel](https://github.com/hhu-stups/prolog-jupyter-kernel) and [IPython kernel](https://github.com/ipython/ipykernel).
 
 This project is a fork of the [prolog-jupyter-kernel](https://github.com/hhu-stups/prolog-jupyter-kernel) project (developed by Anne Brecklinghaus in her Master's thesis at the University of Düsseldorf under the supervision of Michael Leuschel and Philipp Körner) and still under development. It includes back-ports of recent patches and improvements by Michael Leuschel, David Geleßus, and Silas Kraume. Major changes are committed and more are expected. Furthermore, no liability is accepted for correctness and completeness.
 
@@ -22,9 +22,7 @@ Also see the [JupyterLab Prolog CodeMirror Extension](https://github.com/anbre/j
 
 ## Examples
 
-The directory [notebooks](./notebooks) contains some example Juypter notebooks, including a Logtalk short tutorial. Note that all of them can be viewed with [nbviewer](https://nbviewer.org/) without having to install the kernel.
-
-The notebook in [notebooks/slides](./notebooks/slides) was created for a **slideshow** giving a rough overview of the kernel's features and its implementation.
+The directory [notebooks](./notebooks) contains some example Juypter notebooks, including a Logtalk short tutorial and a notebook giving an overview of the kernel's features and its implementation. Note that all of them can be viewed with [nbviewer](https://nbviewer.org/) without having to install the kernel.
 
 
 ## Installation
