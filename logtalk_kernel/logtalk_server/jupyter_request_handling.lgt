@@ -21,7 +21,7 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-12-03,
+		date is 2022-12-05,
 		comment is 'This object provides predicates to start a loop reading and handling JSON RPC requests.'
 	]).
 
@@ -241,34 +241,34 @@
 	% cell magic
 
 	file_cell_magic(Code, 'user.lgt', append, Terms) :-
-		sub_atom(Code, 0, _, _, '@user+\n'),
-		sub_atom(Code, 7, _, 0, Terms0),
+		sub_atom(Code, 0, _, _, '%%user+\n'),
+		sub_atom(Code, 8, _, 0, Terms0),
 		atom_concat('\n\n', Terms0, Terms),
 		!.
 	file_cell_magic(Code, 'user.lgt', write, Terms) :-
-		sub_atom(Code, 0, _, _, '@user\n'),
-		sub_atom(Code, 6, _, 0, Terms),
+		sub_atom(Code, 0, _, _, '%%user\n'),
+		sub_atom(Code, 7, _, 0, Terms),
 		!.
 	file_cell_magic(Code, File, append, Terms) :-
-		sub_atom(Code, 0, _, _, '@file+ '),
+		sub_atom(Code, 0, _, _, '%%file+ '),
 		sub_atom(Code, Before, _, _, '\n'),
-		Length is Before - 7,
-		sub_atom(Code, 7, Length, _, File),
-		Rest is 7 + Length + 1,
+		Length is Before - 8,
+		sub_atom(Code, 8, Length, _, File),
+		Rest is 8 + Length + 1,
 		sub_atom(Code, Rest, _, 0, Terms0),
 		atom_concat('\n\n', Terms0, Terms),
 		!.
 	file_cell_magic(Code, File, write, Terms) :-
-		sub_atom(Code, 0, _, _, '@file '),
+		sub_atom(Code, 0, _, _, '%%file '),
 		sub_atom(Code, Before, _, _, '\n'),
-		Length is Before - 6,
-		sub_atom(Code, 6, Length, _, File),
-		Rest is 6 + Length + 1,
+		Length is Before - 7,
+		sub_atom(Code, 7, Length, _, File),
+		Rest is 7 + Length + 1,
 		sub_atom(Code, Rest, _, 0, Terms),
 		!.
 
 	goal_cell_magic(Code, Rest) :-
-		atom_concat('@table\n', Goal0, Code),
+		atom_concat('%table\n', Goal0, Code),
 		(	sub_atom(Goal0, _, 1, 0, '.') ->
 			sub_atom(Goal0, 0, _, 1, Goal)
 		;	Goal = Goal0
@@ -276,7 +276,7 @@
 		!,
 		atomic_list_concat(['print_table((', Goal, ')).'], Rest).
 	goal_cell_magic(Code, Rest) :-
-		atom_concat('@tree\n', Term0, Code),
+		atom_concat('%tree\n', Term0, Code),
 		(	sub_atom(Term0, _, 1, 0, '.') ->
 			sub_atom(Term0, 0, _, 1, Term)
 		;	Term = Term0
