@@ -268,7 +268,7 @@
 		!.
 
 	goal_cell_magic(Code, Rest) :-
-		atom_concat('%table\n', Goal0, Code),
+		atom_concat('%%table\n', Goal0, Code),
 		(	sub_atom(Goal0, _, 1, 0, '.') ->
 			sub_atom(Goal0, 0, _, 1, Goal)
 		;	Goal = Goal0
@@ -276,7 +276,7 @@
 		!,
 		atomic_list_concat(['print_table((', Goal, ')).'], Rest).
 	goal_cell_magic(Code, Rest) :-
-		atom_concat('%tree\n', Term0, Code),
+		atom_concat('%%tree\n', Term0, Code),
 		(	sub_atom(Term0, _, 1, 0, '.') ->
 			sub_atom(Term0, 0, _, 1, Term)
 		;	Term = Term0
