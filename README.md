@@ -48,7 +48,7 @@ The installation was tested with macOS 12.6.1, Ubuntu 20.0.4, and Windows 10.
 
 1. `python3 -m pip install --upgrade jupyterlab`
 2. `git clone https://github.com/LogtalkDotOrg/logtalk-jupyter-kernel`
-3. Change to the root directory of the repository
+3. `cd logtalk-jupyter-kernel`
 4. `make install`
 
 By default, `make install` uses `sys.prefix`. If it fails with a permission error, you can retry using either `sudo make install` or repeat its last step using `python3 -m logtalk_kernel.install --user` or `python3 -m logtalk_kernel.install --prefix PREFIX`.
@@ -56,7 +56,8 @@ By default, `make install` uses `sys.prefix`. If it fails with a permission erro
 
 ### Uninstall
 
-From the repo clone directory, type `make clean`.
+1. `cd logtalk-jupyter-kernel`
+2. `make clean`
 
 
 ## Running

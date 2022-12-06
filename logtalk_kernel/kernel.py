@@ -2,13 +2,14 @@
 A Logtalk Jupyter kernel communicating with a Logtalk server with JSON-RPC 2.0 messages.
 The communication is based on 'jsonrpc_client.py' from SICStus Prolog 4.5.1.
 
-By default, SICStus Prolog and SWI-Prolog backends (which is the actual default) are supported.
+Several Prolog backends are supported. By default, the SWI-Prolog backend is used.
 By defining a 'logtalk_kernel_config.py' file, the Prolog backend to be used can be defined.
-In addition to providing an backend_id (for SICStus und SWI-Prolog, the IDs 'sicstus' and 'swi' are expected),
+In addition to providing an backend_id (the name of the used Logtalk integration script),
 further implementation specific data (a dictionary 'backend_data' with the backend_id as key) can be defined.
 This includes the command line arguments with which the Logtalk server can be started.
 
-Additionally, there is the Logtalk predicate 'jupyter::set_prolog_backend(+Backend)' with which the implementation can be changed.
+Additionally, there is the Logtalk predicate 'jupyter::set_prolog_backend(+Backend)' with which the implementation can be changed
+(the argument is the name of the used Logtalk integration script).
 In order for this to work, the configured 'backend_data' dictionary needs to contain data for more than one Prolog backend.
 
 An example of a configuration file with an explanation of the options and their default values commented out can be found in the current directory.
