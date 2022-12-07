@@ -347,7 +347,7 @@ class LogtalkKernel(Kernel):
 
     # A dictionary with implementation ids as keys and the corresponding LogtalkKernelBaseImplementation as value.
     # When a Prolog backend is started, it is added to the dictionary.
-    # On kernel shutdown or interruption, all implementations are shutdown/interrupted
+    # On kernel shutdown or interruption, all implementations are shutdown/interrupted.
     active_kernel_implementations = {}
 
 
@@ -397,7 +397,7 @@ class LogtalkKernel(Kernel):
             self.logger.debug("Using the default configuration")
             return
 
-        # For all paths, load the config file and upadte the configuration
+        # For all paths, load the config file and update the configuration
         for existing_file_path in existing_file_paths:
             loader = PyFileConfigLoader(config_file_name, path=existing_file_path, log=self.logger)
 
