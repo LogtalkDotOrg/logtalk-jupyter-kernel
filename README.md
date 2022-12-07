@@ -18,7 +18,7 @@ This project is a fork of the [prolog-jupyter-kernel](https://github.com/hhu-stu
 
 The kernel is implemented in a way that basically all functionality except the loading of configuration files can easily be overridden. This is especially useful for **extending the kernel for further Prolog backends** or running code with a different version of a backend. For further information about this, see [Configuration](#configuration).
 
-Also see the [JupyterLab Logtalk CodeMirror Extension](https://github.com/LogtalkDotOrg/jupyterlab-logtalk-codemirror-extension) for *syntax highlighting* of Logtalk code in JupyterLab (forked from the [Prolog Extension](https://github.com/hhu-stups/jupyterlab-prolog-codemirror-extension)).
+Also see the [JupyterLab Logtalk CodeMirror Extension](https://github.com/LogtalkDotOrg/jupyterlab-logtalk-codemirror-extension) for *syntax highlighting* of Logtalk code in JupyterLab (forked from the [JupyterLab Prolog CodeMirror Extension](https://github.com/hhu-stups/jupyterlab-prolog-codemirror-extension)).
 
 
 ## Examples
