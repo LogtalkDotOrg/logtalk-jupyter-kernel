@@ -229,7 +229,8 @@
 
 	:- elif(current_logtalk_flag(prolog_dialect, gnu)).
 
-		redirect_output_to_stream(Alias, Stream) :-
+		redirect_output_to_stream(Stream) :-
+			set_stream_alias(Stream, current_output),
 			set_stream_alias(Stream, user_output),
 			set_stream_alias(Stream, user_error).
 
