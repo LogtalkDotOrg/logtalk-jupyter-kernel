@@ -80,22 +80,22 @@ class LogtalkKernel(Kernel):
         backend_id = Unicode('swilgt.ps1').tag(config=True)
         #backend_id = Unicode('tplgt.ps1').tag(config=True)
         #backend_id = Unicode('yaplgt.ps1').tag(config=True)
+    elif 'LOGTALKHOME' in os.environ and 'LOGTALKUSER' in os.environ and os.environ['LOGTALKHOME'] == os.environ['LOGTALKUSER']:
+        #backend_id = Unicode('eclipselgt.sh').tag(config=True)
+        #backend_id = Unicode('gplgt.sh').tag(config=True)
+        #backend_id = Unicode('lvmlgt.sh').tag(config=True)
+        #backend_id = Unicode('sicstuslgt.sh').tag(config=True)
+        backend_id = Unicode('swilgt.sh').tag(config=True)
+        #backend_id = Unicode('tplgt.sh').tag(config=True)
+        #backend_id = Unicode('yaplgt.sh').tag(config=True)
     else:
         #backend_id = Unicode('eclipselgt').tag(config=True)
-        #backend_id = Unicode('eclipselgt.sh').tag(config=True)
         #backend_id = Unicode('gplgt').tag(config=True)
-        #backend_id = Unicode('gplgt.sh').tag(config=True)
         #backend_id = Unicode('lvmlgt').tag(config=True)
-        #backend_id = Unicode('lvmlgt.sh').tag(config=True)
         #backend_id = Unicode('sicstuslgt').tag(config=True)
-        #backend_id = Unicode('sicstuslgt.sh').tag(config=True)
         backend_id = Unicode('swilgt').tag(config=True)
-        #backend_id = Unicode('swilgt.sh').tag(config=True)
-        #backend_id = Unicode('swilgt.ps1').tag(config=True)
         #backend_id = Unicode('tplgt').tag(config=True)
-        #backend_id = Unicode('tplgt.sh').tag(config=True)
         #backend_id = Unicode('yaplgt').tag(config=True)
-        #backend_id = Unicode('yaplgt.sh').tag(config=True)
 
     # The default program arguments for supported Prolog backends
     default_program_arguments = {

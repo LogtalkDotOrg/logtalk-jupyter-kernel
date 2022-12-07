@@ -20,22 +20,22 @@ if platform.system() == 'Windows':
     c.LogtalkKernel.backend_id = "swilgt.ps1"
     #c.LogtalkKernel.backend_id = "tplgt.ps1"
     #c.LogtalkKernel.backend_id = "yaplgt.ps1"
+elif 'LOGTALKHOME' in os.environ and 'LOGTALKUSER' in os.environ and os.environ['LOGTALKHOME'] == os.environ['LOGTALKUSER']:
+    #c.LogtalkKernel.backend_id = "eclipselgt.sh"
+    #c.LogtalkKernel.backend_id = "gplgt.sh"
+    #c.LogtalkKernel.backend_id = "lvmlgt.sh"
+    #c.LogtalkKernel.backend_id = "sicstuslgt.sh"
+    c.LogtalkKernel.backend_id = "swilgt.sh"
+    #c.LogtalkKernel.backend_id = "tplgt.sh"
+    #c.LogtalkKernel.backend_id = "yaplgt.sh"
 else:
     #c.LogtalkKernel.backend_id = "eclipselgt"
-    #c.LogtalkKernel.backend_id = "eclipselgt.sh"
     #c.LogtalkKernel.backend_id = "gplgt"
-    #c.LogtalkKernel.backend_id = "gplgt.sh"
     #c.LogtalkKernel.backend_id = "lvmlgt"
-    #c.LogtalkKernel.backend_id = "lvmlgt.sh"
     #c.LogtalkKernel.backend_id = "sicstuslgt"
-    #c.LogtalkKernel.backend_id = "sicstuslgt.sh"
     c.LogtalkKernel.backend_id = "swilgt"
-    #c.LogtalkKernel.backend_id = "swilgt.sh"
-    #c.LogtalkKernel.backend_id = "swilgt.ps1"
     #c.LogtalkKernel.backend_id = "tplgt"
-    #c.LogtalkKernel.backend_id = "tplgt.sh"
     #c.LogtalkKernel.backend_id = "yaplgt"
-    #c.LogtalkKernel.backend_id = "yaplgt.sh"
 
 ## The implementation specific data which is needed to run the Logtalk server for code execution.
 ## This is required to be a dictionary containing at least an entry for the configured backend_id.
