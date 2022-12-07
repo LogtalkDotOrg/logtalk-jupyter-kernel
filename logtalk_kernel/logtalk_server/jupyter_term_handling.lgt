@@ -8,7 +8,7 @@
 %   - Head :- Body
 %   - Head --> Body
 %   - Head (if the request contains more than one term)
-% - queries (including terms following '?-'):
+% - queries:
 %   - retry or jupyter::retry
 %   - halt or jupyter::halt
 %   - a call of a special jupyter predicate:
@@ -28,25 +28,25 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-12-03,
+		date is 2022-12-07,
 		comment is 'This object provides predicates to handle terms received from the client, compute their results and assert them with term_response/1.'
 	]).
 
 	:- public(assert_sld_data/4).
 	% assert_sld_data(Port, Goal, Frame, ParentFrame)
-	
+
 	:- public(handle_term/5).
 	% handle_term(+Term, +CallRequestId, +Stack, +Bindings, -Cont)
-	
+
 	:- public(term_response/1).
 	:- dynamic(term_response/1).
 	% term_response(JsonResponse),
-	
+
 	:- public(findall_results_and_var_names/4).
 	:- meta_predicate(findall_results_and_var_names(*, *, *, *)).
-	
+
 	:- public(dot_subnode/3).
-	
+
 	:- public(dot_subtree/3).
 
 	:- meta_predicate(call_with_sld_failure_handling(*, *)).
@@ -75,16 +75,13 @@
 	%
 	% Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the term Term.
 	% Check which type of term Term is and handle it accordingly.
-	% Term can be a query, possible using the ?- prefix operator
 	% Queries
-	handle_term(?-(Query), CallRequestId, Stack, Bindings, Cont) :- !,
-		handle_query_term(Query, CallRequestId, Stack, Bindings, continue, Cont).
 	handle_term(Query, CallRequestId, Stack, Bindings, Cont) :-
 		handle_query_term(Query, CallRequestId, Stack, Bindings, continue, Cont).
 
 	format_to_atom(_,_,Atom) :-
 		get_preference(verbosity,L), L < 2,
-		!, 
+		!,
 		Atom = ''.
 	format_to_atom(Msg,Args,Atom) :-
 		format_to_codes(Msg, Args, Codes),
@@ -169,7 +166,7 @@
 
 % handle_query_term_(+Query, +CallRequestId, +Stack, +Bindings, +OriginalTermData, +LoopCont, -Cont)
 handle_query_term_(Call, CallRequestId, Stack,
-                   Bindings, OriginalTermData, LoopCont, Cont) :- 
+                   Bindings, OriginalTermData, LoopCont, Cont) :-
   % log('Call: ~w~n',[Call]),
   is_query_alias(Call,Alias),
   !,
@@ -180,18 +177,18 @@ handle_query_term_(jupyter::retry, _CallRequestId, Stack,
                    _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_retry(Stack).
 % halt
-handle_query_term_(jupyter::halt, _CallRequestId, _Stack, 
+handle_query_term_(jupyter::halt, _CallRequestId, _Stack,
                    _Bindings, _OriginalTermData, _LoopCont, done) :- !,
   % By unifying Cont=done, the loop reading and handling messages is stopped
   handle_halt.
 % jupyter predicates
-handle_query_term_(jupyter::print_sld_tree(Goal), _CallRequestId, _Stack, 
+handle_query_term_(jupyter::print_sld_tree(Goal), _CallRequestId, _Stack,
                    Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_print_sld_tree(Goal, Bindings).
 handle_query_term_(jupyter::print_table(Goal), _CallRequestId, _Stack,
                     Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_print_table_with_findall(Bindings, Goal).
-handle_query_term_(jupyter::print_table(ValuesLists, VariableNames), _CallRequestId, _Stack, 
+handle_query_term_(jupyter::print_table(ValuesLists, VariableNames), _CallRequestId, _Stack,
                    Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_print_table(Bindings, ValuesLists, VariableNames).
 handle_query_term_(jupyter::print_transition_graph(PredSpec, FromIndex, ToIndex, LabelIndex),
@@ -206,14 +203,14 @@ handle_query_term_(jupyter::show_graph(NodeSpec,PredSpec),
 handle_query_term_(jupyter::set_prolog_backend(Backend), _CallRequestId, _Stack,
                    _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_set_prolog_backend(Backend).
-handle_query_term_(jupyter::update_completion_data, 
+handle_query_term_(jupyter::update_completion_data,
                    _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_update_completion_data.
-handle_query_term_(jupyter::set_preference(Pref,Value), 
+handle_query_term_(jupyter::set_preference(Pref,Value),
                    _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_set_preference(Pref,Value).
 % trace
-handle_query_term_(trace, _CallRequestId, _Stack, 
+handle_query_term_(trace, _CallRequestId, _Stack,
                    _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
   handle_trace(trace/0).
 %:- if(swi).
@@ -633,7 +630,7 @@ handle_print_sld_tree(Goal, Bindings) :-
 	% Compute the graph file content
 	catch(safe_call_without_sending_error_replies(sld_graph_file_content(GraphFileContentAtom)),InternalException,true),
 	% Assert the result response
-	(	nonvar(InternalException) -> 
+	(	nonvar(InternalException) ->
 		!,
 		assert_error_response(exception, message_data(error, InternalException), Output, [])
 	;	nonvar(Exception) -> % Exception
@@ -857,7 +854,7 @@ handle_print_transition_graph(NodePredSpec, EdgePredSpec, FromIndex, ToIndex, La
 		maplist(get_node_desc,SNodes,NodeDescAtoms),
 		nth1(FromIndex, ArgList, FromNode),
 		nth1(ToIndex, ArgList, ToNode),
-		EdgeCall = (member(node(FromNode,_),SNodes), Object::PredTerm, member(node(ToNode,_),SNodes)) 
+		EdgeCall = (member(node(FromNode,_),SNodes), Object::PredTerm, member(node(ToNode,_),SNodes))
 		% only take nodes into account which are declared, % TO DO: we could only apply restriction to FromNode
 	),
 	% Compute all possible transitions
@@ -911,7 +908,7 @@ handle_print_transition_graph(NodePredSpec, EdgePredSpec) :-
 % in the latter case the call arguments are passed through
 % TODO: maybe get rid of this using meta_predicate annotations
 % expanded_pred_spec(+PredSpec, -MPredSpec)
-expanded_pred_spec(PredSpec, Object::PredName/PredArity, PredCall) :- 
+expanded_pred_spec(PredSpec, Object::PredName/PredArity, PredCall) :-
 	get_object(PredSpec, Object, PredName/PredArity),
 	!,
 	functor(PredCall, PredName, PredArity).
@@ -1094,7 +1091,7 @@ gen_dot_node_desc(NodeName,Attrs) --> "\"", gen_atom(NodeName),"\" [", gen_node_
 
 gen_node_attr_codes([]) --> "".
 gen_node_attr_codes([dot_attr(Attr,Val)]) --> !, gen_atom(Attr),"=\"",gen_atom(Val),"\"".
-gen_node_attr_codes([dot_attr(Attr,Val)|Tail]) --> 
+gen_node_attr_codes([dot_attr(Attr,Val)|Tail]) -->
    gen_atom(Attr),"=\"",gen_atom(Val),"\", ",
    gen_node_attr_codes(Tail).
 
@@ -1120,7 +1117,7 @@ dot_rec_subtree(Term, Sub) :-
 	dot_rec_subtree(X, Sub).
 
 % the node predicate for all subterms of a formula
-dot_subnode(Sub,[shape/S, label/F],Formula) :- 
+dot_subnode(Sub,[shape/S, label/F],Formula) :-
 	dot_rec_subtree(Formula,Sub), % any sub-formula Sub of Formula is a node in the graphical rendering
 	(	var(Sub) ->
 		S = ellipse, F=Sub
@@ -1152,7 +1149,7 @@ dot_subnode(Sub,[shape/S, label/F],Formula) :-
 		!,
 		format_to_atom('% Changing preference ~w from ~w to ~w~n', [Pref,Old,Value], Msg),
 		assert_success_response(query, [], Msg, []).
-	handle_set_preference(Pref,Value) :- 
+	handle_set_preference(Pref,Value) :-
 		assert_error_response(exception, message_data(error, jupyter(set_preference(Pref,Value))), '', []).
 
 
