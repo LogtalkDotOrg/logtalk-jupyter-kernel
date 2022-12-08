@@ -9,7 +9,7 @@ This project is a fork of the [prolog-jupyter-kernel](https://github.com/hhu-stu
 ## Supported Prolog backends
 
 - [ECLiPSe 7.0 #57 or later](http://eclipseclp.org/)
-- [GNU Prolog 1.5.1 or later](http://www.gprolog.org/)
+- [GNU Prolog 1.5.1 or later](http://www.gprolog.org/) (requires Logtalk git version)
 - [LVM 5.0.0 or later](https://graphstax.ai/)
 - [SICStus Prolog 4.5.1 or later](https://sicstus.sics.se/)
 - [SWI-Prolog 8.4.3 or later](https://www.swi-prolog.org/) (default)
@@ -91,7 +91,7 @@ In general, the kernel can be configured to use a different Prolog backend (whic
 
 - `server_logging`: If set to `True`, a **Logtalk server log file** is created.
   - The name of the file consists of the implementation ID preceded by `.logtalk_server_log_`.
-- `backend_id`: The ID of the **Prolog backend integration script** with which the server is started.
+- `backend_id`: The name of the **Prolog backend integration script** with which the server is started.
 - `backend_data`: The **Prolog backend-specific data** which is needed to run the server for code execution.
   - This is required to be a dictionary containing at least an entry for the configured `backend_id`.
   - Each entry needs to define values for
