@@ -4,7 +4,7 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-22,
+		date is 2022-12-11,
 		comment is 'This object provides special predicates which can be used in call requests by the client. Some of these predicates need to be the only goal of a query. Otherwise, they cannot be determined as special predicates and do not work as expected.'
 	]).
 
@@ -212,7 +212,7 @@
 
 	print_variable_bindings([]) :- !.
 	print_variable_bindings([Name=Value|Bindings]) :-
-		format('$~w =~t~12|~p~n', [Name, Value]),
+		format('$~w = ~q~n', [Name, Value]),
 		print_variable_bindings(Bindings).
 
 	% print_query_time

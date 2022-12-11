@@ -1,12 +1,17 @@
 
 % It is based on the module toplevel_variables from SWI-Prolog (version 8.4.2).
 
+% Define $ to be an operator.
+% This is needed so that terms containing terms of the form $Var can be read without any exceptions.
+:- op(1, fx, '$').
+
+
 :- object(jupyter_variable_bindings).
 
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-23,
+		date is 2022-12-11,
 		comment is 'This object provides predicates to reuse previous values of variables in a query.'
 	]).
 
@@ -33,11 +38,6 @@
 
 	logtalk::message_tokens(jupyter(no_var_binding(VarName)), jupyter) -->
 		['$~w was not bound by a previous query~n'-[VarName]], [nl].
-
-	% Define $ to be an operator.
-	% This is needed so that terms containing terms of the form $Var can be read without any exceptions.
-	:- op(1, fx, '$').
-
 
 	var_bindings([]).
 
