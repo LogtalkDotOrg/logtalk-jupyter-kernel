@@ -172,14 +172,14 @@
 			'\n    All previously set breakpoints are still active.',
 			'\n\n    Needs to be the only goal of a query in order to work as expected.'
 		], Doc).
-	predicate_doc('jupyter::update_completion_data/0', Doc) :-
-		atomic_list_concat([
-			'jupyter::update_completion_data',
-			'\n\n    Updates the predicate data used for code completion using Tab.',
-			'\n\n    This is done by retrieving all built-in and exported predicates.',
-			'\n    Needed to use completion for predicates from a newly loaded code.',
-			'\n\n    Needs to be the only goal of a query.'
-		], Doc).
+%	predicate_doc('jupyter::update_completion_data/0', Doc) :-
+%		atomic_list_concat([
+%			'jupyter::update_completion_data',
+%			'\n\n    Updates the predicate data used for code completion using Tab.',
+%			'\n\n    This is done by retrieving all built-in and exported predicates.',
+%			'\n    Needed to use completion for predicates from a newly loaded code.',
+%			'\n\n    Needs to be the only goal of a query.'
+%		], Doc).
 
 	% Trace
 
