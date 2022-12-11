@@ -51,7 +51,7 @@
 	:- public(safe_call_without_sending_error_replies/1).
 
 	:- meta_predicate(call_with_exception_handling(*, *)).
-	:- meta_predicate(safe_call_without_sending_error_replies(*)).
+	:- meta_predicate(safe_call_without_sending_error_replies(0)).
 
 	:- uses(debugger, [notrace/0]).
 	:- uses(list, [append/2, append/3, length/2]).

@@ -95,12 +95,12 @@
 			'\n    This is the case if a previous query with ID in Ids contains Var.',
 			'\n    Otherwise, $Var is not replaced.'
 		], Doc).
-	predicate_doc('jupyter::print_sld_tree/1', Doc) :-
-		atomic_list_concat([
-			'jupyter::print_sld_tree(+Goal)',
-			'\n\n    Executes the goal Goal and prints a graph resembling its SLD tree.',
-			'\n\n    Needs to be the only goal of a query.'
-		], Doc).
+%	predicate_doc('jupyter::print_sld_tree/1', Doc) :-
+%		atomic_list_concat([
+%			'jupyter::print_sld_tree(+Goal)',
+%			'\n\n    Executes the goal Goal and prints a graph resembling its SLD tree.',
+%			'\n\n    Needs to be the only goal of a query.'
+%		], Doc).
 	predicate_doc('jupyter::print_table/1', Doc) :-
 		atomic_list_concat([
 			'jupyter::print_table(+Goal)',
@@ -162,7 +162,6 @@
 		atomic_list_concat([
 			'jupyter::set_prolog_backend(+Backend)',
 			'\n\n    Activates the given Prolog backend.',
-			'\n\n    Code in the same cell is executed with the previous backend.',
 			'\n\n    Needs to be the only goal of a query.'
 		], Doc).
 	predicate_doc('jupyter::trace/1', Doc) :-
