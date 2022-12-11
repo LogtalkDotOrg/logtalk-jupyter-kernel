@@ -34,7 +34,7 @@ class LogtalkKernelBaseImplementation:
         self.logger = kernel.logger
         self.logger.setLevel(logging.DEBUG)
 
-        self.backend_id = kernel.backend_id
+        self.backend = kernel.backend
         self.backend_data = kernel.active_backend_data
 
         self.logtalk_proc = None
@@ -57,7 +57,7 @@ class LogtalkKernelBaseImplementation:
         program_arguments = self.backend_data["program_arguments"]
         if program_arguments == "default":
             # Use the default
-            program_arguments = self.kernel.default_program_arguments[self.backend_id]
+            program_arguments = self.kernel.default_program_arguments[self.backend]
             # The third element of the list is the path to the Logtalk source code relative to the directory this file is located in
             # In order for it to be found, the path needs to be extended by the location of this file
             program_arguments[3] = program_arguments[3].replace("logtalk_server/loader.lgt", os.path.join(path, os.path.join("logtalk_server", "loader.lgt")))
@@ -112,7 +112,7 @@ class LogtalkKernelBaseImplementation:
     def kill_logtalk_server(self):
         """Kills the Logtalk server process if it is still running."""
         if self.logtalk_proc is not None:
-            self.logger.debug(self.backend_id + ': Kill Logtalk server')
+            self.logger.debug(self.backend + ': Kill Logtalk server')
             self.logtalk_proc.kill()
             self.is_server_restart_required = True
 
@@ -164,7 +164,7 @@ class LogtalkKernelBaseImplementation:
             try:
                 # Check if the server had been shutdown (because of 'halt', an interrupt, or an exception) and a server restart is necessary
                 if self.is_server_restart_required:
-                    self.logger.debug(self.backend_id + ': Restart Logtalk server')
+                    self.logger.debug(self.backend + ': Restart Logtalk server')
                     self.start_logtalk_server()
                     self.send_response_display_data(self.backend_data["informational_prefix"] + 'The Logtalk server was restarted', self.error_ansi_escape_codes)
 
@@ -572,9 +572,9 @@ class LogtalkKernelBaseImplementation:
         if 'print_transition_graph' in dict:
             if self.handle_print_graph(dict['print_transition_graph']):
                 failure_keys.append(['print_transition_graph'])
-        if 'set_prolog_backend_id' in dict:
-            if self.handle_set_prolog_backend(dict['set_prolog_backend_id']):
-                failure_keys.append(['set_prolog_backend_id'])
+        if 'set_prolog_backend' in dict:
+            if self.handle_set_prolog_backend(dict['set_prolog_backend']):
+                failure_keys.append(['set_prolog_backend'])
 
         return failure_keys
 
@@ -680,6 +680,6 @@ class LogtalkKernelBaseImplementation:
         self.kernel.send_response(self.kernel.iopub_socket, 'display_data', display_data)
 
 
-    def handle_set_prolog_backend(self, prolog_backend_id):
+    def handle_set_prolog_backend(self, prolog_backend):
         """The user requested to change the active Prolog backend, which needs to be handled by the kernel."""
-        return self.kernel.change_prolog_backend(prolog_backend_id)
+        return self.kernel.change_prolog_backend(prolog_backend)

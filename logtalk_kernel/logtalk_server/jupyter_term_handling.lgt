@@ -1130,15 +1130,15 @@ dot_subnode(Sub,[shape/S, label/F],Formula) :-
 
 	% The user requested to change the active Prolog backend.
 	% The actual changing of the implementation is handled by the client (the Jupyter kernel).
-	% It expects an 'set_prolog_backend_id' item to be part of the result.
+	% It expects an 'set_prolog_backend' item to be part of the result.
 
 	% handle_set_prolog_backend(+Backend)
 	handle_set_prolog_backend(Backend) :-
 		atom(Backend),
 		!,
-		assert_success_response(query, [], '', [set_prolog_backend_id-Backend]).
+		assert_success_response(query, [], '', [set_prolog_backend-Backend]).
 	handle_set_prolog_backend(_Backend) :-
-		assert_error_response(exception, message_data(error, jupyter(prolog_backend_id_no_atom)), '', []).
+		assert_error_response(exception, message_data(error, jupyter(prolog_backend_no_atom)), '', []).
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

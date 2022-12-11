@@ -92,7 +92,7 @@
 	message_tokens(print_transition_graph_pred_spec(PredSpec)) -->
 		['Incorrect predicate specification: ~w'-[PredSpec]], [nl],
 		['It needs to be of the form PredName/PredArity or Object::PredName/PredArity'-[]], [nl].
-	message_tokens(prolog_backend_id_no_atom) -->
+	message_tokens(prolog_backend_no_atom) -->
 		['The Prolog backend ID needs to be an atom'-[]], [nl].
 	message_tokens(single_test_directive) -->
 		['The definition of a unit test cannot be split across multiple cells'-[]], [nl].

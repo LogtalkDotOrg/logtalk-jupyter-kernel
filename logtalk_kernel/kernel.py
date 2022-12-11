@@ -4,8 +4,8 @@ The communication is based on 'jsonrpc_client.py' from SICStus Prolog 4.5.1.
 
 Several Prolog backends are supported. By default, the SWI-Prolog backend is used.
 By defining a 'logtalk_kernel_config.py' file, the Prolog backend to be used can be defined.
-In addition to providing an backend_id (the name of the used Logtalk integration script),
-further implementation specific data (a dictionary 'backend_data' with the backend_id as key) can be defined.
+In addition to providing an backend (the name of the used Logtalk integration script),
+further implementation specific data (a dictionary 'backend_data' with the backend as key) can be defined.
 This includes the command line arguments with which the Logtalk server can be started.
 
 Additionally, there is the Logtalk predicate 'jupyter::set_prolog_backend(+Backend)' with which the implementation can be changed
@@ -73,29 +73,29 @@ class LogtalkKernel(Kernel):
     # The Prolog backend integration script with which the server is started.
     # It is required that the backend_data dictionary contains an item with the script name.
     if platform.system() == 'Windows':
-        #backend_id = Unicode('eclipselgt.ps1').tag(config=True)
-        #backend_id = Unicode('gplgt.ps1').tag(config=True)
-        #backend_id = Unicode('lvmlgt.ps1').tag(config=True)
-        #backend_id = Unicode('sicstuslgt.ps1').tag(config=True)
-        backend_id = Unicode('swilgt.ps1').tag(config=True)
-        #backend_id = Unicode('tplgt.ps1').tag(config=True)
-        #backend_id = Unicode('yaplgt.ps1').tag(config=True)
+        #backend = Unicode('eclipselgt.ps1').tag(config=True)
+        #backend = Unicode('gplgt.ps1').tag(config=True)
+        #backend = Unicode('lvmlgt.ps1').tag(config=True)
+        #backend = Unicode('sicstuslgt.ps1').tag(config=True)
+        backend = Unicode('swilgt.ps1').tag(config=True)
+        #backend = Unicode('tplgt.ps1').tag(config=True)
+        #backend = Unicode('yaplgt.ps1').tag(config=True)
     elif 'LOGTALKHOME' in os.environ and 'LOGTALKUSER' in os.environ and os.environ['LOGTALKHOME'] == os.environ['LOGTALKUSER']:
-        #backend_id = Unicode('eclipselgt.sh').tag(config=True)
-        #backend_id = Unicode('gplgt.sh').tag(config=True)
-        #backend_id = Unicode('lvmlgt.sh').tag(config=True)
-        #backend_id = Unicode('sicstuslgt.sh').tag(config=True)
-        backend_id = Unicode('swilgt.sh').tag(config=True)
-        #backend_id = Unicode('tplgt.sh').tag(config=True)
-        #backend_id = Unicode('yaplgt.sh').tag(config=True)
+        #backend = Unicode('eclipselgt.sh').tag(config=True)
+        #backend = Unicode('gplgt.sh').tag(config=True)
+        #backend = Unicode('lvmlgt.sh').tag(config=True)
+        #backend = Unicode('sicstuslgt.sh').tag(config=True)
+        backend = Unicode('swilgt.sh').tag(config=True)
+        #backend = Unicode('tplgt.sh').tag(config=True)
+        #backend = Unicode('yaplgt.sh').tag(config=True)
     else:
-        #backend_id = Unicode('eclipselgt').tag(config=True)
-        #backend_id = Unicode('gplgt').tag(config=True)
-        #backend_id = Unicode('lvmlgt').tag(config=True)
-        #backend_id = Unicode('sicstuslgt').tag(config=True)
-        backend_id = Unicode('swilgt').tag(config=True)
-        #backend_id = Unicode('tplgt').tag(config=True)
-        #backend_id = Unicode('yaplgt').tag(config=True)
+        #backend = Unicode('eclipselgt').tag(config=True)
+        #backend = Unicode('gplgt').tag(config=True)
+        #backend = Unicode('lvmlgt').tag(config=True)
+        #backend = Unicode('sicstuslgt').tag(config=True)
+        backend = Unicode('swilgt').tag(config=True)
+        #backend = Unicode('tplgt').tag(config=True)
+        #backend = Unicode('yaplgt').tag(config=True)
 
     # The default program arguments for supported Prolog backends
     default_program_arguments = {
@@ -171,7 +171,7 @@ class LogtalkKernel(Kernel):
     }
 
     # The implementation specific data which is needed to run the Logtalk server for code execution.
-    # This is required to be a dictionary containing at least an entry for the configured backend_id.
+    # This is required to be a dictionary containing at least an entry for the configured backend.
     # Each entry needs to define values for
     # - "failure_response": The output which is displayed if a query fails
     # - "success_response": The output which is displayed if a query succeeds without any variable bindings
@@ -360,7 +360,7 @@ class LogtalkKernel(Kernel):
 
         # Load the configuration and configured implementation specific data
         self.load_config_file()
-        load_exception_message = self.load_backend_data(self.backend_id)
+        load_exception_message = self.load_backend_data(self.backend)
         if load_exception_message:
             # The configured backend_data is invalid
             raise Exception(load_exception_message)
@@ -416,29 +416,29 @@ class LogtalkKernel(Kernel):
                 self.logger.debug("Loaded config file: " + loader.full_filename)
 
 
-    def load_backend_data(self, backend_id):
+    def load_backend_data(self, backend):
         """
-        Tries to set the implementation data for the Prolog backend with ID backend_id.
+        Tries to set the implementation data for the Prolog backend with ID backend.
         If no such data is provided for the given backend ID or the dictionary does not contain all required keys, a corresponding message is returned.
         """
 
-        # Check if there is an item for the backend_id
-        if not backend_id in self.backend_data:
-            return "There is no configured backend_data entry for the Prolog backend ID '" + backend_id + "'"
+        # Check if there is an item for the backend
+        if not backend in self.backend_data:
+            return "There is no configured backend_data entry for the Prolog backend '" + backend + "'"
 
         # Check if all required keys are contained in the dictionary
         missing_keys = []
         for key in self.required_backend_data_keys:
-            if not key in self.backend_data[backend_id]:
+            if not key in self.backend_data[backend]:
                 missing_keys.append(key)
 
         if missing_keys == []:
             # The implementation data is valid
-            self.active_backend_data = self.backend_data[backend_id]
+            self.active_backend_data = self.backend_data[backend]
         elif len(missing_keys) == 1:
-            return "The configured backend_data dict for the Prolog backend ID '" + backend_id + "' needs to contain an entry for '" + missing_keys[0] + "'"
+            return "The configured backend_data dict for the Prolog backend '" + backend + "' needs to contain an entry for '" + missing_keys[0] + "'"
         else:
-            return "The configured backend_data dict for the Prolog backend ID '" + backend_id + "' needs to contain entries for '" + "', '".join(missing_keys) + "'"
+            return "The configured backend_data dict for the Prolog backend '" + backend + "' needs to contain entries for '" + "', '".join(missing_keys) + "'"
 
 
     def load_kernel_implementation(self):
@@ -491,10 +491,10 @@ class LogtalkKernel(Kernel):
         if use_default:
             # The configured implementation could not be loaded
             # A default implementation is used instead
-#            if self.backend_id == 'swi':
+#            if self.backend == 'swi':
 #                self.logger.debug("Using the default implementation for SWI-Prolog")
 #                self.active_kernel_implementation = logtalk_kernel.swi_kernel_implementation.LogtalkKernelImplementation(self)
-#            elif self.backend_id == 'sicstus':
+#            elif self.backend == 'sicstus':
 #                self.logger.debug("Using the default implementation for SICStus Prolog")
 #                self.active_kernel_implementation = logtalk_kernel.sicstus_kernel_implementation.LogtalkKernelImplementation(self)
 #            else:
@@ -502,27 +502,27 @@ class LogtalkKernel(Kernel):
                 self.active_kernel_implementation = LogtalkKernelBaseImplementation(self)
 
         # Add the Prolog backend specific implementation class to the dictionary of active implementations
-        self.active_kernel_implementations[self.backend_id] = self.active_kernel_implementation
+        self.active_kernel_implementations[self.backend] = self.active_kernel_implementation
 
 
-    def change_prolog_backend(self, prolog_backend_id):
+    def change_prolog_backend(self, prolog_backend):
         """
-        Change the Prolog backend to the one with ID prolog_backend_id.
+        Change the Prolog backend to the one with ID prolog_backend.
         If there is a running server for that backend, it is activated.
         Otherwise, the backend-specific data is loaded (which starts a new server) and set as the active one.
         Returns True if something goes wrong and the new backend cannot be used.
         """
 
-        self.logger.debug('Change Prolog backend to ' + str(prolog_backend_id))
+        self.logger.debug('Change Prolog backend to ' + str(prolog_backend))
 
-        if prolog_backend_id in self.active_kernel_implementations:
+        if prolog_backend in self.active_kernel_implementations:
             # There is a running Logtalk server for the provided implementation ID
             # Make it the active one
-            self.backend_id = prolog_backend_id
-            self.active_kernel_implementation = self.active_kernel_implementations[self.backend_id]
+            self.backend = prolog_backend
+            self.active_kernel_implementation = self.active_kernel_implementations[self.backend]
         else:
             # Try to load the implementation specific data
-            load_exception_message = self.load_backend_data(prolog_backend_id)
+            load_exception_message = self.load_backend_data(prolog_backend)
             if load_exception_message:
                 self.logger.debug(load_exception_message)
                 # The configured backend_data is invalid
@@ -537,14 +537,14 @@ class LogtalkKernel(Kernel):
                 self.send_response(self.iopub_socket, 'display_data', display_data)
                 return True
             else:
-                self.backend_id = prolog_backend_id
+                self.backend = prolog_backend
                 # Create an implementation object which starts the Logtalk server
                 self.load_kernel_implementation()
 
 
     def interrupt_all(self):
         # Interrupting the kernel interrupts the running Logtalk processes, so all of them need to be restarted
-        for backend_id, kernel_implementation in self.active_kernel_implementations.items():
+        for backend, kernel_implementation in self.active_kernel_implementations.items():
             kernel_implementation.kill_logtalk_server()
 
 

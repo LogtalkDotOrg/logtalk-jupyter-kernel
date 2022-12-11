@@ -14,32 +14,32 @@ c = get_config()
 ## The Prolog backend integration script with which the server is started.
 # Default:
 if platform.system() == 'Windows':
-    #c.LogtalkKernel.backend_id = "eclipselgt.ps1"
-    #c.LogtalkKernel.backend_id = "gplgt.ps1"
-    #c.LogtalkKernel.backend_id = "lvmlgt.ps1"
-    #c.LogtalkKernel.backend_id = "sicstuslgt.ps1"
-    c.LogtalkKernel.backend_id = "swilgt.ps1"
-    #c.LogtalkKernel.backend_id = "tplgt.ps1"
-    #c.LogtalkKernel.backend_id = "yaplgt.ps1"
+    #c.LogtalkKernel.backend = "eclipselgt.ps1"
+    #c.LogtalkKernel.backend = "gplgt.ps1"
+    #c.LogtalkKernel.backend = "lvmlgt.ps1"
+    #c.LogtalkKernel.backend = "sicstuslgt.ps1"
+    c.LogtalkKernel.backend = "swilgt.ps1"
+    #c.LogtalkKernel.backend = "tplgt.ps1"
+    #c.LogtalkKernel.backend = "yaplgt.ps1"
 elif 'LOGTALKHOME' in os.environ and 'LOGTALKUSER' in os.environ and os.environ['LOGTALKHOME'] == os.environ['LOGTALKUSER']:
-    #c.LogtalkKernel.backend_id = "eclipselgt.sh"
-    #c.LogtalkKernel.backend_id = "gplgt.sh"
-    #c.LogtalkKernel.backend_id = "lvmlgt.sh"
-    #c.LogtalkKernel.backend_id = "sicstuslgt.sh"
-    c.LogtalkKernel.backend_id = "swilgt.sh"
-    #c.LogtalkKernel.backend_id = "tplgt.sh"
-    #c.LogtalkKernel.backend_id = "yaplgt.sh"
+    #c.LogtalkKernel.backend = "eclipselgt.sh"
+    #c.LogtalkKernel.backend = "gplgt.sh"
+    #c.LogtalkKernel.backend = "lvmlgt.sh"
+    #c.LogtalkKernel.backend = "sicstuslgt.sh"
+    c.LogtalkKernel.backend = "swilgt.sh"
+    #c.LogtalkKernel.backend = "tplgt.sh"
+    #c.LogtalkKernel.backend = "yaplgt.sh"
 else:
-    #c.LogtalkKernel.backend_id = "eclipselgt"
-    #c.LogtalkKernel.backend_id = "gplgt"
-    #c.LogtalkKernel.backend_id = "lvmlgt"
-    #c.LogtalkKernel.backend_id = "sicstuslgt"
-    c.LogtalkKernel.backend_id = "swilgt"
-    #c.LogtalkKernel.backend_id = "tplgt"
-    #c.LogtalkKernel.backend_id = "yaplgt"
+    #c.LogtalkKernel.backend = "eclipselgt"
+    #c.LogtalkKernel.backend = "gplgt"
+    #c.LogtalkKernel.backend = "lvmlgt"
+    #c.LogtalkKernel.backend = "sicstuslgt"
+    c.LogtalkKernel.backend = "swilgt"
+    #c.LogtalkKernel.backend = "tplgt"
+    #c.LogtalkKernel.backend = "yaplgt"
 
 ## The implementation specific data which is needed to run the Logtalk server for code execution.
-## This is required to be a dictionary containing at least an entry for the configured backend_id.
+## This is required to be a dictionary containing at least an entry for the configured backend.
 ## Each entry needs to define values for
 ## - "failure_response": The output which is displayed if a query fails
 ## - "success_response": The output which is displayed if a query succeeds without any variable bindings
