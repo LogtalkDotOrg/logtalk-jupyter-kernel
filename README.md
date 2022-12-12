@@ -54,6 +54,8 @@ The installation was tested with macOS 12.6.1, Ubuntu 20.0.4, and Windows 10.
 
 By default, `make install` uses `sys.prefix`. If it fails with a permission error, you can retry using either `sudo make install` or repeat its last step using `python3 -m logtalk_kernel.install --user` or `python3 -m logtalk_kernel.install --prefix PREFIX`.
 
+On Ubuntu, if `make install` fails with an error, try to update `pip` to its latest version by running `python3 -m pip install --upgrade pip`.
+
 
 ### Uninstall
 
