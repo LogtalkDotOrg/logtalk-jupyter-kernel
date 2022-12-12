@@ -168,7 +168,8 @@
 		atomic_list_concat([
 			'jupyter::trace(+Goal)',
 			'\n\n    Prints the trace of the goal Goal.',
-			'\n\n    By default, no port is leashed so that no user interaction is requested.',
+			'\n\n    Logtalk code needs to be compiled in debug mode.',
+			'\n    By default, no port is leashed so that no user interaction is requested.',
 			'\n    All previously set breakpoints are still active.',
 			'\n\n    Needs to be the only goal of a query in order to work as expected.'
 		], Doc).
