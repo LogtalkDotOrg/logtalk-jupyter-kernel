@@ -135,9 +135,10 @@
 			\+ user::current_predicate(trealla/0).
 		is_query_alias(yap, jupyter::set_prolog_backend('yaplgt.ps1')) :-
 			\+ user::current_predicate(yap/0).
-	:- elif((	os::environment_variable('LOGTALKHOME', LOGTALKHOME),
-				os::environment_variable('LOGTALKUSER', LOGTALKUSER),
-				LOGTALKHOME == LOGTALKUSER
+	:- elif((
+		os::environment_variable('LOGTALKHOME', LOGTALKHOME),
+		os::environment_variable('LOGTALKUSER', LOGTALKUSER),
+		LOGTALKHOME == LOGTALKUSER
 	)).
 		is_query_alias(eclipse, jupyter::set_prolog_backend('eclipselgt.sh')) :-
 			\+ user::current_predicate(eclipse/0).

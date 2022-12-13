@@ -1,5 +1,7 @@
 
-:- if(current_logtalk_flag(prolog_dialect, swi)).
+:- if(current_logtalk_flag(prolog_dialect, lvm)).
+	:- set_prolog_flag(encoding, 'UTF-8').
+:- elif(current_logtalk_flag(prolog_dialect, swi)).
 	:- set_prolog_flag(encoding, utf8).
 :- endif.
 
