@@ -93,9 +93,9 @@ In general, the kernel can be configured to use a different Prolog backend (whic
 
 - `server_logging`: If set to `True`, a **Logtalk server log file** is created.
   - The name of the file consists of the implementation ID preceded by `.logtalk_server_log_`.
-- `backend_id`: The name of the **Prolog backend integration script** with which the server is started.
+- `backend`: The name of the **Prolog backend integration script** with which the server is started.
 - `backend_data`: The **Prolog backend-specific data** which is needed to run the server for code execution.
-  - This is required to be a dictionary containing at least an entry for the configured `backend_id`.
+  - This is required to be a dictionary containing at least an entry for the configured `backend`.
   - Each entry needs to define values for
     - `failure_response`: The output which is displayed if a query **fails**
     - `success_response`: The output which is displayed if a query **succeeds without any variable bindings**
