@@ -143,10 +143,25 @@ Adjustments of the Logtalk server code are loaded when the server is restarted. 
 
 ### Debugging
 
-Usually, if the execution of a goal causes an exception, the corresponding Logtalk error message is computed and displayed in the Jupyter frontend. However, in case something goes wrong unexpectedly or the query does not terminate, the **Logtalk server might not be able to send a response to the client**. In that case, the user can only see that the execution does not terminate without any information about the error or output that might have been produced. However, it is possible to write logging messages and access any potential output, which might facilitate finding the cause of the error.
+Usually, if the execution of a goal causes an exception, the corresponding Logtalk error message is captured and displayed in the Jupyter frontend. However, in case something goes wrong unexpectedly or the query does not terminate, the **Logtalk server might not be able to send a response to the client**. In that case, the user can only see that the execution does not terminate without any information about the error or output that might have been produced. However, it is possible to write logging messages and access any potential output, which might facilitate finding the cause of the error.
 
 Debugging the server code is not possible in the usual way by tracing invocations. Furthermore, all messages exchanged with the client are written to the standard streams. Therefore, printing helpful debugging messages does not work either. Instead, if `server_logging` is configured, **messages can be written to a log file** by calling `log/1` or `log/2` from the `jupyter_logging` object. By default, only the responses sent to the client are logged.
 
 When a query is executed, all its output is written to a file named `.server_output`, which is deleted afterwards by `jupyter_query_handling::delete_output_file`. If an error occurs during the actual execution, the file cannot be deleted and thus, the **output of the goal can be accessed**. Otherwise, the deletion might be prevented.
 
 Furthermore, the server might send a response which the client cannot handle. In that case, **logging for the Python code** can be enabled by configuring `jupyter_logging`. For instance, the client logs the responses received from the server.
+
+When the Logtalk code makes calls to foreign language libraries (notably C or C++ code), it's possible that output is generated that is not diverted to a file when the kernel redirects the Prolog output streams. This unexpected output is most likely not a valid JSON payload and thus breaks communication between the notebook and the kernel. In this case, the notebook displays the following error:
+
+	Something went wrong. The Logtalk server needs to be restarted
+
+These issues can be debugged by running the problematic query in a terminal after diverting the Prolog output streams to a file. For example, assuming in the Prolog backend you're using the stream redirecting uses a `set_stream/2` predicate:
+
+	?- open(out, write, S),
+	   set_stream(S, alias(current_output)),
+	   set_stream(S, alias(user_output)),
+	   set_stream(S, alias(user_error)),
+	   goal,
+	   close(S).
+
+If you get any output while the goal is running (e.g. foreign library debugging messages), you will need to find a way to turn off that output.
