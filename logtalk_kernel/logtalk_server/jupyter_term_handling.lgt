@@ -28,7 +28,7 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-12-12,
+		date is 2022-12-17,
 		comment is 'This object provides predicates to handle terms received from the client, compute their results and assert them with term_response/1.'
 	]).
 
@@ -441,83 +441,106 @@ json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName-VarAtom|J
 %   - a list of ground terms of the same length as the values lists
 
 
-% handle_print_table_with_findall(+Bindings, +Goal)
-%
-% The values need to be computed with findall/3 for the goal Goal.
-% The header of the table will contain the names of the variables occurring in Goal.
-% Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the goal Goal.
-handle_print_table_with_findall(Bindings, Goal) :-
-	call_with_output_to_file(jupyter_term_handling::findall_results_and_var_names(Goal, Bindings, Results, VarNames), Output, ErrorMessageData),
-	!,
-	% Success or exception from findall_results_and_var_names/4
-	(	nonvar(ErrorMessageData) ->
-		assert_error_response(exception, ErrorMessageData, '', [])
-	;	% success
-		% Return the additional 'print_table' data
-		assert_success_response(query, [], Output, [print_table-json(['ValuesLists'-Results, 'VariableNames'-VarNames])])
-	).
-handle_print_table_with_findall(_Bindings, _Goal) :-
-	% findall_results_and_var_names/4 failed
-	assert_error_response(failure, null, '', []).
-
-
-% handle_print_table(+Bindings, +ValuesLists, +VariableNames)
-%
-% Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the goal Goal.
-% ValuesLists is expected to be a list of lists of the same lengths.
-% It contains the data which is to be printed in the table.
-% VariableNames is [] or a list of ground terms which need to be of the same length as the values lists.
-handle_print_table(_Bindings, [], VariableNames) :- !,
-	assert_success_response(query, [], '', [print_table-json(['ValuesLists'-[], 'VariableNames'-VariableNames])]).
-handle_print_table(Bindings, ValuesLists, VariableNames) :-
-	% Get the length of the first list and make sure that all other lists have the same length
-	ValuesLists = [ValuesList|RemainingValuesLists],
-	length(ValuesList, Length),
-	(	forall(member(List, RemainingValuesLists), length(List, Length)) ->
-		% Make sure that VariableNames is valid
-		(	table_variable_names(VariableNames, Length, TableVariableNames) ->
-			% As not all of the values can be parsed to JSON (e.g. uninstantiated variables and compounds), they need to be made JSON parsable first by converting them to atoms
-			findall(ValuesAtomList, (member(Values, ValuesLists), convert_to_atom_list(Values, Bindings, ValuesAtomList)), JsonParsableValuesLists),
+	% handle_print_table_with_findall(+Bindings, +Goal)
+	%
+	% The values need to be computed with findall/3 for the goal Goal.
+	% The header of the table will contain the names of the variables occurring in Goal.
+	% Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the goal Goal.
+	handle_print_table_with_findall(Bindings, Goal) :-
+		call_with_output_to_file(jupyter_term_handling::findall_results_and_var_names(Goal, Bindings, Results0, VarNames0), Output, ErrorMessageData),
+		!,
+		% Success or exception from findall_results_and_var_names/4
+		(	nonvar(ErrorMessageData) ->
+			assert_error_response(exception, ErrorMessageData, '', [])
+		;	% success
 			% Return the additional 'print_table' data
-			assert_success_response(query, [], '', [print_table-json(['ValuesLists'-JsonParsableValuesLists, 'VariableNames'-TableVariableNames])])
-		;	% The variable names are invalid
-			assert_error_response(exception, message_data(error, jupyter(invalid_table_variable_names)), '', [])
-		)
-	;	% Not all lists in ValuesLists are of the same length
-		assert_error_response(exception, message_data(error, jupyter(invalid_table_values_lists_length)), '', [])
-	).
+			filter_ignored_variable_results(Results0, VarNames0, Results),
+			filter_ignored_variable_names(VarNames0, VarNames),
+			assert_success_response(query, [], Output, [print_table-json(['ValuesLists'-Results, 'VariableNames'-VarNames])])
+		).
+	handle_print_table_with_findall(_Bindings, _Goal) :-
+		% findall_results_and_var_names/4 failed
+		assert_error_response(failure, null, '', []).
+
+	filter_ignored_variable_results([], _, []).
+	filter_ignored_variable_results([Result0| Results0], VarNames0, [Result| Results]) :-
+		filter_ignored_variables(VarNames0, Result0, Result),
+		filter_ignored_variable_results(Results0, VarNames0, Results).
+
+	filter_ignored_variables([], [], []).
+	filter_ignored_variables([VarName0| VarNames0], [_| Results0], Results) :-
+		sub_atom(VarName0, 0, 1, _, '_'),
+		!,
+		filter_ignored_variables(VarNames0, Results0, Results).
+	filter_ignored_variables([_| VarNames0], [Result0| Results0], [Result0| Results]) :-
+		filter_ignored_variables(VarNames0, Results0, Results).
+
+	filter_ignored_variable_names([], []).
+	filter_ignored_variable_names([VarName0| VarNames0], VarNames) :-
+		sub_atom(VarName0, 0, 1, _, '_'),
+		!,
+		filter_ignored_variable_names(VarNames0, VarNames).
+	filter_ignored_variable_names([VarName0| VarNames0], [VarName0| VarNames]) :-
+		filter_ignored_variable_names(VarNames0, VarNames).
+
+	% handle_print_table(+Bindings, +ValuesLists, +VariableNames)
+	%
+	% Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the goal Goal.
+	% ValuesLists is expected to be a list of lists of the same lengths.
+	% It contains the data which is to be printed in the table.
+	% VariableNames is [] or a list of ground terms which need to be of the same length as the values lists.
+	handle_print_table(_Bindings, [], VariableNames) :-
+		!,
+		assert_success_response(query, [], '', [print_table-json(['ValuesLists'-[], 'VariableNames'-VariableNames])]).
+	handle_print_table(Bindings, ValuesLists, VariableNames) :-
+		% Get the length of the first list and make sure that all other lists have the same length
+		ValuesLists = [ValuesList| RemainingValuesLists],
+		length(ValuesList, Length),
+		(	forall(member(List, RemainingValuesLists), length(List, Length)) ->
+			% Make sure that VariableNames is valid
+			(	table_variable_names(VariableNames, Length, TableVariableNames) ->
+				% As not all of the values can be parsed to JSON (e.g. uninstantiated variables and compounds), they need to be made JSON parsable first by converting them to atoms
+				findall(ValuesAtomList, (member(Values, ValuesLists), convert_to_atom_list(Values, Bindings, ValuesAtomList)), JsonParsableValuesLists),
+				% Return the additional 'print_table' data
+				assert_success_response(query, [], '', [print_table-json(['ValuesLists'-JsonParsableValuesLists, 'VariableNames'-TableVariableNames])])
+			;	% The variable names are invalid
+				assert_error_response(exception, message_data(error, jupyter(invalid_table_variable_names)), '', [])
+			)
+		;	% Not all lists in ValuesLists are of the same length
+			assert_error_response(exception, message_data(error, jupyter(invalid_table_values_lists_length)), '', [])
+		).
 
 
-% table_variable_names(+VariableNames, +Length, -TableVariableNames)
-table_variable_names([], Length, TableVariableNames) :-
-	% If no variable names are provided, capital letters are used instead
-	Letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
-	% TableVariableNames is a list containing the first Length letters
-	length(TableVariableNames, Length),
-	append(TableVariableNames, _, Letters).
-table_variable_names(VariableNames, Length, VariableNames) :-
-	% Check that the number of variable names is correct and that all of them are ground
-	length(VariableNames, Length),
-	forall(member(VariableName, VariableNames), ground(VariableName)),
-	!.
+	% table_variable_names(+VariableNames, +Length, -TableVariableNames)
+	table_variable_names([], Length, TableVariableNames) :-
+		% If no variable names are provided, capital letters are used instead
+		Letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
+		% TableVariableNames is a list containing the first Length letters
+		length(TableVariableNames, Length),
+		append(TableVariableNames, _, Letters).
+	table_variable_names(VariableNames, Length, VariableNames) :-
+		% Check that the number of variable names is correct and that all of them are ground
+		length(VariableNames, Length),
+		forall(member(VariableName, VariableNames), ground(VariableName)),
+		!.
 
 
-% convert_to_atom_list(+List, +Bindings, -AtomList)
-%
-% AtomList contains the elements of List after converting them to atoms.
-convert_to_atom_list(List, Bindings, AtomList) :-
-	findall(
-		ElementAtom,
-		(	member(Element, List),
-			write_term_to_atom(Element, ElementAtom, [variable_names(Bindings)])
-		),
-		AtomList
-	).
+	% convert_to_atom_list(+List, +Bindings, -AtomList)
+	%
+	% AtomList contains the elements of List after converting them to atoms.
+	convert_to_atom_list(List, Bindings, AtomList) :-
+		findall(
+			ElementAtom,
+			(	member(Element, List),
+				write_term_to_atom(Element, ElementAtom, [variable_names(Bindings)])
+			),
+			AtomList
+		).
 
-% write_term_to_stream(+Term, +Bindings, +TestDefinitionStream)
-write_term_to_stream(Term, Bindings, TestDefinitionStream) :-
-	write_term(TestDefinitionStream, Term, [variable_names(Bindings)]),
-	write_term(TestDefinitionStream, '.\n', []).
+	% write_term_to_stream(+Term, +Bindings, +TestDefinitionStream)
+	write_term_to_stream(Term, Bindings, TestDefinitionStream) :-
+		write_term(TestDefinitionStream, Term, [variable_names(Bindings)]),
+		write_term(TestDefinitionStream, '.\n', []).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -550,7 +573,7 @@ findall_results_and_var_names(Goal, Bindings, JsonParsableResultsLists, VarNames
 
 
 % var_names_and_values(+Bindings, -VarNames, -Vars)
-var_names_and_values([], [], []) :- !.
+var_names_and_values([], [], []).
 var_names_and_values([VarName=Var|Bindings], [VarName|VarNames], [Var|Vars]) :-
 	var_names_and_values(Bindings, VarNames, Vars).
 
@@ -561,14 +584,14 @@ var_names_and_values([VarName=Var|Bindings], [VarName|VarNames], [Var|Vars]) :-
 % As not all of the terms in ResultsLists can be parsed to JSON (e.g. uninstantiated variables and compounds), they need to be made JSON parsable first.
 % Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the goal which was called to get the results.
 % Bindings is needed to preserve the variable names when converting a result to an atom.
-json_parsable_results_lists([], _VarNames, _Bindings, []) :- !.
+json_parsable_results_lists([], _VarNames, _Bindings, []).
 json_parsable_results_lists([Results|ResultsLists], VarNames, Bindings, [JsonParsableResults|JsonParsableResultsLists]) :-
 	json_parsable_results(Results, VarNames, Bindings, JsonParsableResults),
 	json_parsable_results_lists(ResultsLists, VarNames, Bindings, JsonParsableResultsLists).
 
 
 % json_parsable_results(+Results, +VarNames, +Bindings, -JsonParsableResult)
-json_parsable_results([], _VarNames, _Bindings, []) :- !.
+json_parsable_results([], _VarNames, _Bindings, []).
 json_parsable_results([Result|Results], [VarName|VarNames], Bindings, [Result|JsonParsableResults]) :-
 	% If the result is a variable, unify it with its name
 	var(Result),

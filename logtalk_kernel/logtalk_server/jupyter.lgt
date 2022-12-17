@@ -106,6 +106,7 @@
 			'jupyter::print_table(+Goal)',
 			'\n\n    Computes all results of the goal Goal with findall/3.',
 			'\n    These are printed in a table.',
+			'\n    Values for variable names starting with an underscore are omitted.',
 			'\n\n    Needs to be the only goal of a query.',
 			'\n\n    Example: jupyter::print_table(current_prolog_flag(FlagName, Value)).'
 		], Doc).
