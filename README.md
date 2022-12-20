@@ -9,12 +9,12 @@ This project is a fork of the [prolog-jupyter-kernel](https://github.com/hhu-stu
 ## Supported Prolog backends
 
 - [ECLiPSe 7.0 #57 or later](http://eclipseclp.org/)
-- [GNU Prolog 1.5.1 or later](http://www.gprolog.org/) (requires Logtalk git version)
+- [GNU Prolog 1.5.1 or later](http://www.gprolog.org/)
 - [LVM 5.0.0 or later](https://graphstax.ai/)
 - [SICStus Prolog 4.5.1 or later](https://sicstus.sics.se/)
 - [SWI-Prolog 8.4.3 or later](https://www.swi-prolog.org/) (default)
 - [Trealla Prolog 2.6.9 or later](https://github.com/trealla-prolog/trealla)
-- [YAP 7.2.1 or later](https://github.com/vscosta) (requires Logtalk git version)
+- [YAP 7.2.1 or later](https://github.com/vscosta)
 
 The kernel is implemented in a way that basically all functionality except the loading of configuration files can easily be overridden. This is especially useful for **extending the kernel for further Prolog backends** or running code with a different version of a backend. For further information about this, see [Configuration](#configuration).
 
@@ -37,7 +37,7 @@ The directory [notebooks](./notebooks) contains some example Juypter notebooks, 
     - `jupyter_core`: 5.1.0
     - `jupyterlab`: 3.5.0
     - `notebook`: 6.5.2
-- Logtalk 3.60.0 or later version
+- Logtalk 3.61.0 or later version
 - One or more supported Prolog backends (see above)
 - For Windows, installing **Graphviz** with `python3 -m pip` does not suffice
   - Instead, it can be installed from [here](https://graphviz.org/download/) and added to the `PATH` (a reboot is required afterwards)
