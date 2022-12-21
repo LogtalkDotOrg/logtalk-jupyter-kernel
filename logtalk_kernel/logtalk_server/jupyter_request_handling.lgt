@@ -277,6 +277,14 @@
 		Rest is 7 + Length + 1,
 		sub_atom(Code, Rest, _, 0, Terms),
 		!.
+	file_cell_magic(Code, File, write, Terms, load) :-
+		sub_atom(Code, 0, _, _, '%%load '),
+		sub_atom(Code, Before, _, _, '\n'),
+		Length is Before - 7,
+		sub_atom(Code, 7, Length, _, File),
+		Rest is 7 + Length + 1,
+		sub_atom(Code, Rest, _, 0, Terms),
+		!.
 
 	goal_cell_magic(Code, Rest) :-
 		atom_concat('%%table\n', Goal0, Code),
