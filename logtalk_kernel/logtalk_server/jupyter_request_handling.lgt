@@ -172,6 +172,14 @@
 		RestMessage = request(Method,CallRequestId,json([code-Rest]),RPC),
 		dispatch_request(call, RestMessage, Stack, Cont).
 	dispatch_request(call, Message, Stack, Cont) :-
+		Message = request(Method,CallRequestId,Params,RPC),
+		Params = json([code-Code]),
+		line_cell_magic(Code, Term),
+		!,
+		NewMessage = request(Method,CallRequestId,NewParams,RPC),
+		NewParams = json([code-Term]),
+		dispatch_request(call, NewMessage, Stack, Cont).
+	dispatch_request(call, Message, Stack, Cont) :-
 		!,
 		Message = request(_Method,CallRequestId,Params,_RPC),
 		parse_json_terms_request(Params, TermsAndVariables, ParsingErrorMessageData),
@@ -302,5 +310,7 @@
 		),
 		!,
 		atomic_list_concat(['show_term(', Term, ').'], Rest).
+
+	line_cell_magic('%magic', 'jupyter::magic.').
 
 :- end_object.

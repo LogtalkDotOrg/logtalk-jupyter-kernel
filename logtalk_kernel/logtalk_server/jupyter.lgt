@@ -4,7 +4,7 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-12-17,
+		date is 2022-12-21,
 		comment is 'This object provides special predicates which can be used in call requests by the client. Some of these predicates need to be the only goal of a query. Otherwise, they cannot be determined as special predicates and do not work as expected.'
 	]).
 
@@ -13,6 +13,7 @@
 	:- public([
 		%halt/0,
 		help/0,
+		magic/0,
 		predicate_docs/1,
 		print_queries/0,
 		print_queries/1,           % print_queries(+Ids)
@@ -68,6 +69,24 @@
 		format('~w~n~n--------------------------------------------------------------------------------~n~n', [Doc]),
 		print_pred_docs(PredDocs).
 
+	magic :-
+		format('Cell magic:~n~n', []),
+		format('    %%load FILE.EXT~n', []),
+		format('        Saves and loads a file using the logtalk_load/2 predicate~n', []),
+		format('    %%save FILE.EXT~n', []),
+		format('        Saves a file~n', []),
+		format('    %%file FILE.EXT~n', []),
+		format('        Saves and loads a file using the logtalk_load/2 predicate~n', []),
+		format('    %%file+ FILE.EXT~n', []),
+		format('        Appends to a file and loads it using the logtalk_load/2 predicate~n', []),
+		format('    %%user~n', []),
+		format('        Saves and loads a user.lgt file using the logtalk_load/2 predicate~n', []),
+		format('    %%user+~n', []),
+		format('        Appends to a user.lgt file and loads it using the logtalk_load/2 predicate~n~n', []),
+		format('Line magic:~n~n', []),
+		format('    %magic~n', []),
+		format('        Prints help in using cell and line magic~n', []).
+
 	predicate_doc('jupyter::halt/0', Doc) :-
 		atomic_list_concat([
 			'jupyter::halt or halt',
@@ -81,6 +100,11 @@
 		atomic_list_concat([
 			'jupyter::help',
 			'\n\n    Outputs the documentation for all predicates from object jupyter.'
+		], Doc).
+	predicate_doc('jupyter::magic/0', Doc) :-
+		atomic_list_concat([
+			'jupyter::help',
+			'\n\n    Outputs the documentation for all cell magic.'
 		], Doc).
 	predicate_doc('jupyter::print_query_time', Doc) :-
 		atomic_list_concat([
