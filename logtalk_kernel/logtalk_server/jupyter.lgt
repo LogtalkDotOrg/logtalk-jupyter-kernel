@@ -103,8 +103,8 @@
 		], Doc).
 	predicate_doc('jupyter::magic/0', Doc) :-
 		atomic_list_concat([
-			'jupyter::help',
-			'\n\n    Outputs the documentation for all cell magic.'
+			'jupyter::magic',
+			'\n\n    Outputs the documentation for all cell and line magic.'
 		], Doc).
 	predicate_doc('jupyter::print_query_time', Doc) :-
 		atomic_list_concat([
