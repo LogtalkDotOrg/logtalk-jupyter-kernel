@@ -21,7 +21,7 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-12-05,
+		date is 2022-12-21,
 		comment is 'This object provides predicates to start a loop reading and handling JSON RPC requests.'
 	]).
 
@@ -154,13 +154,16 @@
 	dispatch_request(call, Message, Stack, Cont) :-
 		Message = request(_Method,CallRequestId,Params,_RPC),
 		Params = json([code-Code]),
-		file_cell_magic(Code, File, Mode, Terms),
+		file_cell_magic(Code, File, Mode, Terms, Action),
 		!,
 		open(File, Mode, Stream),
 		write(Stream, Terms),
 		close(Stream),
 		assertz(request_data(CallRequestId, [])),
-		handle_term(logtalk_load(File, [reload(always)]), CallRequestId, Stack, [], Cont).
+		(	Action == load ->	
+			handle_term(logtalk_load(File, [reload(always)]), CallRequestId, Stack, [], Cont)
+		;	Cont = continue
+		).
 	dispatch_request(call, Message, Stack, Cont) :-
 		Message = request(Method,CallRequestId,Params,RPC),
 		Params = json([code-Code]),
@@ -240,16 +243,16 @@
 
 	% cell magic
 
-	file_cell_magic(Code, 'user.lgt', append, Terms) :-
+	file_cell_magic(Code, 'user.lgt', append, Terms, load) :-
 		sub_atom(Code, 0, _, _, '%%user+\n'),
 		sub_atom(Code, 8, _, 0, Terms0),
 		atom_concat('\n\n', Terms0, Terms),
 		!.
-	file_cell_magic(Code, 'user.lgt', write, Terms) :-
+	file_cell_magic(Code, 'user.lgt', write, Terms, load) :-
 		sub_atom(Code, 0, _, _, '%%user\n'),
 		sub_atom(Code, 7, _, 0, Terms),
 		!.
-	file_cell_magic(Code, File, append, Terms) :-
+	file_cell_magic(Code, File, append, Terms, load) :-
 		sub_atom(Code, 0, _, _, '%%file+ '),
 		sub_atom(Code, Before, _, _, '\n'),
 		Length is Before - 8,
@@ -258,8 +261,16 @@
 		sub_atom(Code, Rest, _, 0, Terms0),
 		atom_concat('\n\n', Terms0, Terms),
 		!.
-	file_cell_magic(Code, File, write, Terms) :-
+	file_cell_magic(Code, File, write, Terms, load) :-
 		sub_atom(Code, 0, _, _, '%%file '),
+		sub_atom(Code, Before, _, _, '\n'),
+		Length is Before - 7,
+		sub_atom(Code, 7, Length, _, File),
+		Rest is 7 + Length + 1,
+		sub_atom(Code, Rest, _, 0, Terms),
+		!.
+	file_cell_magic(Code, File, write, Terms, save) :-
+		sub_atom(Code, 0, _, _, '%%save '),
 		sub_atom(Code, Before, _, _, '\n'),
 		Length is Before - 7,
 		sub_atom(Code, 7, Length, _, File),
