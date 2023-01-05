@@ -537,11 +537,6 @@ json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName-VarAtom|J
 			AtomList
 		).
 
-	% write_term_to_stream(+Term, +Bindings, +TestDefinitionStream)
-	write_term_to_stream(Term, Bindings, TestDefinitionStream) :-
-		write_term(TestDefinitionStream, Term, [variable_names(Bindings)]),
-		write_term(TestDefinitionStream, '.\n', []).
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
