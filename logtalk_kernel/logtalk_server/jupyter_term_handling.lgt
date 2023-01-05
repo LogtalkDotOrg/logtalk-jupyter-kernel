@@ -26,9 +26,9 @@
 :- object(jupyter_term_handling).
 
 	:- info([
-		version is 0:1:0,
+		version is 0:2:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-12-17,
+		date is 2023-01-05,
 		comment is 'This object provides predicates to handle terms received from the client, compute their results and assert them with term_response/1.'
 	]).
 
@@ -109,7 +109,7 @@
 			% The term data is needed when accessing previous queries (e.g. with jupyter::print_queries/1).
 			% Bindings needs to be copied so that the term can be read from the atom without any of the variables being instantiated by calling the term.
 			copy_term(Bindings, BindingsCopy),
-			write_term_to_atom(Term, TermAtom, [variable_names(Bindings)]),
+			write_term_to_atom(Term, TermAtom, [variable_names(Bindings), quoted(true)]),
 			handle_query_term_(UpdatedTerm, CallRequestId, Stack, UpdatedBindings, term_data(TermAtom, BindingsCopy), LoopCont, Cont)
 		).
 
@@ -377,7 +377,7 @@ json_parsable_vars([_VarName=Var|RemainingBindings], Bindings, JsonParsableBindi
 	json_parsable_vars(RemainingBindings, Bindings, JsonParsableBindings).
 json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName-VarAtom|JsonParsableBindings]) :-
 	% Convert the value to an atom as it may be compound and cannot be parsed to JSON otherwise
-	write_term_to_atom(Var, VarAtom, [variable_names(Bindings)]),
+	write_term_to_atom(Var, VarAtom, [variable_names(Bindings), quoted(true)]),
 	json_parsable_vars(RemainingBindings, Bindings, JsonParsableBindings).
 
 
@@ -532,7 +532,7 @@ json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName-VarAtom|J
 		findall(
 			ElementAtom,
 			(	member(Element, List),
-				write_term_to_atom(Element, ElementAtom, [variable_names(Bindings)])
+				write_term_to_atom(Element, ElementAtom, [variable_names(Bindings), quoted(true)])
 			),
 			AtomList
 		).
@@ -587,15 +587,16 @@ json_parsable_results_lists([Results|ResultsLists], VarNames, Bindings, [JsonPar
 
 % json_parsable_results(+Results, +VarNames, +Bindings, -JsonParsableResult)
 json_parsable_results([], _VarNames, _Bindings, []).
-json_parsable_results([Result|Results], [VarName|VarNames], Bindings, [Result|JsonParsableResults]) :-
+json_parsable_results([Result|Results], [VarName|VarNames], Bindings, [ResultAtom|JsonParsableResults]) :-
 	% If the result is a variable, unify it with its name
 	var(Result),
 	!,
 	Result = VarName,
+	write_term_to_atom(Result, ResultAtom, [variable_names(Bindings), quoted(true)]),
 	json_parsable_results(Results, VarNames, Bindings, JsonParsableResults).
 json_parsable_results([Result|Results], [_VarName|VarNames], Bindings, [ResultAtom|JsonParsableResults]) :-
 	% Convert the value to an atom as it may be compound and cannot be parsed to JSON otherwise
-	write_term_to_atom(Result, ResultAtom, [variable_names(Bindings)]),
+	write_term_to_atom(Result, ResultAtom, [variable_names(Bindings), quoted(true)]),
 	json_parsable_results(Results, VarNames, Bindings, JsonParsableResults).
 
 
