@@ -21,6 +21,15 @@ The kernel is implemented in a way that basically all functionality except the l
 Also see the [JupyterLab Logtalk CodeMirror Extension](https://github.com/LogtalkDotOrg/jupyterlab-logtalk-codemirror-extension) for *syntax highlighting* of Logtalk code in JupyterLab (forked from the [JupyterLab Prolog CodeMirror Extension](https://github.com/hhu-stups/jupyterlab-prolog-codemirror-extension)).
 
 
+## Prolog backend requirements
+
+Adding support for other Prolog backends requires:
+
+- Command-line option(s) to silence (quiet) any banner and informative messages
+- Programatic solution to check if a quiet command-line option was used to start the Logtalk/Prolog process (e.g. by checking a boolean Prolog flag)
+- Ability to redirect current output (including `user_output` and `user_error`) to a different stream and restoring the previous stream when the redirection is terminated
+
+
 ## Examples
 
 The directory [notebooks](./notebooks) contains some example Juypter notebooks, including a Logtalk short tutorial and a notebook giving an overview of the kernel's features and its implementation. Note that all of them can be viewed with [nbviewer](https://nbviewer.org/) without having to install the kernel.
