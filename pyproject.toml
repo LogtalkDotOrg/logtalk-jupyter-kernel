@@ -27,4 +27,4 @@ dependencies = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/LogtalkDotOrg/prolog-jupyter-kernel"
+"Homepage" = "https://github.com/LogtalkDotOrg/logtalk-jupyter-kernel"
