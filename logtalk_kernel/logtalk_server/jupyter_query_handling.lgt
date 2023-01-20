@@ -208,7 +208,7 @@
 		delete_file(FileName),
 		!.
 
-	% redirect_output_to_stream(+Alias, +Stream)
+	% redirect_output_to_stream(+Stream)
 	:- if(current_logtalk_flag(prolog_dialect, eclipse)).
 
 		redirect_output_to_stream(Stream) :-
