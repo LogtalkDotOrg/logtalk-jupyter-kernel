@@ -35,7 +35,28 @@ Adding support for other Prolog backends requires:
 The directory [notebooks](./notebooks) contains some example Juypter notebooks, including a Logtalk short tutorial and a notebook giving an overview of the kernel's features and its implementation. Note that all of them can be viewed with [nbviewer](https://nbviewer.org/) without having to install the kernel.
 
 
-## Installation
+## Install
+
+The kernel is provided as a Python package on the Python Package Index and can be installed with `pip`:
+
+	python3 -m pip install logtalk-jupyter-kernel
+	python3 -m logtalk_kernel.install
+
+There are the following options which can be seen when running `python3 -m logtalk_kernel.install --help`
+
+- `--user`: install to the per-user kernel registry instead of `sys.prefix` (use if you get permission errors during installation)
+- `--prefix PREFIX`: install to the given prefix: `PREFIX/share/jupyter/kernels/`
+
+You also need to install Logtalk 3.61.0 (or later version) plus at least one of the supported Prolog backends (see listing above).
+
+
+## Uninstall
+
+	python3 -m pip uninstall logtalk_kernel
+	jupyter kernelspec remove logtalk_kernel
+
+
+## Development
 
 ### Requirements
 
@@ -53,7 +74,6 @@ The directory [notebooks](./notebooks) contains some example Juypter notebooks, 
 
 The installation was tested with macOS 12.6.1, Ubuntu 20.0.4, and Windows 10.
 
-
 ### Install
 
 1. `python3 -m pip install --upgrade jupyterlab`
@@ -64,7 +84,6 @@ The installation was tested with macOS 12.6.1, Ubuntu 20.0.4, and Windows 10.
 By default, `make install` uses `sys.prefix`. If it fails with a permission error, you can retry using either `sudo make install` or repeat its last step using `python3 -m logtalk_kernel.install --user` or `python3 -m logtalk_kernel.install --prefix PREFIX`.
 
 On Ubuntu, if `make install` fails with an error, try to update `pip` to its latest version by running `python3 -m pip install --upgrade pip`.
-
 
 ### Uninstall
 
