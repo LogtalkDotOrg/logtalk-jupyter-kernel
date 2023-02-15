@@ -3,7 +3,7 @@
 
 A [Jupyter](https://jupyter.org/) kernel for [Logtalk](https://logtalk.org/) based on [prolog-jupyter-kernel](https://github.com/hhu-stups/prolog-jupyter-kernel) and [IPython kernel](https://github.com/ipython/ipykernel).
 
-This project is a fork of the [prolog-jupyter-kernel](https://github.com/hhu-stups/prolog-jupyter-kernel) project (developed by Anne Brecklinghaus in her Master's thesis at the University of Düsseldorf under the supervision of Michael Leuschel and Philipp Körner) and still under development. It includes back-ports of recent patches and improvements by Michael Leuschel, David Geleßus, and Silas Kraume. Major changes are committed and more are expected. Furthermore, no liability is accepted for correctness and completeness.
+This project is a fork of the [prolog-jupyter-kernel](https://github.com/hhu-stups/prolog-jupyter-kernel) project (developed by Anne Brecklinghaus in her Master's thesis at the University of Düsseldorf under the supervision of Michael Leuschel and Philipp Körner) and still under development. It includes back-ports of recent patches and improvements by Michael Leuschel, David Geleßus, and Silas Kraume. Major changes are committed and more are expected. Furthermore, no liability is accepted for correctness and completeness (see the [LICENSE](LICENSE) file).
 
 
 ## Supported Prolog backends
@@ -25,9 +25,9 @@ Also see the [JupyterLab Logtalk CodeMirror Extension](https://github.com/Logtal
 
 Adding support for other Prolog backends requires:
 
-- Command-line option(s) to silence (quiet) any banner and informative messages
-- Programatic solution to check if a quiet command-line option was used to start the Logtalk/Prolog process (e.g. by checking a boolean Prolog flag)
-- Ability to redirect current output (including `user_output` and `user_error`) to a different stream and restoring the previous stream when the redirection is terminated
+- Command-line option(s) to silence (quiet) any banner and informative messages.
+- Programatic solution to check if a quiet command-line option was used to start the Logtalk/Prolog process (e.g. by checking a boolean Prolog flag).
+- Ability to redirect current output (including `user_output` and `user_error`) to a different stream and restoring the previous stream when the redirection is terminated.
 
 
 ## Examples
@@ -162,7 +162,8 @@ Furthermore, the server might send a response which the client cannot handle. In
 
 When the Logtalk code makes calls to foreign language libraries (notably C or C++ code), it's possible that output is generated that is not diverted to a file when the kernel redirects the Prolog output streams. This unexpected output is most likely not a valid JSON payload and thus breaks communication between the notebook and the kernel. In this case, the notebook displays the following error:
 
-	Something went wrong. The Logtalk server needs to be restarted
+	Something went wrong
+	The Logtalk server needs to be restarted
 
 These issues can be debugged by running the problematic query in a terminal after diverting the Prolog output streams to a file. For example, assuming in the Prolog backend you're using the stream redirecting uses a `set_stream/2` predicate:
 
