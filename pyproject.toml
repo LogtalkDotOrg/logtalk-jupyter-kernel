@@ -39,3 +39,10 @@ dependencies = [
 [project.urls]
 "Source" = "https://github.com/LogtalkDotOrg/logtalk-jupyter-kernel"
 "Issues" = "https://github.com/LogtalkDotOrg/logtalk-jupyter-kernel/issues"
+
+[project.optional-dependencies]
+dev = [
+	"jupyter_core",
+	"jupyterlab",
+	"notebook",
+]
