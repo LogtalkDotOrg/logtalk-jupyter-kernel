@@ -3,7 +3,7 @@
 
 A [Jupyter](https://jupyter.org/) kernel for [Logtalk](https://logtalk.org/) based on [prolog-jupyter-kernel](https://github.com/hhu-stups/prolog-jupyter-kernel) and [IPython kernel](https://github.com/ipython/ipykernel).
 
-This project is a fork of the [prolog-jupyter-kernel](https://github.com/hhu-stups/prolog-jupyter-kernel) project (developed by Anne Brecklinghaus in her Master's thesis at the University of Düsseldorf under the supervision of Michael Leuschel and Philipp Körner) and still under development. It includes back-ports of recent patches and improvements by Michael Leuschel, David Geleßus, and Silas Kraume. Major changes are committed and more are expected. Furthermore, no liability is accepted for correctness and completeness (see the [LICENSE](LICENSE) file).
+This project is a fork of the [prolog-jupyter-kernel](https://github.com/hhu-stups/prolog-jupyter-kernel) project (developed by Anne Brecklinghaus in her Master's thesis at the University of Düsseldorf under the supervision of Michael Leuschel and Philipp Körner) and still under development. It includes back-ports of recent patches and improvements by Michael Leuschel, dgelessus, and Silas Kraume. Major changes are committed and more are expected. Furthermore, no liability is accepted for correctness and completeness (see the [LICENSE](LICENSE) file).
 
 
 ## Supported Prolog backends

@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (c) 2022-2023 Paulo Moura  
-//  Copyright (c) 2022 Anne Brecklinghaus, Michael Leuschel, David Geleßus
+//  Copyright (c) 2022 Anne Brecklinghaus, Michael Leuschel, dgelessus
 //  SPDX-License-Identifier: MIT
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
