@@ -5,18 +5,29 @@ requires = [
 ]
 
 [project]
-name = "logtalk_kernel"
+name = "logtalk-jupyter-kernel"
 version = "0.1.0"
-authors = [ {name="Paulo Moura"}, { name="Anne Brecklinghaus" },  { name="Michael Leuschel" },  { name="David Geleßus" } ]
-description = "Extensible Jupyter kernel for Logtalk"
+authors = [ {name="Paulo Moura"}, { name="Anne Brecklinghaus" }, { name="Michael Leuschel" }, { name="David Geleßus" } ]
+description = "Hercutalk - A Jupyter Kernel for Logtalk"
 readme = "README.md"
 license = { file="LICENSE" }
 requires-python = ">=3.7"
 classifiers = [
-  "Programming Language :: Python :: 3",
+	"Development Status :: 4 - Beta",
+	"Framework :: Jupyter",
+	"Programming Language :: Logtalk",
   "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
   "Intended Audience :: Developers",
+	"Intended Audience :: Education",
+	"Topic :: Scientific/Engineering",
+	"Topic :: System :: Shells",
+	"Natural Language :: English",
+]
+keywords = [
+	"logtalk",
+	"prolog",
+	"logic-programming",
 ]
 dependencies = [
   "jupyter_client",
@@ -27,4 +38,5 @@ dependencies = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/LogtalkDotOrg/logtalk-jupyter-kernel"
+"Source" = "https://github.com/LogtalkDotOrg/logtalk-jupyter-kernel"
+"Issues" = "https://github.com/LogtalkDotOrg/logtalk-jupyter-kernel/issues"

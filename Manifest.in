@@ -1,0 +1,4 @@
+include notebooks/JupyterKernelForLogtalkOverview.ipynb
+include notebooks/LogtalkTutorial.ipynb
+include notebooks/*.png
+include logtalk_kernel/logtalk_server/*.lgt
