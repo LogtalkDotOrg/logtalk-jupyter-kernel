@@ -15,7 +15,6 @@ requires-python = ">=3.7"
 classifiers = [
 	"Development Status :: 4 - Beta",
 	"Framework :: Jupyter",
-	"Programming Language :: Logtalk",
   "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
   "Intended Audience :: Developers",
