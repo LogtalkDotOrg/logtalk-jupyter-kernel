@@ -13,20 +13,20 @@ readme = "README.md"
 license = { file="LICENSE" }
 requires-python = ">=3.7"
 classifiers = [
-	"Development Status :: 4 - Beta",
-	"Framework :: Jupyter",
+  "Development Status :: 4 - Beta",
+  "Framework :: Jupyter",
   "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
   "Intended Audience :: Developers",
-	"Intended Audience :: Education",
-	"Topic :: Scientific/Engineering",
-	"Topic :: System :: Shells",
-	"Natural Language :: English",
+  "Intended Audience :: Education",
+  "Topic :: Scientific/Engineering",
+  "Topic :: System :: Shells",
+  "Natural Language :: English",
 ]
 keywords = [
-	"logtalk",
-	"prolog",
-	"logic-programming",
+  "logtalk",
+  "prolog",
+  "logic-programming",
 ]
 dependencies = [
   "jupyter_client",
@@ -42,7 +42,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-	"jupyter_core",
-	"jupyterlab",
-	"notebook",
+  "jupyter_core",
+  "jupyterlab",
+  "notebook",
 ]
