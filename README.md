@@ -10,10 +10,10 @@ This project is a fork of the [prolog-jupyter-kernel](https://github.com/hhu-stu
 
 - [ECLiPSe 7.0 #57 or later](http://eclipseclp.org/)
 - [GNU Prolog 1.6.0 or later](http://www.gprolog.org/) (use git version until 1.6.0 is released)
-- [LVM 5.0.0 or later](https://graphstax.ai/)
+- [LVM 6.3.0 or later](https://permion.ai/)
 - [SICStus Prolog 4.5.1 or later](https://sicstus.sics.se/)
 - [SWI-Prolog 8.4.3 or later](https://www.swi-prolog.org/) (default)
-- [Trealla Prolog 2.6.9 or later](https://github.com/trealla-prolog/trealla)
+- [Trealla Prolog 2.18.7 or later](https://github.com/trealla-prolog/trealla)
 - [YAP 7.2.1 or later](https://github.com/vscosta)
 
 Note that an online use of this kernel (instead of local) may be restricted to a subset of these backends (notably, due to some systems requiring commercial licenses).
