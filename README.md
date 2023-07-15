@@ -9,7 +9,7 @@ This project is a fork of the [prolog-jupyter-kernel](https://github.com/hhu-stu
 ## Supported Prolog backends
 
 - [ECLiPSe 7.0 #57 or later](http://eclipseclp.org/)
-- [GNU Prolog 1.5.1 or later](http://www.gprolog.org/) (use git version until 1.5.1 is released)
+- [GNU Prolog 1.6.0 or later](http://www.gprolog.org/) (use git version until 1.6.0 is released)
 - [LVM 5.0.0 or later](https://graphstax.ai/)
 - [SICStus Prolog 4.5.1 or later](https://sicstus.sics.se/)
 - [SWI-Prolog 8.4.3 or later](https://www.swi-prolog.org/) (default)
