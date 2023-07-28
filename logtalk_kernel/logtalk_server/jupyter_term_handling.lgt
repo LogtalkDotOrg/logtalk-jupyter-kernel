@@ -105,11 +105,12 @@
 	handle_term(Query, CallRequestId, Stack, Bindings, Cont) :-
 		handle_query_term(Query, CallRequestId, Stack, Bindings, continue, Cont).
 
-	format_to_atom(_,_,Atom) :-
-		get_preference(verbosity,L), L < 2,
+	format_to_atom(_, _, Atom) :-
+		get_preference(verbosity, Level),
+		Level < 2,
 		!,
 		Atom = ''.
-	format_to_atom(Msg,Args,Atom) :-
+	format_to_atom(Msg, Args, Atom) :-
 		format_to_codes(Msg, Args, Codes),
 		atom_codes(Atom, Codes).
 

@@ -34,9 +34,9 @@
 :- object(jupyter_server).
 
 	:- info([
-		version is 0:1:0,
+		version is 0:2:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-23,
+		date is 2023-07-28,
 		comment is 'Main object of the server.'
 	]).
 
@@ -62,15 +62,9 @@
 		start(1).
 
 	start(JupyterKernelVerbosityLevel) :-
-		setup,
-		set_preference(verbosity,JupyterKernelVerbosityLevel), % useful for testing purposes
+		set_preference(verbosity, JupyterKernelVerbosityLevel), % useful for testing purposes
 		% Start the loop handling requests from the client
 		loop(continue, [], _ContOut).
-
-	setup :-
-		% The tests in jupyter_server_tests.pl need to be started without printing informational messages
-		% In order for those messages to be printed during an execution, a corresponding Prolog flag has to be set
-		set_logtalk_flag(report, on).
 
 	:- multifile(logtalk::trace_event/2).
 	:- dynamic(logtalk::trace_event/2).
