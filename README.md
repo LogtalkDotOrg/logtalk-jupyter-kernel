@@ -41,7 +41,7 @@ The directory [notebooks](./notebooks) contains some example Juypter notebooks, 
 
 The kernel is provided as a Python package on the Python Package Index and can be installed with `pip`:
 
-	python3 -m pip install logtalk-jupyter-kernel
+	python3 -m pip install --upgrade logtalk-jupyter-kernel
 	python3 -m logtalk_kernel.install
 
 There are the following options which can be seen when running `python3 -m logtalk_kernel.install --help`

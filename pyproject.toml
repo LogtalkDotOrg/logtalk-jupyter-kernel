@@ -22,6 +22,7 @@ classifiers = [
   "Topic :: Scientific/Engineering",
   "Topic :: System :: Shells",
   "Natural Language :: English",
+  "Programming Language :: Prolog",
 ]
 keywords = [
   "logtalk",
