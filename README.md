@@ -16,7 +16,7 @@ This project is a fork of the [prolog-jupyter-kernel](https://github.com/hhu-stu
 - [Trealla Prolog 2.18.7 or later](https://github.com/trealla-prolog/trealla)
 - [YAP 7.2.1 or later](https://github.com/vscosta)
 
-Note that an online use of this kernel (instead of local) may be restricted to a subset of these backends (notably, due to some systems requiring commercial licenses).
+Note that a public online use of this kernel (instead of private or local) may be restricted to a subset of these backends (notably, due to some systems requiring commercial licenses).
 
 The kernel is implemented in a way that basically all functionality except the loading of configuration files can easily be overridden. This is especially useful for **extending the kernel for further Prolog backends** or running code with a different version of a backend. For further information about this, see [Configuration](#configuration).
 
@@ -78,10 +78,10 @@ The installation was tested with macOS 12.6.1, Ubuntu 20.0.4, and Windows 10.
 
 ### Install
 
-1. `python3 -m pip install --upgrade jupyterlab`
-2. `git clone https://github.com/LogtalkDotOrg/logtalk-jupyter-kernel`
-3. `cd logtalk-jupyter-kernel`
-4. `make install`
+	python3 -m pip install --upgrade jupyterlab
+	git clone https://github.com/LogtalkDotOrg/logtalk-jupyter-kernel
+	cd logtalk-jupyter-kernel
+	make install
 
 By default, `make install` uses `sys.prefix`. If it fails with a permission error, you can retry using either `sudo make install` or repeat its last step using `python3 -m logtalk_kernel.install --user` or `python3 -m logtalk_kernel.install --prefix PREFIX`.
 
@@ -89,8 +89,13 @@ On Ubuntu, if `make install` fails with an error, try to update `pip` to its lat
 
 ### Uninstall
 
-1. `cd logtalk-jupyter-kernel`
-2. `make clean`
+	cd logtalk-jupyter-kernel
+	make clean
+
+### Building and publishing
+
+	python3 -m build .
+	twine upload dist/logtalk-jupyter-kernel-VERSION.tar.gz dist/logtalk_jupyter_kernel-VERSION-py3-none-any.whl
 
 
 ## Running
