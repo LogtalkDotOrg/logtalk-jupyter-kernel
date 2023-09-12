@@ -28,9 +28,9 @@
 :- object(jupyter_logging).
 
 	:- info([
-		version is 0:1:0,
+		version is 0:1:1,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-12,
+		date is 2023-09-12,
 		comment is 'Logging support.'
 	]).
 
@@ -41,7 +41,6 @@
 	]).
 
 	:- uses(format, [format/3]).
-	:- uses(list, [valid/1 as is_list/1]).
 
 	% create_log_file(-IsSuccess)
 	create_log_file(true) :-
@@ -55,12 +54,8 @@
 	create_log_file(false).
 	% No new log file could be opened
 
-	log(List) :-
-		is_list(List),
-		!,
-		log('~w~n', [List]).
 	log(Term) :-
-		log('~w~n', Term).
+		log('~w~n', [Term]).
 
 	log(Format, Arguments) :-
 		% Write to the log file
