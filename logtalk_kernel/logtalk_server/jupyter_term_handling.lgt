@@ -52,9 +52,9 @@
 :- object(jupyter_term_handling).
 
 	:- info([
-		version is 0:2:0,
+		version is 0:2:1,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2023-01-05,
+		date is 2023-09-12,
 		comment is 'This object provides predicates to handle terms received from the client, compute their results and assert them with term_response/1.'
 	]).
 
@@ -1152,13 +1152,15 @@ valid_dot_node_style(none).
 % generate a node description as list of codes
 % | ?- jupyter_term_handling::gen_node_desc(a,[dot_attr(label,b),dot_attr(color,c)],A,[]), format("~s~n",[A]).
 % a [label="b", color="c"]
-gen_dot_node_desc(NodeName,Attrs) --> "\"", gen_atom(NodeName),"\" [", gen_node_attr_codes(Attrs),"]",[10].
+gen_dot_node_desc(NodeName,Attrs) -->
+	"\"", call(gen_atom(NodeName)), "\" [", gen_node_attr_codes(Attrs),"]", [10].
 
-gen_node_attr_codes([]) --> "".
-gen_node_attr_codes([dot_attr(Attr,Val)]) --> !, gen_atom(Attr),"=\"",gen_atom(Val),"\"".
+gen_node_attr_codes([]) -->
+	"".
+gen_node_attr_codes([dot_attr(Attr,Val)]) -->
+	!, call(gen_atom(Attr)), "=\"", call(gen_atom(Val)), "\"".
 gen_node_attr_codes([dot_attr(Attr,Val)|Tail]) -->
-   gen_atom(Attr),"=\"",gen_atom(Val),"\", ",
-   gen_node_attr_codes(Tail).
+   call(gen_atom(Attr)), "=\"", call(gen_atom(Val)), "\", ", gen_node_attr_codes(Tail).
 
 gen_atom(Atom, In, Out) :-
 	format_to_codes('~w', [Atom], Codes),
