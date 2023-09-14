@@ -15,7 +15,13 @@ logtalk_doclet_logs/
 *.itf
 *.po
 
+.DS_Store
 .ipynb_checkpoints/
+.jupyter/
+.jupyter_ystore.db
 build/
 logtalk_kernel.egg-info/
 logtalk_kernel/__pycache__/
+
+notebooks/*.lgt
+notebooks/*.pl
