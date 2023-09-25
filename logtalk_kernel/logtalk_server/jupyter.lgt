@@ -28,9 +28,9 @@
 :- object(jupyter).
 
 	:- info([
-		version is 0:1:0,
+		version is 0:1:1,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-12-21,
+		date is 2023-09-25,
 		comment is 'This object provides special predicates which can be used in call requests by the client. Some of these predicates need to be the only goal of a query. Otherwise, they cannot be determined as special predicates and do not work as expected.'
 	]).
 
@@ -109,6 +109,10 @@
 		format('        Saves and loads a user.lgt file using the logtalk_load/2 predicate~n', []),
 		format('    %%user+~n', []),
 		format('        Appends to a user.lgt file and loads it using the logtalk_load/2 predicate~n~n', []),
+		format('    %%table~n', []),
+		format('        Prints a table with a column per variable binding for all goal solutions~n', []),
+		format('    %%tree~n', []),
+		format('        Prints a tree representation of a term~n~n', []),
 		format('Line magic:~n~n', []),
 		format('    %magic~n', []),
 		format('        Prints help in using cell and line magic~n', []).
