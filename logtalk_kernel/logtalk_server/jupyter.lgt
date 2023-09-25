@@ -28,7 +28,7 @@
 :- object(jupyter).
 
 	:- info([
-		version is 0:2:0,
+		version is 0:3:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
 		date is 2023-09-25,
 		comment is 'This object provides special predicates which can be used in call requests by the client. Some of these predicates need to be the only goal of a query. Otherwise, they cannot be determined as special predicates and do not work as expected.'
@@ -116,6 +116,8 @@
 		format('Line magic:~n~n', []),
 		format('    %bindings~n', []),
 		format('        Prints variable bindings from previous queries~n', []),
+		format('    %queries~n', []),
+		format('        Prints previous queries~n~n', []),
 		format('    %help~n', []),
 		format('        Prints documentation for all predicates from object jupyter~n~n', []),
 		format('    %magic~n', []),
@@ -300,7 +302,9 @@
 
 	print_queries(Ids) :-
 		(	var(Ids) ->
-			findall(Id, query_data(Id, _, _, _),Ids)
+			findall(Id, query_data(Id, _, _, _),Ids0),
+			% cells can contain multiple queries
+			sort(Ids0, Ids)
 		;	true
 		),
 		findall(
