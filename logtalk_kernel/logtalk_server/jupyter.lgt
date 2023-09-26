@@ -28,7 +28,7 @@
 :- object(jupyter).
 
 	:- info([
-		version is 0:3:1,
+		version is 0:4:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
 		date is 2023-09-26,
 		comment is 'This object provides special predicates which can be used in call requests by the client. Some of these predicates need to be the only goal of a query. Otherwise, they cannot be determined as special predicates and do not work as expected.'
@@ -55,7 +55,8 @@
 		trace/1,                   % trace(+Goal)
 		update_completion_data/0,
 		version/4,
-		version/0
+		version/0,
+		versions/0
 	]).
 
 	:- uses(debugger, [leash/1, trace/0, notrace/0]).
@@ -71,7 +72,32 @@
 	version :-
 		version(Major, Minor, Patch, Status),
 		%log('Version ~w.~w.~w-~w~n',[Maj,Min,Patch,Status]),
-		format('Version ~w.~w.~w-~w of Jupyter-Logtalk-Kernel~n', [Major, Minor, Patch, Status]).
+		format('Logtalk Jupyter kernel ~w.~w.~w-~w~n', [Major, Minor, Patch, Status]).
+
+	versions :-
+		current_logtalk_flag(version_data, logtalk(LogtalkMajor, LogtalkMinor, LogtalkPatch, LogtalkStatus)),
+		format('Logtalk ~w.~w.~w-~w~n', [LogtalkMajor, LogtalkMinor, LogtalkPatch, LogtalkStatus]),
+		current_logtalk_flag(prolog_dialect, Backend),
+		backend(Backend, BackendName),
+		current_logtalk_flag(prolog_version, v(BackendMajor, BackendMinor, BackendPatch)),
+		format('~w ~w.~w.~w~n', [BackendName, BackendMajor, BackendMinor, BackendPatch]),
+		version.
+
+	backend(b,       'B-Prolog').
+	backend(ciao,    'Ciao Prolog').
+	backend(cx,      'CxProlog').
+	backend(eclipse, 'ECLiPSe').
+	backend(gnu,     'GNU Prolog').
+	backend(ji,      'JIProlog').
+	backend(lvm,     'LVM').
+	backend(quintus, 'Quintus Prolog').
+	backend(scryer,  'Scryer Prolog').
+	backend(sicstus, 'SICStus Prolog').
+	backend(swi,     'SWI-Prolog').
+	backend(tau,     'Tau Prolog').
+	backend(trealla, 'Trealla Prolog').
+	backend(xsb,     'XSB').
+	backend(yap,     'YAP').
 
 	% Help
 
@@ -119,7 +145,9 @@
 		format('    %queries~n', []),
 		format('        Prints previous queries~n~n', []),
 		format('    %help~n', []),
-		format('        Prints documentation for all predicates from object jupyter~n~n', []),
+		format('        Prints documentation for all predicates from object jupyter~n', []),
+		format('    %versions~n', []),
+		format('        Prints Logtalk, Prolog backend, and Jupyter kernel versions~n~n', []),
 		format('    %magic~n', []),
 		format('        Prints help in using cell and line magic~n', []).
 
@@ -136,6 +164,11 @@
 		atomic_list_concat([
 			'jupyter::help',
 			'\n\n    Outputs the documentation for all predicates from object jupyter.'
+		], Doc).
+	predicate_doc('jupyter::versions/0', Doc) :-
+		atomic_list_concat([
+			'jupyter::versions',
+			'\n\n    Prints Logtalk, Prolog backend, and Jupyter kernel versions.'
 		], Doc).
 	predicate_doc('jupyter::magic/0', Doc) :-
 		atomic_list_concat([
