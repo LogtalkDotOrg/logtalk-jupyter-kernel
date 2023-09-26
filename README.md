@@ -58,46 +58,6 @@ You also need to install Logtalk 3.61.0 (or later version) plus at least one of 
 	jupyter kernelspec remove logtalk_kernel
 
 
-## Development
-
-### Requirements
-
-- At least **Python** 3.5
-  - Tested with Python 3.10.8
-- **Jupyter** installation with JupyterLab and/or Juypter Notebook
-  - Tested with
-    - `jupyter_core`: 5.1.0
-    - `jupyterlab`: 3.5.0
-    - `notebook`: 6.5.2
-- Logtalk 3.61.0 or later version
-- One or more supported Prolog backends (see above)
-- For Windows, installing **Graphviz** with `python3 -m pip` does not suffice
-  - Instead, it can be installed from [here](https://graphviz.org/download/) and added to the `PATH` (a reboot is required afterwards)
-
-The installation was tested with macOS 12.6.1, Ubuntu 20.0.4, and Windows 10.
-
-### Install
-
-	python3 -m pip install --upgrade jupyterlab
-	git clone https://github.com/LogtalkDotOrg/logtalk-jupyter-kernel
-	cd logtalk-jupyter-kernel
-	make install
-
-By default, `make install` uses `sys.prefix`. If it fails with a permission error, you can retry using either `sudo make install` or repeat its last step using `python3 -m logtalk_kernel.install --user` or `python3 -m logtalk_kernel.install --prefix PREFIX`.
-
-On Ubuntu, if `make install` fails with an error, try to update `pip` to its latest version by running `python3 -m pip install --upgrade pip`.
-
-### Uninstall
-
-	cd logtalk-jupyter-kernel
-	make clean
-
-### Building and publishing
-
-	python3 -m build .
-	twine upload dist/logtalk-jupyter-kernel-VERSION.tar.gz dist/logtalk_jupyter_kernel-VERSION-py3-none-any.whl
-
-
 ## Running
 
 Logtalk notebooks can be run using JupyterLab, Jupyter notebook, or VSCode.
@@ -112,7 +72,7 @@ Simply start Jupyter notebook (e.g. by typing `jupyter notebook` in a shell) and
 
 ### Running using VSCode
 
-Simply open an existing notebook. Ensure that the [Logtalk plug-in for VSCode](https://github.com/jacobfriedman/vsc-logtalk) for syntax highlighting in code cells.
+Simply open an existing notebook. Ensure that the [Logtalk plug-in for VSCode](https://github.com/LogtalkDotOrg/logtalk-for-vscode) for syntax highlighting in code cells.
 
 ### Configuration
 
@@ -170,11 +130,48 @@ The actual kernel code determining the handling of requests is not implemented b
 
 ## Development
 
+### Requirements
+
+- At least **Python** 3.5
+  - Tested with Python 3.10.8
+- **Jupyter** installation with JupyterLab and/or Juypter Notebook
+  - Tested with
+    - `jupyter_core`: 5.1.0
+    - `jupyterlab`: 3.5.0
+    - `notebook`: 6.5.2
+- Logtalk 3.61.0 or later version
+- One or more supported Prolog backends (see above)
+- For Windows, installing **Graphviz** with `python3 -m pip` does not suffice
+  - Instead, it can be installed from [here](https://graphviz.org/download/) and added to the `PATH` (a reboot is required afterwards)
+
+The installation was tested with macOS 12.6.1, Ubuntu 20.0.4, and Windows 10.
+
+### Install
+
+	python3 -m pip install --upgrade jupyterlab
+	git clone https://github.com/LogtalkDotOrg/logtalk-jupyter-kernel
+	cd logtalk-jupyter-kernel
+	make install
+
+By default, `make install` uses `sys.prefix`. If it fails with a permission error, you can retry using either `sudo make install` or repeat its last step using `python3 -m logtalk_kernel.install --user` or `python3 -m logtalk_kernel.install --prefix PREFIX`.
+
+On Ubuntu, if `make install` fails with an error, try to update `pip` to its latest version by running `python3 -m pip install --upgrade pip`.
+
+### Uninstall
+
+	cd logtalk-jupyter-kernel
+	make clean
+
 ### Local Changes
 
 In general, in order for local code adjustments to take effect, the kernel needs to be reinstalled. When installing the local project in *editable* mode with `python3 -m pip install -e .` (e.g. by running `make`), restarting the kernel suffices.
 
 Adjustments of the Logtalk server code are loaded when the server is restarted. Thus, when changing Logtalk code only, instead of restarting the whole kernel, it can be interrupted, which causes the Logtalk server to be restarted.
+
+### Building and publishing
+
+	python3 -m build .
+	twine upload dist/logtalk-jupyter-kernel-VERSION.tar.gz dist/logtalk_jupyter_kernel-VERSION-py3-none-any.whl
 
 ### Debugging
 
