@@ -28,9 +28,9 @@
 :- object(jupyter).
 
 	:- info([
-		version is 0:3:0,
+		version is 0:3:1,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2023-09-25,
+		date is 2023-09-26,
 		comment is 'This object provides special predicates which can be used in call requests by the client. Some of these predicates need to be the only goal of a query. Otherwise, they cannot be determined as special predicates and do not work as expected.'
 	]).
 
@@ -60,7 +60,7 @@
 
 	:- uses(debugger, [leash/1, trace/0, notrace/0]).
 	:- uses(format, [format/2]).
-	:- uses(list, [append/3, member/2, reverse/2]).
+	:- uses(list, [append/3, last/2, member/2, reverse/2]).
 	:- uses(term_io, [read_term_from_codes/3, write_term_to_codes/3, format_to_codes/3]).
 	:- uses(user, [atomic_list_concat/2]).
 	:- uses(jupyter_logging, [log/1, log/2]).
@@ -145,7 +145,7 @@
 	predicate_doc('jupyter::print_query_time', Doc) :-
 		atomic_list_concat([
 			'jupyter::print_query_time',
-			'\n\n    Prints the latest previous query and its runtime in seconds.'
+			'\n\n    Prints the previous query and its runtime in seconds.'
 		], Doc).
 	predicate_doc('jupyter::print_queries/1', Doc) :-
 		atomic_list_concat([
@@ -285,7 +285,7 @@
 			query_data(_CallRequestId, Runtime, term_data(Goal, _NameVarPairs), _OriginalTermData),
 			GoalRuntimes
 		),
-		append(_PreviousGoalRuntimes, [Goal-Runtime], GoalRuntimes),
+		last(GoalRuntimes, Goal-Runtime),
 		format('Query:   ~w~nRuntime: ~w s~n', [Goal, Runtime]).
 	print_query_time :-
 		format('* There is no previous query', []),
