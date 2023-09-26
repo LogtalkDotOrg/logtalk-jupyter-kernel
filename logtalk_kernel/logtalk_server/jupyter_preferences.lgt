@@ -89,7 +89,7 @@
 		print_message(debug, jupyter, Message) as dbg(Message)
 	]).
 
-	version(0, 7, 0, 'beta').
+	version(0, 7, 1, 'beta').
 
 	preference_definition(verbosity, 1, natural, 'Verbosity level, 0=off, 10=maximal').
 
