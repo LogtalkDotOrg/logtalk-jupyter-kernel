@@ -28,10 +28,10 @@
 :- object(jupyter_preferences).
 
 	:- info([
-		version is 0:1:0,
+		version is 0:2:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-11-23,
-		comment is 'Preferecnes management.'
+		date is 2023-09-26,
+		comment is 'Preferences management.'
 	]).
 
 	:- initialization(init_preferences).
@@ -89,7 +89,7 @@
 		print_message(debug, jupyter, Message) as dbg(Message)
 	]).
 
-	version(0, 1, 0, 'nightly').
+	version(0, 6, 2, 'beta').
 
 	preference_definition(verbosity, 1, natural, 'Verbosity level, 0=off, 10=maximal').
 
