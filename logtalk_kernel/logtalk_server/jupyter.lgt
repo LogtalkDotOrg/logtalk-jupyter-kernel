@@ -28,9 +28,9 @@
 :- object(jupyter).
 
 	:- info([
-		version is 0:4:0,
+		version is 0:5:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2023-09-26,
+		date is 2023-09-27,
 		comment is 'This object provides special predicates which can be used in call requests by the client. Some of these predicates need to be the only goal of a query. Otherwise, they cannot be determined as special predicates and do not work as expected.'
 	]).
 
@@ -49,6 +49,8 @@
 		print_table/2,             % print_table(+ValuesLists, +VariableNames)
 		print_transition_graph/4,  % print_transition_graph(+PredSpec, +FromIndex, +ToIndex, +LabelIndex)
 		print_variable_bindings/0,
+		pwd/0,
+		cd/1,
 		show_term/1,
 		retry/0,
 		set_prolog_backend/1,      % set_prolog_backend(+Backend)
@@ -144,6 +146,8 @@
 		format('        Prints variable bindings from previous queries~n', []),
 		format('    %queries~n', []),
 		format('        Prints previous queries~n~n', []),
+		format('    %pwd~n', []),
+		format('        Prints the current working directory~n~n', []),
 		format('    %help~n', []),
 		format('        Prints documentation for all predicates from object jupyter~n', []),
 		format('    %versions~n', []),
@@ -246,6 +250,16 @@
 			'\n    In that case, the term is replaced by the value.',
 			'\n    If there is no previous value, an error message is printed.'
 		], Doc).
+   predicate_doc('jupyter::pwd/0', Doc) :-
+		atomic_list_concat([
+			'jupyter::pwd',
+			'\n\n    Prints the current working directory.'
+		], Doc).
+   predicate_doc('jupyter::cd/1', Doc) :-
+		atomic_list_concat([
+			'jupyter::cd(+Directory)',
+			'\n\n    Changes the current working directory.'
+		], Doc).
 	predicate_doc('jupyter::retry/0', Doc) :-
 		atomic_list_concat([
 			'jupyter::retry or retry',
@@ -292,6 +306,13 @@
 		),
 		!.
 
+	pwd :-
+		os::working_directory(Directory),
+		format('Working directory: ~q~n', [Directory]).
+
+	cd(Directory) :-
+		os::change_directory(Directory).
+
 	% Variable bindings
 
 	% print_variable_bindings
@@ -304,8 +325,8 @@
 		;	print_variable_bindings(Bindings)
 		).
 
-	print_variable_bindings([]) :- !.
-	print_variable_bindings([Name=Value|Bindings]) :-
+	print_variable_bindings([]).
+	print_variable_bindings([Name=Value| Bindings]) :-
 		format('$~w = ~q~n', [Name, Value]),
 		print_variable_bindings(Bindings).
 

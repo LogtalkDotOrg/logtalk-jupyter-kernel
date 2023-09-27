@@ -45,9 +45,9 @@
 :- object(jupyter_request_handling).
 
 	:- info([
-		version is 0:4:0,
+		version is 0:5:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2023-09-26,
+		date is 2023-09-27,
 		comment is 'This object provides predicates to start a loop reading and handling JSON RPC requests.'
 	]).
 
@@ -200,11 +200,10 @@
 	dispatch_request(call, Message, Stack, Cont) :-
 		Message = request(Method,CallRequestId,Params,RPC),
 		Params = json([code-Code]),
-		line_cell_magic(Code, Term),
+		line_magic(Code, Rest),
 		!,
-		NewMessage = request(Method,CallRequestId,NewParams,RPC),
-		NewParams = json([code-Term]),
-		dispatch_request(call, NewMessage, Stack, Cont).
+		RestMessage = request(Method,CallRequestId,json([code-Rest]),RPC),
+		dispatch_request(call, RestMessage, Stack, Cont).
 	dispatch_request(call, Message, Stack, Cont) :-
 		!,
 		Message = request(_Method,CallRequestId,Params,_RPC),
@@ -337,10 +336,11 @@
 		!,
 		atomic_list_concat(['show_term(', Term, ').'], Rest).
 
-	line_cell_magic('%bindings', 'jupyter::print_variable_bindings.').
-	line_cell_magic('%queries', 'jupyter::print_queries.').
-	line_cell_magic('%help', 'jupyter::help.').
-	line_cell_magic('%versions', 'jupyter::versions.').
-	line_cell_magic('%magic', 'jupyter::magic.').
+	line_magic('%bindings', 'jupyter::print_variable_bindings.').
+	line_magic('%queries', 'jupyter::print_queries.').
+	line_magic('%help', 'jupyter::help.').
+	line_magic('%pwd', 'jupyter::pwd.').
+	line_magic('%magic', 'jupyter::magic.').
+	line_magic('%versions', 'jupyter::versions.').
 
 :- end_object.
