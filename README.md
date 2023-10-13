@@ -49,7 +49,7 @@ There are the following options which can be seen when running `python3 -m logta
 - `--user`: install to the per-user kernel registry instead of `sys.prefix` (use if you get permission errors during installation)
 - `--prefix PREFIX`: install to the given prefix: `PREFIX/share/jupyter/kernels/`
 
-You also need to install Logtalk 3.61.0 (or later version) plus at least one of the supported Prolog backends (see listing above).
+You also need to install Logtalk 3.71.0 (or later version) plus at least one of the supported Prolog backends (see listing above).
 
 
 ## Uninstall
