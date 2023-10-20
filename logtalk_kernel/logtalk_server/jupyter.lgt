@@ -73,7 +73,7 @@
 
 	version :-
 		version(Major, Minor, Patch, Status),
-		%log('Version ~w.~w.~w-~w~n',[Maj,Min,Patch,Status]),
+		%log('Version ~w.~w.~w-~w~n',[Major,Minor,Patch,Status]),
 		format('Logtalk Jupyter kernel ~w.~w.~w-~w~n', [Major, Minor, Patch, Status]).
 
 	versions :-

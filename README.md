@@ -6,6 +6,11 @@ A [Jupyter](https://jupyter.org/) kernel for [Logtalk](https://logtalk.org/) bas
 This project is a fork of the [prolog-jupyter-kernel](https://github.com/hhu-stups/prolog-jupyter-kernel) project (developed by Anne Brecklinghaus in her Master's thesis at the University of Düsseldorf under the supervision of Michael Leuschel and Philipp Körner) and still under development. It includes back-ports of recent patches and improvements by Michael Leuschel, dgelessus, and Silas Kraume. Major changes are committed and more are expected. Furthermore, no liability is accepted for correctness and completeness (see the [LICENSE](LICENSE) file).
 
 
+## Supported Logtalk version
+
+Logtalk 3.71.0 (or later version) plus at least one of the supported Prolog backends.
+
+
 ## Supported Prolog backends
 
 - [ECLiPSe 7.0 #57 or later](http://eclipseclp.org/)
@@ -21,15 +26,6 @@ Note that a public online use of this kernel (instead of private or local) may b
 The kernel is implemented in a way that basically all functionality except the loading of configuration files can easily be overridden. This is especially useful for **extending the kernel for further Prolog backends** or running code with a different version of a backend. For further information about this, see [Configuration](#configuration).
 
 Also see the [JupyterLab Logtalk CodeMirror Extension](https://github.com/LogtalkDotOrg/jupyterlab-logtalk-codemirror-extension) for *syntax highlighting* of Logtalk code in JupyterLab (forked from the [JupyterLab Prolog CodeMirror Extension](https://github.com/hhu-stups/jupyterlab-prolog-codemirror-extension)).
-
-
-## Prolog backend requirements
-
-Adding support for other Prolog backends requires:
-
-- Command-line option(s) to silence (quiet) any banner and informative messages.
-- Programatic solution to check if a quiet command-line option was used to start the Logtalk/Prolog process (e.g. by checking a boolean Prolog flag).
-- Ability to redirect current output (including `user_output` and `user_error`) to a different stream and restoring the previous stream when the redirection is terminated.
 
 
 ## Examples
@@ -48,8 +44,6 @@ There are the following options which can be seen when running `python3 -m logta
 
 - `--user`: install to the per-user kernel registry instead of `sys.prefix` (use if you get permission errors during installation)
 - `--prefix PREFIX`: install to the given prefix: `PREFIX/share/jupyter/kernels/`
-
-You also need to install Logtalk 3.71.0 (or later version) plus at least one of the supported Prolog backends (see listing above).
 
 
 ## Uninstall
@@ -123,10 +117,6 @@ The predicate argument is the name of the integration script used to run Logtalk
 In case of SICStus Prolog, if the given **`program_arguments` are invalid** (e.g. if the Prolog code file does not exist), the kernel waits for a response from the server which it will never receive. In that state it is **not able to log any exception** and instead, nothing happens.
 To facilitate finding the cause of the error, before trying to start the Logtalk server, the arguments and the directory from which they are tried to be executed are logged.
 
-### Overriding the Kernel Implementation
-
-The actual kernel code determining the handling of requests is not implemented by the kernel class itself. Instead, there is the file [logtalk_kernel_base_implementation.py](./logtalk_kernel/logtalk_kernel_base_implementation.py) which defines the class `LogtalkKernelBaseImplementation`. When the kernel is started, a (sub)object of this class is created. It handles the starting of and communication with the Logtalk server. For all requests (execution, shutdown, completion, inspection) the kernel receives, a `LogtalkKernelBaseImplementation` method is called. By **creating a subclass** of this and defining the path to it as `kernel_implementation_path`, the **actual implementation code can be replaced**. If no such path is defined, the path itself or the defined class is invalid, a **default implementation** is used instead.
-
 
 ## Development
 
@@ -139,8 +129,7 @@ The actual kernel code determining the handling of requests is not implemented b
     - `jupyter_core`: 5.1.0
     - `jupyterlab`: 3.5.0
     - `notebook`: 6.5.2
-- Logtalk 3.61.0 or later version
-- One or more supported Prolog backends (see above)
+- Logtalk and one or more supported Prolog backends (see above)
 - For Windows, installing **Graphviz** with `python3 -m pip` does not suffice
   - Instead, it can be installed from [here](https://graphviz.org/download/) and added to the `PATH` (a reboot is required afterwards)
 
@@ -198,3 +187,15 @@ These issues can be debugged by running the problematic query in a terminal afte
 	   close(S).
 
 If you get any output while the goal is running (e.g. foreign library debugging messages), you will need to find a way to turn off that output.
+
+### Prolog backend requirements
+
+Adding support for other Prolog backends requires:
+
+- Command-line option(s) to silence (quiet) any banner and informative messages.
+- Programatic solution to check if a quiet command-line option was used to start the Logtalk/Prolog process (e.g. by checking a boolean Prolog flag).
+- Ability to redirect current output (including `user_output` and `user_error`) to a different stream and restoring the previous stream when the redirection is terminated.
+
+### Overriding the Kernel Implementation
+
+The actual kernel code determining the handling of requests is not implemented by the kernel class itself. Instead, there is the file [logtalk_kernel_base_implementation.py](./logtalk_kernel/logtalk_kernel_base_implementation.py) which defines the class `LogtalkKernelBaseImplementation`. When the kernel is started, a (sub)object of this class is created. It handles the starting of and communication with the Logtalk server. For all requests (execution, shutdown, completion, inspection) the kernel receives, a `LogtalkKernelBaseImplementation` method is called. By **creating a subclass** of this and defining the path to it as `kernel_implementation_path`, the **actual implementation code can be replaced**. If no such path is defined, the path itself or the defined class is invalid, a **default implementation** is used instead.
