@@ -11,7 +11,7 @@ This project is a fork of the [prolog-jupyter-kernel](https://github.com/hhu-stu
 Logtalk 3.71.0 (or later version) plus at least one of the supported Prolog backends.
 
 
-## Supported Prolog backends
+## Supported Prolog backends and versions
 
 - [ECLiPSe 7.0 #57 or later](http://eclipseclp.org/)
 - [GNU Prolog 1.6.0 or later](http://www.gprolog.org/) (use git version until 1.6.0 is released)
