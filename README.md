@@ -123,17 +123,17 @@ To facilitate finding the cause of the error, before trying to start the Logtalk
 ### Requirements
 
 - At least **Python** 3.5
-  - Tested with Python 3.10.8
+  - Tested with Python 3.11.7
 - **Jupyter** installation with JupyterLab and/or Juypter Notebook
   - Tested with
-    - `jupyter_core`: 5.1.0
-    - `jupyterlab`: 3.5.0
-    - `notebook`: 6.5.2
+    - `jupyter_core`: 5.7.1
+    - `jupyterlab`: 4.0.12
+    - `notebook`: 7.0.7
 - Logtalk and one or more supported Prolog backends (see above)
 - For Windows, installing **Graphviz** with `python3 -m pip` does not suffice
   - Instead, it can be installed from [here](https://graphviz.org/download/) and added to the `PATH` (a reboot is required afterwards)
 
-The installation was tested with macOS 12.6.1, Ubuntu 20.0.4, and Windows 10.
+The installation was tested with macOS 14.3, Ubuntu 20.0.4, and Windows 10.
 
 ### Install
 

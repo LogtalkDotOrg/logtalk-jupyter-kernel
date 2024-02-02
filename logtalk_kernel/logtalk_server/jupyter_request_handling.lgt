@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Copyright (c) 2022-2023 Paulo Moura  
+%  Copyright (c) 2022-2024 Paulo Moura  
 %  Copyright (c) 2022 Anne Brecklinghaus, Michael Leuschel, dgelessus
 %  SPDX-License-Identifier: MIT
 %
@@ -45,9 +45,9 @@
 :- object(jupyter_request_handling).
 
 	:- info([
-		version is 0:5:0,
+		version is 0:6:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2023-09-27,
+		date is 2024-02-02,
 		comment is 'This object provides predicates to start a loop reading and handling JSON RPC requests.'
 	]).
 
@@ -182,13 +182,16 @@
 		Params = json([code-Code]),
 		file_cell_magic(Code, File, Mode, Terms, Action),
 		!,
-		open(File, Mode, Stream),
-		write(Stream, Terms),
-		close(Stream),
 		assertz(request_data(CallRequestId, [])),
-		(	Action == load ->	
-			handle_term(logtalk_load(File, [reload(always)]), CallRequestId, Stack, [], Cont)
-		;	Cont = continue
+		(	Action == none ->
+			Cont = continue
+		;	open(File, Mode, Stream),
+			write(Stream, Terms),
+			close(Stream),
+			(	Action == load ->	
+				handle_term(logtalk_load(File, [reload(always)]), CallRequestId, Stack, [], Cont)
+			;	Cont = continue
+			)
 		).
 	dispatch_request(call, Message, Stack, Cont) :-
 		Message = request(Method,CallRequestId,Params,RPC),
@@ -317,6 +320,9 @@
 		sub_atom(Code, 7, Length, _, File),
 		Rest is 7 + Length + 1,
 		sub_atom(Code, Rest, _, 0, Terms),
+		!.
+	file_cell_magic(Code, none, none, [], none) :-
+		sub_atom(Code, 0, _, _, '%%highlight\n'),
 		!.
 
 	goal_cell_magic(Code, Rest) :-
