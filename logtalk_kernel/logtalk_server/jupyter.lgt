@@ -28,9 +28,9 @@
 :- object(jupyter).
 
 	:- info([
-		version is 0:5:0,
+		version is 0:7:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2023-09-27,
+		date is 2024-02-23,
 		comment is 'This object provides special predicates which can be used in call requests by the client. Some of these predicates need to be the only goal of a query. Otherwise, they cannot be determined as special predicates and do not work as expected.'
 	]).
 
@@ -93,7 +93,6 @@
 	backend(ji,      'JIProlog').
 	backend(lvm,     'LVM').
 	backend(quintus, 'Quintus Prolog').
-	backend(scryer,  'Scryer Prolog').
 	backend(sicstus, 'SICStus Prolog').
 	backend(swi,     'SWI-Prolog').
 	backend(tau,     'Tau Prolog').
@@ -141,6 +140,8 @@
 		format('        Prints a table with a column per variable binding for all goal solutions~n', []),
 		format('    %%tree~n', []),
 		format('        Prints a tree representation of a term~n~n', []),
+		format('    %%highlight~n', []),
+		format('        Highlights cell contents as Logtalk code~n~n', []),
 		format('Line magic:~n~n', []),
 		format('    %bindings~n', []),
 		format('        Prints variable bindings from previous queries~n', []),
@@ -151,14 +152,16 @@
 		format('    %help~n', []),
 		format('        Prints documentation for all predicates from object jupyter~n', []),
 		format('    %versions~n', []),
-		format('        Prints Logtalk, Prolog backend, and Jupyter kernel versions~n~n', []),
+		format('        Prints Logtalk, Prolog backend, and Jupyter kernel versions~n', []),
+		format('    %flags~n', []),
+		format('        Prints a table with all Logtalk flags and their values~n~n', []),
 		format('    %magic~n', []),
 		format('        Prints help in using cell and line magic~n', []).
 
 	predicate_doc('jupyter::halt/0', Doc) :-
 		atomic_list_concat([
 			'jupyter::halt or halt',
-			'\n\n    Shuts down the running Prolog process.',
+			'\n\n    Shuts down the running Logtalk process.',
 			'\n\n    The next time code is to be executed, a new process is started.',
 			'\n    Everything defined in the database before does not exist anymore.',
 			'\n\n    Corresponds to the functionality of halt/0.',
@@ -205,7 +208,7 @@
 			'\n    These are printed in a table.',
 			'\n    Values for variable names starting with an underscore are omitted.',
 			'\n\n    Needs to be the only goal of a query.',
-			'\n\n    Example: jupyter::print_table(current_prolog_flag(FlagName, Value)).'
+			'\n\n    Example: jupyter::print_table(current_logtalk_flag(Name, Value)).'
 		], Doc).
 	predicate_doc('jupyter::print_table/2', Doc) :-
 		atomic_list_concat([
@@ -238,7 +241,7 @@
 	predicate_doc('jupyter::show_term/1', Doc) :-
 		atomic_list_concat([
 			'jupyter::show_term(+Term)',
-			'\n\n    Displays a Prolog term as a graph.',
+			'\n\n    Displays a term as a graph.',
 			'\n\n    Needs to be the only goal of a query.'
 		], Doc).
    predicate_doc('jupyter::print_variable_bindings/0', Doc) :-

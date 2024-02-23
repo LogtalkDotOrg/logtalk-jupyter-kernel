@@ -45,9 +45,9 @@
 :- object(jupyter_request_handling).
 
 	:- info([
-		version is 0:6:0,
+		version is 0:7:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2024-02-02,
+		date is 2024-02-23,
 		comment is 'This object provides predicates to start a loop reading and handling JSON RPC requests.'
 	]).
 
@@ -348,5 +348,6 @@
 	line_magic('%pwd', 'jupyter::pwd.').
 	line_magic('%magic', 'jupyter::magic.').
 	line_magic('%versions', 'jupyter::versions.').
+	line_magic('%flags', 'jupyter::print_table(current_logtalk_flag(Name,Value)).').
 
 :- end_object.
