@@ -130,8 +130,8 @@ To facilitate finding the cause of the error, before trying to start the Logtalk
     - `jupyterlab`: 4.0.12
     - `notebook`: 7.0.7
 - Logtalk and one or more supported Prolog backends (see above)
-- For Windows, installing **Graphviz** with `python3 -m pip` does not suffice
-  - Instead, it can be installed from [here](https://graphviz.org/download/) and added to the `PATH` (a reboot is required afterwards)
+- Installing **Graphviz** with `python3 -m pip` may not suffice (notably, on Windows)
+  - Also run the Graphviz [installer](https://graphviz.org/download/) and add its executables to the `PATH` (a reboot may be required afterwards)
 
 The installation was tested with macOS 14.3, Ubuntu 20.0.4, and Windows 10.
 
