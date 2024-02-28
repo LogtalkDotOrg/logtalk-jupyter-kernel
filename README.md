@@ -95,6 +95,14 @@ In general, the kernel can be configured to use a different Prolog backend (whic
   - Additionally, a `kernel_implementation_path` can be provided, which needs to be an **absolute path to a Python file**:
     - The corresponding module is required to define a subclass of `LogtalkKernelBaseImplementation` named `LogtalkKernelImplementation`. This can be used to override some of the kernel's basic behavior (see [Overriding the Kernel Implementation](#overriding-the-kernel-implementation)).
 
+
+### Defining environment variables for notebooks
+
+Notebooks may require defining environment variables. For example, a notebook running one of the Java integration examples found in the Logtalk distribution may require  the `CLASSPATH` environment variable to be set. This can be easily accomplished by adding a `logtalk_kernel_config.py` file to the notebook directory and using the `os.environ` Python dictionary. For the Logtalk `document_converter` example, which uses Apache Tika, assuming we copied the JAR file to the notebook directory, we could write:
+
+	os.environ['CLASSPATH'] = './tika-app-2.8.0.jar'
+
+
 ### Changing the Prolog backend in the fly
 
 In most cases, the following shortcuts can be used:
