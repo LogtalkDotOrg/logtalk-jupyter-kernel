@@ -28,9 +28,9 @@
 :- object(jupyter_preferences).
 
 	:- info([
-		version is 0:4:0,
+		version is 0:5:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2024-02-23,
+		date is 2024-03-25,
 		comment is 'Preferences management.'
 	]).
 
@@ -89,7 +89,7 @@
 		print_message(debug, jupyter, Message) as dbg(Message)
 	]).
 
-	version(0, 11, 0, 'beta').
+	version(0, 12, 0, beta).
 
 	preference_definition(verbosity, 1, natural, 'Verbosity level, 0=off, 10=maximal').
 
