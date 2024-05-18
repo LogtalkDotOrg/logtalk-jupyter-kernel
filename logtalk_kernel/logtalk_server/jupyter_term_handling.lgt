@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Copyright (c) 2022-2023 Paulo Moura  
+%  Copyright (c) 2022-2024 Paulo Moura
 %  Copyright (c) 2022 Anne Brecklinghaus, Michael Leuschel, dgelessus
 %  SPDX-License-Identifier: MIT
 %
@@ -52,9 +52,9 @@
 :- object(jupyter_term_handling).
 
 	:- info([
-		version is 0:2:1,
+		version is 0:2:2,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2023-09-12,
+		date is 2024-05-18,
 		comment is 'This object provides predicates to handle terms received from the client, compute their results and assert them with term_response/1.'
 	]).
 
@@ -908,7 +908,7 @@ handle_print_transition_graph(NodePredSpec, EdgePredSpec, FromIndex, ToIndex, La
 	!,
 	PredTerm =.. [PredName| ArgList],
 	% compute all possible nodes
-	(	NodePredSpec = true
+	(	NodePredSpec == true
 	->	EdgeCall = Object::PredTerm
 	;	findall(
 			node(NodeName, NodeDotDesc),

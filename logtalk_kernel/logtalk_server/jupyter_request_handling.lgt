@@ -45,9 +45,9 @@
 :- object(jupyter_request_handling).
 
 	:- info([
-		version is 0:7:0,
+		version is 0:7:1,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2024-02-23,
+		date is 2024-05-18,
 		comment is 'This object provides predicates to start a loop reading and handling JSON RPC requests.'
 	]).
 
@@ -216,7 +216,7 @@
 			% An error occurred when parsing the json request
 			handle_parsing_error(ParsingErrorMessageData, CallRequestId),
 			Cont = continue
-		;	TermsAndVariables = [] ->
+		;	TermsAndVariables == [] ->
 			!,
 			% The request does not contain any term
 			send_success_reply(CallRequestId, ''),
