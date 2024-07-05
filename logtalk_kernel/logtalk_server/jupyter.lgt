@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Copyright (c) 2022-2023 Paulo Moura  
+%  Copyright (c) 2022-2024 Paulo Moura  
 %  Copyright (c) 2022 Anne Brecklinghaus, Michael Leuschel, dgelessus
 %  SPDX-License-Identifier: MIT
 %
@@ -28,9 +28,9 @@
 :- object(jupyter).
 
 	:- info([
-		version is 0:7:0,
+		version is 0:8:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2024-02-23,
+		date is 2024-07-05,
 		comment is 'This object provides special predicates which can be used in call requests by the client. Some of these predicates need to be the only goal of a query. Otherwise, they cannot be determined as special predicates and do not work as expected.'
 	]).
 
@@ -91,13 +91,13 @@
 	backend(eclipse, 'ECLiPSe').
 	backend(gnu,     'GNU Prolog').
 	backend(ji,      'JIProlog').
-	backend(lvm,     'LVM').
 	backend(quintus, 'Quintus Prolog').
 	backend(sicstus, 'SICStus Prolog').
 	backend(swi,     'SWI-Prolog').
 	backend(tau,     'Tau Prolog').
 	backend(trealla, 'Trealla Prolog').
 	backend(xsb,     'XSB').
+	backend(xvm,     'XVM').
 	backend(yap,     'YAP').
 
 	% Help

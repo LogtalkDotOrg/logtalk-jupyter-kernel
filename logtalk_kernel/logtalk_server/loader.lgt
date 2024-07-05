@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Copyright (c) 2022-2023 Paulo Moura  
+%  Copyright (c) 2022-2024 Paulo Moura  
 %  Copyright (c) 2022 Anne Brecklinghaus, Michael Leuschel, dgelessus
 %  SPDX-License-Identifier: MIT
 %
@@ -25,7 +25,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-:- if(current_logtalk_flag(prolog_dialect, lvm)).
+:- if(current_logtalk_flag(prolog_dialect, xvm)).
 	:- set_prolog_flag(encoding, 'UTF-8').
 :- elif(current_logtalk_flag(prolog_dialect, swi)).
 	:- set_prolog_flag(encoding, utf8).

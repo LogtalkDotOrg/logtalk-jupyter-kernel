@@ -52,9 +52,9 @@
 :- object(jupyter_term_handling).
 
 	:- info([
-		version is 0:2:2,
+		version is 0:3:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2024-05-18,
+		date is 2024-07-05,
 		comment is 'This object provides predicates to handle terms received from the client, compute their results and assert them with term_response/1.'
 	]).
 
@@ -152,14 +152,14 @@
 			\+ user::current_predicate(eclipse/0).
 		is_query_alias(gnu, jupyter::set_prolog_backend('gplgt.ps1')) :-
 			\+ user::current_predicate(gnu/0).
-		is_query_alias(lvm, jupyter::set_prolog_backend('lvmlgt.ps1')) :-
-			\+ user::current_predicate(lvm/0).
 		is_query_alias(sicstus, jupyter::set_prolog_backend('sicstuslgt.ps1')) :-
 			\+ user::current_predicate(sicstus/0).
 		is_query_alias(swi, jupyter::set_prolog_backend('swilgt.ps1')) :-
 			\+ user::current_predicate(swi/0).
 		is_query_alias(trealla, jupyter::set_prolog_backend('tplgt.ps1')) :-
 			\+ user::current_predicate(trealla/0).
+		is_query_alias(xvm, jupyter::set_prolog_backend('xvmlgt.ps1')) :-
+			\+ user::current_predicate(xvm/0).
 		is_query_alias(yap, jupyter::set_prolog_backend('yaplgt.ps1')) :-
 			\+ user::current_predicate(yap/0).
 	:- elif((
@@ -171,14 +171,14 @@
 			\+ user::current_predicate(eclipse/0).
 		is_query_alias(gnu, jupyter::set_prolog_backend('gplgt.sh')) :-
 			\+ user::current_predicate(gnu/0).
-		is_query_alias(lvm, jupyter::set_prolog_backend('lvmlgt.sh')) :-
-			\+ user::current_predicate(lvm/0).
 		is_query_alias(sicstus, jupyter::set_prolog_backend('sicstuslgt.sh')) :-
 			\+ user::current_predicate(sicstus/0).
 		is_query_alias(swi, jupyter::set_prolog_backend('swilgt.sh')) :-
 			\+ user::current_predicate(swi/0).
 		is_query_alias(trealla, jupyter::set_prolog_backend('tplgt.sh')) :-
 			\+ user::current_predicate(trealla/0).
+		is_query_alias(xvm, jupyter::set_prolog_backend('xvmlgt.sh')) :-
+			\+ user::current_predicate(xvm/0).
 		is_query_alias(yap, jupyter::set_prolog_backend('yaplgt.sh')) :-
 			\+ user::current_predicate(yap/0).
 	:- else.
@@ -186,14 +186,14 @@
 			\+ user::current_predicate(eclipse/0).
 		is_query_alias(gnu, jupyter::set_prolog_backend(gplgt)) :-
 			\+ user::current_predicate(gnu/0).
-		is_query_alias(lvm, jupyter::set_prolog_backend(lvmlgt)) :-
-			\+ user::current_predicate(lvm/0).
 		is_query_alias(sicstus, jupyter::set_prolog_backend(sicstuslgt)) :-
 			\+ user::current_predicate(sicstus/0).
 		is_query_alias(swi, jupyter::set_prolog_backend(swilgt)) :-
 			\+ user::current_predicate(swi/0).
 		is_query_alias(trealla, jupyter::set_prolog_backend(tplgt)) :-
 			\+ user::current_predicate(trealla/0).
+		is_query_alias(xvm, jupyter::set_prolog_backend(xvmlgt)) :-
+			\+ user::current_predicate(xvm/0).
 		is_query_alias(yap, jupyter::set_prolog_backend(yaplgt)) :-
 			\+ user::current_predicate(yap/0).
 	:- endif.

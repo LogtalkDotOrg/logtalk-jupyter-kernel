@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Copyright (c) 2022-2023 Paulo Moura  
+%  Copyright (c) 2022-2024 Paulo Moura  
 %  Copyright (c) 2022 Anne Brecklinghaus, Michael Leuschel, dgelessus
 %  SPDX-License-Identifier: MIT
 %
@@ -28,9 +28,9 @@
 :- object(jupyter_preferences).
 
 	:- info([
-		version is 0:5:0,
+		version is 0:6:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2024-03-25,
+		date is 2024-07-05,
 		comment is 'Preferences management.'
 	]).
 
@@ -89,7 +89,7 @@
 		print_message(debug, jupyter, Message) as dbg(Message)
 	]).
 
-	version(0, 12, 0, beta).
+	version(0, 13, 0, beta).
 
 	preference_definition(verbosity, 1, natural, 'Verbosity level, 0=off, 10=maximal').
 

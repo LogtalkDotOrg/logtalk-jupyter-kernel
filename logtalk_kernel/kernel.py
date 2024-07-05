@@ -1,6 +1,6 @@
 #############################################################################
 #
-#  Copyright (c) 2022-2023 Paulo Moura  
+#  Copyright (c) 2022-2024 Paulo Moura  
 #  Copyright (c) 2022 Anne Brecklinghaus, Michael Leuschel, dgelessus
 #  SPDX-License-Identifier: MIT
 #
@@ -102,26 +102,26 @@ class LogtalkKernel(Kernel):
     if platform.system() == 'Windows':
         #backend = Unicode('eclipselgt.ps1').tag(config=True)
         #backend = Unicode('gplgt.ps1').tag(config=True)
-        #backend = Unicode('lvmlgt.ps1').tag(config=True)
         #backend = Unicode('sicstuslgt.ps1').tag(config=True)
         backend = Unicode('swilgt.ps1').tag(config=True)
         #backend = Unicode('tplgt.ps1').tag(config=True)
+        #backend = Unicode('xvmlgt.ps1').tag(config=True)
         #backend = Unicode('yaplgt.ps1').tag(config=True)
     elif 'LOGTALKHOME' in os.environ and 'LOGTALKUSER' in os.environ and os.environ['LOGTALKHOME'] == os.environ['LOGTALKUSER']:
         #backend = Unicode('eclipselgt.sh').tag(config=True)
         #backend = Unicode('gplgt.sh').tag(config=True)
-        #backend = Unicode('lvmlgt.sh').tag(config=True)
         #backend = Unicode('sicstuslgt.sh').tag(config=True)
         backend = Unicode('swilgt.sh').tag(config=True)
         #backend = Unicode('tplgt.sh').tag(config=True)
+        #backend = Unicode('xvmlgt.sh').tag(config=True)
         #backend = Unicode('yaplgt.sh').tag(config=True)
     else:
         #backend = Unicode('eclipselgt').tag(config=True)
         #backend = Unicode('gplgt').tag(config=True)
-        #backend = Unicode('lvmlgt').tag(config=True)
         #backend = Unicode('sicstuslgt').tag(config=True)
         backend = Unicode('swilgt').tag(config=True)
         #backend = Unicode('tplgt').tag(config=True)
+        #backend = Unicode('xvmlgt').tag(config=True)
         #backend = Unicode('yaplgt').tag(config=True)
 
     # The default program arguments for supported Prolog backends
@@ -147,15 +147,6 @@ class LogtalkKernel(Kernel):
         "gplgt.ps1": ["gplgt.ps1",
                 "--quiet",
                 "--entry-goal", "\"set_logtalk_flag`(report`,off`)`,logtalk_load`(`'logtalk_server/loader.lgt`'`)`,'::'`(jupyter_server`,start`);halt\""],
-        "lvmlgt": ["lvmlgt",
-                "-q",
-                "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt."],
-        "lvmlgt.sh": ["lvmlgt.sh",
-                "-q",
-                "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt."],
-        "lvmlgt.ps1": ["lvmlgt.ps1",
-                "-q",
-                "-g", "\"set_logtalk_flag`(report`,off`)`,logtalk_load`(`'logtalk_server/loader.lgt`'`)`,'::'`(jupyter_server`,start`);halt.\""],
         "sicstuslgt": ["sicstuslgt",
                 "--noinfo",
                 "--goal", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt.",
@@ -186,6 +177,15 @@ class LogtalkKernel(Kernel):
         "tplgt.ps1": ["tplgt.ps1",
                 "-q",
                 "-g", "\"set_logtalk_flag`(report`,off`)`,logtalk_load`(`'logtalk_server/loader.lgt`'`)`,'::'`(jupyter_server`,start`);halt\""],
+        "xvmlgt": ["xvmlgt",
+                "-q",
+                "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt."],
+        "xvmlgt.sh": ["xvmlgt.sh",
+                "-q",
+                "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt."],
+        "xvmlgt.ps1": ["xvmlgt.ps1",
+                "-q",
+                "-g", "\"set_logtalk_flag`(report`,off`)`,logtalk_load`(`'logtalk_server/loader.lgt`'`)`,'::'`(jupyter_server`,start`);halt.\""],
         "yaplgt": ["yaplgt",
                 "-q",
                 "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt"],
@@ -251,27 +251,6 @@ class LogtalkKernel(Kernel):
             "informational_prefix": "% ",
             "program_arguments": "default"
         },
-        "lvmlgt": {
-            "failure_response": "false",
-            "success_response": "true",
-            "error_prefix": "!     ",
-            "informational_prefix": "% ",
-            "program_arguments": "default"
-        },
-        "lvmlgt.sh": {
-            "failure_response": "false",
-            "success_response": "true",
-            "error_prefix": "!     ",
-            "informational_prefix": "% ",
-            "program_arguments": "default"
-        },
-        "lvmlgt.ps1": {
-            "failure_response": "false",
-            "success_response": "true",
-            "error_prefix": "!     ",
-            "informational_prefix": "% ",
-            "program_arguments": "default"
-        },
         "sicstuslgt": {
             "failure_response": "no",
             "success_response": "yes",
@@ -329,6 +308,27 @@ class LogtalkKernel(Kernel):
             "program_arguments": "default"
         },
         "tplgt.ps1": {
+            "failure_response": "false",
+            "success_response": "true",
+            "error_prefix": "!     ",
+            "informational_prefix": "% ",
+            "program_arguments": "default"
+        },
+        "xvmlgt": {
+            "failure_response": "false",
+            "success_response": "true",
+            "error_prefix": "!     ",
+            "informational_prefix": "% ",
+            "program_arguments": "default"
+        },
+        "xvmlgt.sh": {
+            "failure_response": "false",
+            "success_response": "true",
+            "error_prefix": "!     ",
+            "informational_prefix": "% ",
+            "program_arguments": "default"
+        },
+        "xvmlgt.ps1": {
             "failure_response": "false",
             "success_response": "true",
             "error_prefix": "!     ",

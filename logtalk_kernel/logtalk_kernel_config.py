@@ -1,6 +1,6 @@
 #############################################################################
 #
-#  Copyright (c) 2022-2023 Paulo Moura  
+#  Copyright (c) 2022-2024 Paulo Moura  
 #  Copyright (c) 2022 Anne Brecklinghaus, Michael Leuschel, dgelessus
 #  SPDX-License-Identifier: MIT
 #
@@ -43,26 +43,26 @@ c = get_config()
 if platform.system() == 'Windows':
     #c.LogtalkKernel.backend = "eclipselgt.ps1"
     #c.LogtalkKernel.backend = "gplgt.ps1"
-    #c.LogtalkKernel.backend = "lvmlgt.ps1"
     #c.LogtalkKernel.backend = "sicstuslgt.ps1"
     c.LogtalkKernel.backend = "swilgt.ps1"
     #c.LogtalkKernel.backend = "tplgt.ps1"
+    #c.LogtalkKernel.backend = "xvmlgt.ps1"
     #c.LogtalkKernel.backend = "yaplgt.ps1"
 elif 'LOGTALKHOME' in os.environ and 'LOGTALKUSER' in os.environ and os.environ['LOGTALKHOME'] == os.environ['LOGTALKUSER']:
     #c.LogtalkKernel.backend = "eclipselgt.sh"
     #c.LogtalkKernel.backend = "gplgt.sh"
-    #c.LogtalkKernel.backend = "lvmlgt.sh"
     #c.LogtalkKernel.backend = "sicstuslgt.sh"
     c.LogtalkKernel.backend = "swilgt.sh"
     #c.LogtalkKernel.backend = "tplgt.sh"
+    #c.LogtalkKernel.backend = "xvmlgt.sh"
     #c.LogtalkKernel.backend = "yaplgt.sh"
 else:
     #c.LogtalkKernel.backend = "eclipselgt"
     #c.LogtalkKernel.backend = "gplgt"
-    #c.LogtalkKernel.backend = "lvmlgt"
     #c.LogtalkKernel.backend = "sicstuslgt"
     c.LogtalkKernel.backend = "swilgt"
     #c.LogtalkKernel.backend = "tplgt"
+    #c.LogtalkKernel.backend = "xvmlgt"
     #c.LogtalkKernel.backend = "yaplgt"
 
 ## The implementation specific data which is needed to run the Logtalk server for code execution.
@@ -117,27 +117,6 @@ c.LogtalkKernel.backend_data = {
    "gplgt.ps1": {
        "failure_response": "no",
        "success_response": "yes",
-       "error_prefix": "!     ",
-       "informational_prefix": "% ",
-       "program_arguments": "default"
-   },
-   "lvmlgt": {
-       "failure_response": "false",
-       "success_response": "true",
-       "error_prefix": "!     ",
-       "informational_prefix": "% ",
-       "program_arguments": "default"
-   },
-   "lvmlgt.sh": {
-       "failure_response": "false",
-       "success_response": "true",
-       "error_prefix": "!     ",
-       "informational_prefix": "% ",
-       "program_arguments": "default"
-   },
-   "lvmlgt.ps1": {
-       "failure_response": "false",
-       "success_response": "true",
        "error_prefix": "!     ",
        "informational_prefix": "% ",
        "program_arguments": "default"
@@ -199,6 +178,27 @@ c.LogtalkKernel.backend_data = {
        "program_arguments": "default"
    },
    "tplgt.ps1": {
+       "failure_response": "false",
+       "success_response": "true",
+       "error_prefix": "!     ",
+       "informational_prefix": "% ",
+       "program_arguments": "default"
+   },
+   "xvmlgt": {
+       "failure_response": "false",
+       "success_response": "true",
+       "error_prefix": "!     ",
+       "informational_prefix": "% ",
+       "program_arguments": "default"
+   },
+   "xvmlgt.sh": {
+       "failure_response": "false",
+       "success_response": "true",
+       "error_prefix": "!     ",
+       "informational_prefix": "% ",
+       "program_arguments": "default"
+   },
+   "xvmlgt.ps1": {
        "failure_response": "false",
        "success_response": "true",
        "error_prefix": "!     ",

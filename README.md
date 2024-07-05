@@ -10,17 +10,17 @@ This project is a fork of the [prolog-jupyter-kernel](https://github.com/hhu-stu
 
 ## Supported Logtalk version
 
-Logtalk 3.71.0 (or later version) plus at least one of the supported Prolog backends.
+Logtalk 3.81.0 (or later version) plus at least one of the supported Prolog backends.
 
 
 ## Supported Prolog backends and versions
 
 - [ECLiPSe 7.0 #57 or later](http://eclipseclp.org/)
 - [GNU Prolog 1.6.0 or later](http://www.gprolog.org/) (use git version until 1.6.0 is released)
-- [LVM 6.3.0 or later](https://permion.ai/)
 - [SICStus Prolog 4.5.1 or later](https://sicstus.sics.se/)
 - [SWI-Prolog 8.4.3 or later](https://www.swi-prolog.org/) (default)
 - [Trealla Prolog 2.18.7 or later](https://github.com/trealla-prolog/trealla)
+- [XVM 10.0.0 or later](https://permion.ai/)
 - [YAP 7.2.1 or later](https://github.com/vscosta)
 
 Note that a public online use of this kernel (instead of private or local) may be restricted to a subset of these backends (notably, due to some systems requiring commercial licenses).
@@ -111,15 +111,15 @@ In most cases, the following shortcuts can be used:
 
 - ECLiPSe: `eclipse`
 - GNU Prolog: `gnu`
-- LVM : `lvm`
 - SICStus Prolog: `sicstus`
 - SWI-Prolog (default backend): `swi` 
 - Trealla Prolog: `trealla`
+- XVM : `xvm`
 - YAP: `yap`
 
 If the shortcuts don't work due to some unusal Logtalk or Prolog backend setup, the `jupyter::set_prolog_backend(+Backend)` predicate is provided. In order for this to work, the configured `backend_data` dictionary needs to contain data for more than one Prolog backend. For example (in a notebook code cell):
 
-	jupyter::set_prolog_backend('lvmlgt.sh').
+	jupyter::set_prolog_backend('xvmlgt.sh').
 
 The predicate argument is the name of the integration script used to run Logtalk. On Windows, always use the PowerShell scripts (e.g. `sicstuslgt.ps1`). On POSIX systems, use the ones that work for your Logtalk installation (e.g. if you're using Logtalk with Trealla Prolog with a setup that requires the `.sh` extension when running the integration script, then use `tplgt.sh` instead of just `tplgt`).
 
@@ -136,14 +136,14 @@ To facilitate finding the cause of the error, before trying to start the Logtalk
   - Tested with Python 3.11.7
 - **Jupyter** installation with JupyterLab and/or Juypter Notebook
   - Tested with
-    - `jupyter_core`: 5.7.1
-    - `jupyterlab`: 4.0.12
-    - `notebook`: 7.0.7
+    - `jupyter_core`: 5.7.2
+    - `jupyterlab`: 4.2.3
+    - `notebook`: 7.2.1
 - Logtalk and one or more supported Prolog backends (see above)
 - Installing **Graphviz** with `python3 -m pip` may not suffice (notably, on Windows)
   - Also run the Graphviz [installer](https://graphviz.org/download/) and add its executables to the `PATH` (a reboot may be required afterwards)
 
-The installation was tested with macOS 14.3, Ubuntu 20.0.4, and Windows 10.
+The installation was tested with macOS 14.5, Ubuntu 20.0.4, and Windows 10.
 
 ### Install
 
