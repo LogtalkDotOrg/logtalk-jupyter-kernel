@@ -97,6 +97,8 @@ In general, the kernel can be configured to use a different Prolog backend (whic
   - Additionally, a `kernel_implementation_path` can be provided, which needs to be an **absolute path to a Python file**:
     - The corresponding module is required to define a subclass of `LogtalkKernelBaseImplementation` named `LogtalkKernelImplementation`. This can be used to override some of the kernel's basic behavior (see [Overriding the Kernel Implementation](#overriding-the-kernel-implementation)).
 
+If the given **`program_arguments` are invalid**, the kernel waits for a response from the server which it will never receive. In that state it is **not able to log any exception** and instead, nothing happens. To facilitate finding the cause of the error, before trying to start the Logtalk server, the arguments and the directory from which they are tried to be executed are logged.
+
 
 ### Defining environment variables for notebooks
 
@@ -122,10 +124,6 @@ If the shortcuts don't work due to some unusal Logtalk or Prolog backend setup, 
 	jupyter::set_prolog_backend('xvmlgt.sh').
 
 The predicate argument is the name of the integration script used to run Logtalk. On Windows, always use the PowerShell scripts (e.g. `sicstuslgt.ps1`). On POSIX systems, use the ones that work for your Logtalk installation (e.g. if you're using Logtalk with Trealla Prolog with a setup that requires the `.sh` extension when running the integration script, then use `tplgt.sh` instead of just `tplgt`).
-
-**Troubleshooting:**
-In case of SICStus Prolog, if the given **`program_arguments` are invalid** (e.g. if the Prolog code file does not exist), the kernel waits for a response from the server which it will never receive. In that state it is **not able to log any exception** and instead, nothing happens.
-To facilitate finding the cause of the error, before trying to start the Logtalk server, the arguments and the directory from which they are tried to be executed are logged.
 
 
 ## Development
