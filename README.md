@@ -107,6 +107,34 @@ Notebooks may require defining environment variables. For example, a notebook ru
 	os.environ['CLASSPATH'] = './tika-app-2.8.0.jar'
 
 
+### Using virtual environment for Logtalk packs
+
+Notebooks may require loading Logtalk packs. Ideally, when sharing notebooks with other users, those packs should be installed in a virtual environment to avoid any conflicts with user installed packs or pack versions. The `lgtenv` script provided by the Logtalk distribution can be used to create the packs virtual environment in the same directory as the notebook. For example:
+
+	$ cd my_notebook_directory
+	$ lgtenv -p logtalk_packs
+
+The packs can be pre-installed before sharing e.g. an archive with the notebook directory contents. Alternatively, installing the packs can be left to the user by providing a `requirements.lgt` file. For example:
+
+	registry(talkshow, 'https://github.com/LogtalkDotOrg/talkshow').
+	pack(talkshow, lflat, 2:1:0).
+
+In this case, the user will need to run (possibly from a notebook code cell) the query:
+
+	?- logtalk_load(packs(loader)), packs::restore('requirements.lgt').
+
+We also must ensure that the virtual environment will be used when the notebook runs. The best solution is to create a `settings.lgt` file in the same directory as the notebook defining the `logtalk_packs` library alias. For example, assuming a `logtalk_packs` sub-directory for the virtual environment:
+
+	:- multifile(logtalk_library_path/2).
+	:- dynamic(logtalk_library_path/2).
+
+	:- initialization((
+		logtalk_load_context(directory, Directory),
+		atom_concat(Directory, logtalk_packs, VirtualEnvironment),
+		asserta(logtalk_library_path(logtalk_packs, VirtualEnvironment))
+	)).
+
+
 ### Changing the Prolog backend in the fly
 
 In most cases, the following shortcuts can be used:
