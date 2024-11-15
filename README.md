@@ -10,7 +10,7 @@ This project is a fork of the [prolog-jupyter-kernel](https://github.com/hhu-stu
 
 ## Supported Logtalk version
 
-Logtalk 3.81.0 (or later version) plus at least one of the supported Prolog backends.
+Logtalk 3.81.0 (or later version) plus at least one of the supported Prolog backends. The `LOGTALKHOME` and `LOGTALKUSER` environment variables **must** be defined.
 
 
 ## Supported Prolog backends and versions
@@ -199,6 +199,8 @@ Adjustments of the Logtalk server code are loaded when the server is restarted. 
 	twine upload dist/logtalk-jupyter-kernel-VERSION.tar.gz dist/logtalk_jupyter_kernel-VERSION-py3-none-any.whl
 
 ### Debugging
+
+If you get a `Failed to start the Kernel.` error after selecting the Logtalk kernel, make sure that the `LOGTALKHOME` and `LOGTALKUSER` environment variables are defined.
 
 Usually, if the execution of a goal causes an exception, the corresponding Logtalk error message is captured and displayed in the Jupyter frontend. However, in case something goes wrong unexpectedly or the query does not terminate, the **Logtalk server might not be able to send a response to the client**. In that case, the user can only see that the execution does not terminate without any information about the error or output that might have been produced. However, it is possible to write logging messages and access any potential output, which might facilitate finding the cause of the error.
 
