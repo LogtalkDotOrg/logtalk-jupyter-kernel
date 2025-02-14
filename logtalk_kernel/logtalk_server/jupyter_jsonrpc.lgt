@@ -104,9 +104,9 @@
 	% AdditionalData is a list containing Key-Value pairs providing additional data for the client.
 	json_error_term(ErrorCode, ErrorMessageData, Output, AdditionalData, JsonErrorTerm) :-
 		jupyter_query_handling::retrieve_message(ErrorMessageData, LogtalkMessage),
-		error_data(LogtalkMessage, Output, AdditionalData, ErroData),
+		error_data(LogtalkMessage, Output, AdditionalData, ErrorData),
 		error_object_code(ErrorCode, NumericErrorCode, JsonRpcErrorMessage),
-		jsonrpc_error(NumericErrorCode, JsonRpcErrorMessage, ErroData, JsonErrorTerm).
+		jsonrpc_error(NumericErrorCode, JsonRpcErrorMessage, ErrorData, JsonErrorTerm).
 
 
 	% error_data(+LogtalkMessage, +Output, +AdditionalData, -ErrorData)

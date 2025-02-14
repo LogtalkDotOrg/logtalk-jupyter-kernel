@@ -56,11 +56,19 @@ There are the following options which can be seen when running `python3 -m logta
 
 ## Running
 
-Logtalk notebooks can be run using JupyterLab, Jupyter notebook, or VSCode.
+Logtalk notebooks can be run using JupyterLab, JupyterLab Desktop, Jupyter notebook, or VSCode.
 
 ### Running using JupyterLab
 
 Simply start JupyterLab (e.g. by typing `jupyter-lab` in a shell) and then click on the Logtalk Notebook (or Logtalk Console) icon in the Launcher or open an existing notebook.
+
+### Running using JupyterLab Desktop
+
+On macOS, JupyterLab Desktop **must** be started from a shell where the `LOGTALKHOME` and `LOGTALKUSER` environment variables are defined so that they are inherited by the JupyterLab Desktop process. Typically:
+
+	$ open /Applications/JupyterLab.app
+
+This is not an issue on Linux or Windows where JupyterLab Desktop can be started by double-clicking its icon.
 
 ### Running using Jupyter notebook
 
