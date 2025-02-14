@@ -68,7 +68,7 @@ On macOS, JupyterLab Desktop **must** be started from a shell where the `LOGTALK
 
 	$ open /Applications/JupyterLab.app
 
-This is not an issue on Linux or Windows where JupyterLab Desktop can be started by double-clicking its icon.
+This is not an issue on Linux or Windows where, assuming that the `LOGTALKHOME` and `LOGTALKUSER` environment variables are defined, JupyterLab Desktop can be started by double-clicking its icon.
 
 ### Running using Jupyter notebook
 
