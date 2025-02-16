@@ -204,7 +204,7 @@ Adjustments of the Logtalk server code are loaded when the server is restarted. 
 ### Building and publishing
 
 	python3 -m build .
-	twine upload dist/logtalk-jupyter-kernel-VERSION.tar.gz dist/logtalk_jupyter_kernel-VERSION-py3-none-any.whl
+	twine upload dist/logtalk_jupyter_kernel-VERSION.tar.gz dist/logtalk_jupyter_kernel-VERSION-py3-none-any.whl
 
 ### Debugging
 

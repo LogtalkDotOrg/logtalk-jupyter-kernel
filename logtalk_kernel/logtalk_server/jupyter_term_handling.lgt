@@ -52,9 +52,9 @@
 :- object(jupyter_term_handling).
 
 	:- info([
-		version is 0:3:0,
+		version is 0:3:1,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2024-07-05,
+		date is 2025-02-16,
 		comment is 'This object provides predicates to handle terms received from the client, compute their results and assert them with term_response/1.'
 	]).
 
@@ -614,12 +614,11 @@ json_parsable_results_lists([Results|ResultsLists], VarNames, Bindings, [JsonPar
 
 % json_parsable_results(+Results, +VarNames, +Bindings, -JsonParsableResult)
 json_parsable_results([], _VarNames, _Bindings, []).
-json_parsable_results([Result|Results], [VarName|VarNames], Bindings, [ResultAtom|JsonParsableResults]) :-
+json_parsable_results([Result|Results], [VarName|VarNames], Bindings, [Result|JsonParsableResults]) :-
 	% If the result is a variable, unify it with its name
 	var(Result),
 	!,
 	Result = VarName,
-	write_term_to_atom(Result, ResultAtom, [variable_names(Bindings), quoted(true)]),
 	json_parsable_results(Results, VarNames, Bindings, JsonParsableResults).
 json_parsable_results([Result|Results], [_VarName|VarNames], Bindings, [ResultAtom|JsonParsableResults]) :-
 	% Convert the value to an atom as it may be compound and cannot be parsed to JSON otherwise
