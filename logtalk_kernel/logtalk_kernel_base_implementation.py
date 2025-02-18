@@ -40,6 +40,7 @@ import logging
 import os
 import platform
 import subprocess
+import csv
 
 from graphviz import render
 from IPython.core.completer import CompletionSplitter
@@ -596,6 +597,9 @@ class LogtalkKernelBaseImplementation:
         if 'print_table' in dict:
             if self.handle_print_table(dict['print_table']):
                 failure_keys.append(['print_table'])
+        if 'print_and_save_table' in dict:
+            if self.handle_print_and_save_table(dict['print_and_save_table']):
+                failure_keys.append(['print_and_save_table'])
         if 'print_transition_graph' in dict:
             if self.handle_print_graph(dict['print_transition_graph']):
                 failure_keys.append(['print_transition_graph'])
@@ -706,6 +710,62 @@ class LogtalkKernelBaseImplementation:
         display_data = {'data': {'text/plain': table_markdown_string, 'text/markdown': table_markdown_string.replace('$', '\$').replace('~', '\~')}, 'metadata': {}}
         self.kernel.send_response(self.kernel.iopub_socket, 'display_data', display_data)
 
+
+    def handle_print_and_save_table(self, print_and_save_table_dict):
+        """
+        The dictionary print_and_save_table_dict contains the members 'ValuesLists', 'VariableNames', 'Format', and 'File'.
+        ValuesLists is a list of lists where each of them is used to compute one line of the table.
+        VariableNames is a list of strings from which the header of the table is created.
+        Format is either 'csv' or 'tsv'.
+
+        Example
+        ------
+        For the cell code
+          "print_and_save_table((member(Member, [10,20,30]), Square is Member*Member), tsv, 'squares.tsv')."
+        the variables dictionary is:
+          {'ValuesLists': [['10', '100'], ['20', '400'], ['30', '900']], 'VariableNames': ['Member', 'Square'], 'Format': 'tsv', 'File': 'squares.tsv'}
+        The markdown text sent to the frontend is:
+          Member | Square |
+          :- | :- |
+          10 | 100 |
+          20 | 400 |
+          30 | 900 |
+        """
+        values_lists = print_and_save_table_dict["ValuesLists"]
+        variable_names = print_and_save_table_dict["VariableNames"]
+        output_format = print_and_save_table_dict["Format"]
+        output_file = print_and_save_table_dict["File"]
+
+        table_header_markdown_string = ""
+        table_markdown_string = ""
+
+        # Create a header line with the variable names
+        for variable_name in variable_names:
+            table_header_markdown_string = table_header_markdown_string + str(variable_name) + " | "
+            table_markdown_string = table_markdown_string + ":- | "
+
+        table_markdown_string = table_header_markdown_string  + "\n" + table_markdown_string
+
+        # For each values list, add a markdown table line
+        for values_list in values_lists:
+            line_markdown_string = ""
+            for value in values_list:
+                line_markdown_string = line_markdown_string + str(value) + " | "
+
+            table_markdown_string = table_markdown_string + "\n" + line_markdown_string
+
+        display_data = {'data': {'text/plain': table_markdown_string, 'text/markdown': table_markdown_string.replace('$', '\$').replace('~', '\~')}, 'metadata': {}}
+        self.kernel.send_response(self.kernel.iopub_socket, 'display_data', display_data)
+
+        if output_format == "csv":
+            delimiter = ','
+        else:
+            delimiter = '\t'
+
+        with open(output_file, 'w') as csvfile:
+            csvwriter = csv.writer(csvfile, delimiter=delimiter)
+            csvwriter.writerow(variable_names)
+            csvwriter.writerows(values_lists)
 
     def handle_set_prolog_backend(self, prolog_backend):
         """The user requested to change the active Prolog backend, which needs to be handled by the kernel."""

@@ -52,9 +52,9 @@
 :- object(jupyter_term_handling).
 
 	:- info([
-		version is 0:3:1,
+		version is 0:4:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-02-16,
+		date is 2025-02-18,
 		comment is 'This object provides predicates to handle terms received from the client, compute their results and assert them with term_response/1.'
 	]).
 
@@ -201,8 +201,10 @@
 		\+ user::current_predicate(show_graph/2).
 	is_query_alias(show_term(Term), jupyter::show_graph(jupyter_term_handling::dot_subnode(_,_,Term),jupyter_term_handling::dot_subtree/3)) :-
 		\+ user::current_predicate(show_term/1).
-	is_query_alias(print_table(T), jupyter::print_table(T)) :-
+	is_query_alias(print_table(Goal), jupyter::print_table(Goal)) :-
 		\+ user::current_predicate(print_table/1).
+	is_query_alias(print_and_save_table(Goal,Format,File), jupyter::print_and_save_table(Goal,Format,File)) :-
+		\+ user::current_predicate(print_and_save_table/3).
 	is_query_alias(print_queries, jupyter::print_queries) :-
 		\+ user::current_predicate(print_queries/0).
 	is_query_alias(print_queries(L), jupyter::print_queries(L)) :-
@@ -211,54 +213,42 @@
 		\+ user::current_predicate(show_sld_tree/1).
 
 % handle_query_term_(+Query, +CallRequestId, +Stack, +Bindings, +OriginalTermData, +LoopCont, -Cont)
-handle_query_term_(Call, CallRequestId, Stack,
-                   Bindings, OriginalTermData, LoopCont, Cont) :-
-  % log('Call: ~w~n',[Call]),
-  is_query_alias(Call,Alias),
-  !,
-  handle_query_term_(Alias, CallRequestId, Stack,
-                   Bindings, OriginalTermData, LoopCont, Cont).
+handle_query_term_(Call, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont) :-
+	% log('Call: ~w~n',[Call]),
+	is_query_alias(Call,Alias),
+	!,
+	handle_query_term_(Alias, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont).
 % retry
-handle_query_term_(jupyter::retry, _CallRequestId, Stack,
-                   _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-  handle_retry(Stack).
+handle_query_term_(jupyter::retry, _CallRequestId, Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+	handle_retry(Stack).
 % halt
-handle_query_term_(jupyter::halt, _CallRequestId, _Stack,
-                   _Bindings, _OriginalTermData, _LoopCont, done) :- !,
-  % By unifying Cont=done, the loop reading and handling messages is stopped
-  handle_halt.
+handle_query_term_(jupyter::halt, _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, done) :- !,
+	% By unifying Cont=done, the loop reading and handling messages is stopped
+	handle_halt.
 % jupyter predicates
-handle_query_term_(jupyter::print_sld_tree(Goal), _CallRequestId, _Stack,
-                   Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-  handle_print_sld_tree(Goal, Bindings).
-handle_query_term_(jupyter::print_table(Goal), _CallRequestId, _Stack,
-                    Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-  handle_print_table_with_findall(Bindings, Goal).
-handle_query_term_(jupyter::print_table(ValuesLists, VariableNames), _CallRequestId, _Stack,
-                   Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-  handle_print_table(Bindings, ValuesLists, VariableNames).
-handle_query_term_(jupyter::print_transition_graph(PredSpec, FromIndex, ToIndex, LabelIndex),
-                   _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-  handle_print_transition_graph(true,PredSpec, FromIndex, ToIndex, LabelIndex).
-handle_query_term_(jupyter::print_transition_graph(PredSpec, FromIndex, ToIndex),
-                  _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-  handle_print_transition_graph(true,PredSpec, FromIndex, ToIndex, 0).
-handle_query_term_(jupyter::show_graph(NodeSpec,PredSpec),
-                  _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-  handle_print_transition_graph(NodeSpec,PredSpec).
-handle_query_term_(jupyter::set_prolog_backend(Backend), _CallRequestId, _Stack,
-                   _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-  handle_set_prolog_backend(Backend).
-handle_query_term_(jupyter::update_completion_data,
-                   _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-  handle_update_completion_data.
-handle_query_term_(jupyter::set_preference(Pref,Value),
-                   _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-  handle_set_preference(Pref,Value).
+handle_query_term_(jupyter::print_sld_tree(Goal), _CallRequestId, _Stack, Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+	handle_print_sld_tree(Goal, Bindings).
+handle_query_term_(jupyter::print_table(Goal), _CallRequestId, _Stack, Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+	handle_print_table_with_findall(Bindings, Goal).
+handle_query_term_(jupyter::print_and_save_table(Goal,Format,File), _CallRequestId, _Stack, Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+	handle_print_and_save_table_with_findall(Bindings, Goal, Format, File).
+handle_query_term_(jupyter::print_table(ValuesLists, VariableNames), _CallRequestId, _Stack, Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+	handle_print_table(Bindings, ValuesLists, VariableNames).
+handle_query_term_(jupyter::print_transition_graph(PredSpec, FromIndex, ToIndex, LabelIndex), _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+	handle_print_transition_graph(true,PredSpec, FromIndex, ToIndex, LabelIndex).
+handle_query_term_(jupyter::print_transition_graph(PredSpec, FromIndex, ToIndex), _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+	handle_print_transition_graph(true,PredSpec, FromIndex, ToIndex, 0).
+handle_query_term_(jupyter::show_graph(NodeSpec,PredSpec), _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+	handle_print_transition_graph(NodeSpec,PredSpec).
+handle_query_term_(jupyter::set_prolog_backend(Backend), _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+	handle_set_prolog_backend(Backend).
+handle_query_term_(jupyter::update_completion_data, _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+	handle_update_completion_data.
+handle_query_term_(jupyter::set_preference(Pref,Value), _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+	handle_set_preference(Pref,Value).
 % trace
-handle_query_term_(trace, _CallRequestId, _Stack,
-                   _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-  handle_trace(trace/0).
+handle_query_term_(trace, _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+	handle_trace(trace/0).
 %:- if(swi).
 %handle_query_term_(trace(_Pred), _CallRequestId, _Stack,
 %                   _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
@@ -268,12 +258,11 @@ handle_query_term_(trace, _CallRequestId, _Stack,
 %  handle_trace(trace/2).
 %:- endif.
 % leash/1
-handle_query_term_(debugger::leash(_Ports), _CallRequestId, _Stack,
-                    _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-  assert_error_response(exception, message_data(error, jupyter(leash_pred)), '', []).
+handle_query_term_(debugger::leash(_Ports), _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+	assert_error_response(exception, message_data(error, jupyter(leash_pred)), '', []).
 % Any other query
 handle_query_term_(Query, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont) :-
-  handle_query(Query, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont).
+	handle_query(Query, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont).
 
 
 % handle_query(+Goal, +CallRequestId, +Stack, +Bindings, +OriginalTermData, +LoopCont, -Cont)
@@ -489,6 +478,22 @@ json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName-VarAtom|J
 		% findall_results_and_var_names/4 failed
 		assert_error_response(failure, null, '', []).
 
+	handle_print_and_save_table_with_findall(Bindings, Goal, Format, File) :-
+		call_with_output_to_file(jupyter_term_handling::findall_results_and_var_names(Goal, Bindings, Results0, VarNames0), Output, ErrorMessageData),
+		!,
+		% Success or exception from findall_results_and_var_names/4
+		(	nonvar(ErrorMessageData) ->
+			assert_error_response(exception, ErrorMessageData, '', [])
+		;	% success
+			% Return the additional 'print_and_save_table' data
+			filter_ignored_variable_results(Results0, VarNames0, Results),
+			filter_ignored_variable_names(VarNames0, VarNames),
+			assert_success_response(query, [], Output, [print_and_save_table-json(['ValuesLists'-Results, 'VariableNames'-VarNames, 'Format'-Format, 'File'-File])])
+		).
+	handle_print_and_save_table_with_findall(_Bindings, _Goal, _Format, _File) :-
+		% findall_results_and_var_names/4 failed
+		assert_error_response(failure, null, '', []).
+		
 	filter_ignored_variable_results([], _, []).
 	filter_ignored_variable_results([Result0| Results0], VarNames0, [Result| Results]) :-
 		filter_ignored_variables(VarNames0, Result0, Result),

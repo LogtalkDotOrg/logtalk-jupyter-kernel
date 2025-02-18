@@ -28,9 +28,9 @@
 :- object(jupyter).
 
 	:- info([
-		version is 0:8:0,
+		version is 0:9:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2024-07-05,
+		date is 2025-02-18,
 		comment is 'This object provides special predicates which can be used in call requests by the client. Some of these predicates need to be the only goal of a query. Otherwise, they cannot be determined as special predicates and do not work as expected.'
 	]).
 
@@ -47,6 +47,7 @@
 		print_sld_tree/1,          % print_sld_tree(+Goal)
 		print_table/1,             % print_table(+Goal)
 		print_table/2,             % print_table(+ValuesLists, +VariableNames)
+		print_and_save_table/3,
 		print_transition_graph/4,  % print_transition_graph(+PredSpec, +FromIndex, +ToIndex, +LabelIndex)
 		print_variable_bindings/0,
 		pwd/0,
@@ -138,6 +139,10 @@
 		format('        Appends to a user.lgt file and loads it using the logtalk_load/2 predicate~n~n', []),
 		format('    %%table~n', []),
 		format('        Prints a table with a column per variable binding for all goal solutions~n', []),
+		format('    %%csv FILE.csv~n', []),
+		format('        Prints a table with a column per variable binding for all goal solutions but also saves it to a CSV file~n', []),
+		format('    %%tsv FILE.tsv~n', []),
+		format('        Prints a table with a column per variable binding for all goal solutions but also saves it to a TSV file~n', []),
 		format('    %%tree~n', []),
 		format('        Prints a tree representation of a term~n~n', []),
 		format('    %%highlight~n', []),
@@ -209,6 +214,16 @@
 			'\n    Values for variable names starting with an underscore are omitted.',
 			'\n\n    Needs to be the only goal of a query.',
 			'\n\n    Example: jupyter::print_table(current_logtalk_flag(Name, Value)).'
+		], Doc).
+	predicate_doc('jupyter::print_and_save_table/3', Doc) :-
+		atomic_list_concat([
+			'jupyter::print_and_save_table(+Goal, +Format, File)',
+			'\n\n    Computes all results of the goal Goal with findall/3.',
+			'\n    These are printed in a table but also saved to a file.',
+			'\n    Supported file formats are csv and tsv.',
+			'\n    Values for variable names starting with an underscore are omitted.',
+			'\n\n    Needs to be the only goal of a query.',
+			'\n\n    Example: jupyter::print_and_save_table(current_logtalk_flag(Name, Value), tsv, \'flags.tsv\').'
 		], Doc).
 	predicate_doc('jupyter::print_table/2', Doc) :-
 		atomic_list_concat([

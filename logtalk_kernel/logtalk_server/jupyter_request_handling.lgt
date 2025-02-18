@@ -45,9 +45,9 @@
 :- object(jupyter_request_handling).
 
 	:- info([
-		version is 0:7:1,
+		version is 0:8:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2024-05-18,
+		date is 2025-02-18,
 		comment is 'This object provides predicates to start a loop reading and handling JSON RPC requests.'
 	]).
 
@@ -333,6 +333,32 @@
 		),
 		!,
 		atomic_list_concat(['print_table((', Goal, ')).'], Rest).
+	goal_cell_magic(Code, Rest) :-
+		sub_atom(Code, 0, _, _, '%%csv '),
+		sub_atom(Code, Before, _, _, '\n'),
+		Length is Before - 6,
+		sub_atom(Code, 6, Length, _, File),
+		Start is 6 + Length + 1,
+		sub_atom(Code, Start, _, 0, Goal0),
+		(	sub_atom(Goal0, _, 1, 0, '.') ->
+			sub_atom(Goal0, 0, _, 1, Goal)
+		;	Goal = Goal0
+		),
+		!,
+		atomic_list_concat(['print_and_save_table((', Goal, '),csv,\'', File, '\').'], Rest).
+	goal_cell_magic(Code, Rest) :-
+		sub_atom(Code, 0, _, _, '%%tsv '),
+		sub_atom(Code, Before, _, _, '\n'),
+		Length is Before - 6,
+		sub_atom(Code, 6, Length, _, File),
+		Start is 6 + Length + 1,
+		sub_atom(Code, Start, _, 0, Goal0),
+		(	sub_atom(Goal0, _, 1, 0, '.') ->
+			sub_atom(Goal0, 0, _, 1, Goal)
+		;	Goal = Goal0
+		),
+		!,
+		atomic_list_concat(['print_and_save_table((', Goal, '),tsv,\'', File, '\').'], Rest).
 	goal_cell_magic(Code, Rest) :-
 		atom_concat('%%tree\n', Term0, Code),
 		(	sub_atom(Term0, _, 1, 0, '.') ->
