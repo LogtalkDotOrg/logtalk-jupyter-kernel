@@ -461,7 +461,8 @@ json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName-VarAtom|J
 		(	nonvar(ErrorMessageData) ->
 			assert_error_response(exception, ErrorMessageData, '', [])
 		;	% success
-			assert_success_response(query, [], Output, [show_data-json(Data)])
+			handle_result_variable_bindings(Bindings, ResultBindings),
+			assert_success_response(query, ResultBindings, Output, [show_data-json(Data)])
 		).
 
 	handle_show_data(_Bindings, _Goal) :-
