@@ -45,9 +45,9 @@
 :- object(jupyter_request_handling).
 
 	:- info([
-		version is 0:8:0,
+		version is 0:9:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-02-18,
+		date is 2025-02-19,
 		comment is 'This object provides predicates to start a loop reading and handling JSON RPC requests.'
 	]).
 
@@ -367,6 +367,14 @@
 		),
 		!,
 		atomic_list_concat(['show_term(', Term, ').'], Rest).
+	goal_cell_magic(Code, Rest) :-
+		atom_concat('%%data\n', Goal0, Code),
+		(	sub_atom(Goal0, _, 1, 0, '.') ->
+			sub_atom(Goal0, 0, _, 1, Goal)
+		;	Goal = Goal0
+		),
+		!,
+		atomic_list_concat(['show_data((', Goal, ')).'], Rest).
 
 	line_magic('%bindings', 'jupyter::print_variable_bindings.').
 	line_magic('%queries', 'jupyter::print_queries.').

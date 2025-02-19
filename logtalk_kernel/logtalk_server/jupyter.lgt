@@ -28,9 +28,9 @@
 :- object(jupyter).
 
 	:- info([
-		version is 0:9:0,
+		version is 0:10:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-02-18,
+		date is 2025-02-19,
 		comment is 'This object provides special predicates which can be used in call requests by the client. Some of these predicates need to be the only goal of a query. Otherwise, they cannot be determined as special predicates and do not work as expected.'
 	]).
 
@@ -53,6 +53,7 @@
 		pwd/0,
 		cd/1,
 		show_term/1,
+		show_data/1,
 		retry/0,
 		set_prolog_backend/1,      % set_prolog_backend(+Backend)
 		trace/1,                   % trace(+Goal)
@@ -143,6 +144,8 @@
 		format('        Prints a table with a column per variable binding for all goal solutions but also saves it to a CSV file~n', []),
 		format('    %%tsv FILE.tsv~n', []),
 		format('        Prints a table with a column per variable binding for all goal solutions but also saves it to a TSV file~n', []),
+		format('    %%data~n', []),
+		format('        Data visualization for a goal binding a variable named Data with a list of pairs~n', []),
 		format('    %%tree~n', []),
 		format('        Prints a tree representation of a term~n~n', []),
 		format('    %%highlight~n', []),
@@ -257,6 +260,13 @@
 		atomic_list_concat([
 			'jupyter::show_term(+Term)',
 			'\n\n    Displays a term as a graph.',
+			'\n\n    Needs to be the only goal of a query.'
+		], Doc).
+	predicate_doc('jupyter::show_data/1', Doc) :-
+		atomic_list_concat([
+			'jupyter::show_data(+Goal)',
+			'\n\n    Displays data produced by a goal.',
+			'\n\n    Expects a variable named Data to be found to a list fo pairs.',
 			'\n\n    Needs to be the only goal of a query.'
 		], Doc).
    predicate_doc('jupyter::print_variable_bindings/0', Doc) :-

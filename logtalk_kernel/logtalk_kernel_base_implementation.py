@@ -41,6 +41,8 @@ import os
 import platform
 import subprocess
 import csv
+import io
+import matplotlib.pyplot as plt
 
 from graphviz import render
 from IPython.core.completer import CompletionSplitter
@@ -600,6 +602,9 @@ class LogtalkKernelBaseImplementation:
         if 'print_and_save_table' in dict:
             if self.handle_print_and_save_table(dict['print_and_save_table']):
                 failure_keys.append(['print_and_save_table'])
+        if 'show_data' in dict:
+            if self.handle_show_data(dict['show_data']):
+                failure_keys.append(['show_data'])
         if 'print_transition_graph' in dict:
             if self.handle_print_graph(dict['print_transition_graph']):
                 failure_keys.append(['print_transition_graph'])
@@ -766,6 +771,55 @@ class LogtalkKernelBaseImplementation:
             csvwriter = csv.writer(csvfile, delimiter=delimiter)
             csvwriter.writerow(variable_names)
             csvwriter.writerows(values_lists)
+
+
+    def handle_show_data(self, show_data_dict):
+        """
+        The dictionary show_data_dict contains pairs describing how to visualize the data.
+
+        Example
+        ------
+          {'type':'pie', 'title':'Pie Graph', 'x':[35, 20, 30, 40, 50, 30], 'labels':['Apple','Bananna','Grapes','Orange','PineApple','Dragon Fruit']}
+        """
+
+        data_type = show_data_dict["type"]
+        show_data_dict.pop("type", None)
+        data_title = show_data_dict["title"]
+        show_data_dict.pop("title", None)
+
+        if data_type == "bar":
+            fig = io.StringIO()
+            plt.title(data_title)
+            plt.bar(**show_data_dict)
+            plt.savefig(fig, format="svg")
+            plt.close()
+        elif data_type == "pie":
+            fig = io.StringIO()
+            plt.title(data_title)
+            plt.pie(**show_data_dict)
+            plt.savefig(fig, format="svg")
+            plt.close()
+        elif data_type == "hist":
+            data_xlabel = show_data_dict["xlabel"]
+            show_data_dict.pop("xlabel", None)
+            data_ylabel = show_data_dict["ylabel"]
+            show_data_dict.pop("ylabel", None)
+            fig = io.StringIO()
+            plt.title(data_title)
+            plt.xlabel(data_xlabel)
+            plt.ylabel(data_ylabel)
+            plt.hist(**show_data_dict)
+            plt.savefig(fig, format="svg")
+            plt.close()
+
+        # Send the data to the client
+        display_data = {
+            'data': {
+                'image/svg+xml': fig.getvalue()
+            },
+            'metadata': {}}
+        self.kernel.send_response(self.kernel.iopub_socket, 'display_data', display_data)
+
 
     def handle_set_prolog_backend(self, prolog_backend):
         """The user requested to change the active Prolog backend, which needs to be handled by the kernel."""

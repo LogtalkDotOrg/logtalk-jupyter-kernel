@@ -52,9 +52,9 @@
 :- object(jupyter_term_handling).
 
 	:- info([
-		version is 0:4:0,
+		version is 0:5:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-02-18,
+		date is 2025-02-19,
 		comment is 'This object provides predicates to handle terms received from the client, compute their results and assert them with term_response/1.'
 	]).
 
@@ -71,6 +71,9 @@
 	:- public(findall_results_and_var_names/4).
 	:- meta_predicate(findall_results_and_var_names(*, *, *, *)).
 
+	:- public(get_data/3).
+	:- meta_predicate(get_data(*, *, *)).
+
 	:- public(dot_subnode/3).
 
 	:- public(dot_subtree/3).
@@ -80,7 +83,7 @@
 	:- uses(debugger, [debug/0, trace/0, notrace/0]).
 	:- uses(term_io, [write_term_to_atom/3, write_term_to_codes/3, format_to_codes/3, read_term_from_codes/3]).
 	:- uses(format, [format/2]).
-	:- uses(list, [append/2, append/3, delete/3, length/2, reverse/2,  member/2, nth1/3]).
+	:- uses(list, [append/2, append/3, delete/3, length/2, reverse/2,  member/2, memberchk/2, nth1/3]).
 	:- uses(logtalk, [print_message(debug, jupyter, Message) as dbg(Message)]).
 	:- uses(meta, [map/3 as maplist/3]).
 	:- uses(os, [delete_file/1]).
@@ -201,6 +204,8 @@
 		\+ user::current_predicate(show_graph/2).
 	is_query_alias(show_term(Term), jupyter::show_graph(jupyter_term_handling::dot_subnode(_,_,Term),jupyter_term_handling::dot_subtree/3)) :-
 		\+ user::current_predicate(show_term/1).
+	is_query_alias(show_data(Goal), jupyter::show_data(Goal)) :-
+		\+ user::current_predicate(show_data/1).
 	is_query_alias(print_table(Goal), jupyter::print_table(Goal)) :-
 		\+ user::current_predicate(print_table/1).
 	is_query_alias(print_and_save_table(Goal,Format,File), jupyter::print_and_save_table(Goal,Format,File)) :-
@@ -228,6 +233,8 @@ handle_query_term_(jupyter::halt, _CallRequestId, _Stack, _Bindings, _OriginalTe
 % jupyter predicates
 handle_query_term_(jupyter::print_sld_tree(Goal), _CallRequestId, _Stack, Bindings, _OriginalTermData, _LoopCont, continue) :- !,
 	handle_print_sld_tree(Goal, Bindings).
+handle_query_term_(jupyter::show_data(Goal), _CallRequestId, _Stack, Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+	handle_show_data(Bindings, Goal).
 handle_query_term_(jupyter::print_table(Goal), _CallRequestId, _Stack, Bindings, _OriginalTermData, _LoopCont, continue) :- !,
 	handle_print_table_with_findall(Bindings, Goal).
 handle_query_term_(jupyter::print_and_save_table(Goal,Format,File), _CallRequestId, _Stack, Bindings, _OriginalTermData, _LoopCont, continue) :- !,
@@ -444,17 +451,33 @@ json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName-VarAtom|J
 	handle_halt :-
 		assertz(term_response(json([status-halt]))).
 
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	handle_show_data(Bindings, Goal) :-
+		memberchk('Data'=_, Bindings),
+		call_with_output_to_file(jupyter_term_handling::get_data(Goal, Bindings, Data), Output, ErrorMessageData),
+		!,
+		% Success or exception from findall_results_and_var_names/4
+		(	nonvar(ErrorMessageData) ->
+			assert_error_response(exception, ErrorMessageData, '', [])
+		;	% success
+			assert_success_response(query, [], Output, [show_data-json(Data)])
+		).
 
-% Print result table
+	handle_show_data(_Bindings, _Goal) :-
+		% findall_results_and_var_names/4 failed
+		assert_error_response(failure, null, '', []).
 
-% The client requested a response which can be used to print a table.
-% The client expects the result to contain a member 'print_table' of which the value is a dictionary with the following members:
-% - ValuesLists: a list of lists where each list corresponds to one line of the table
-% - VariableNames: a list of names used as the header for the table; one of
-%   - []: if no names are provided, the header will contain capital letters as names
-%   - a list of ground terms of the same length as the values lists
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	
+	% Print result table
+	
+	% The client requested a response which can be used to print a table.
+	% The client expects the result to contain a member 'print_table' of which the value is a dictionary with the following members:
+	% - ValuesLists: a list of lists where each list corresponds to one line of the table
+	% - VariableNames: a list of names used as the header for the table; one of
+	%   - []: if no names are provided, the header will contain capital letters as names
+	%   - a list of ground terms of the same length as the values lists
 
 
 	% handle_print_table_with_findall(+Bindings, +Goal)
@@ -581,6 +604,13 @@ json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName-VarAtom|J
 handle_trace(TracePredSpec) :-
 	assert_error_response(exception, message_data(error, jupyter(trace_pred(TracePredSpec))), '', []).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Print data
+
+get_data(Goal, Bindings, Data) :-
+	memberchk('Data'=Data, Bindings),
+	{Goal}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
