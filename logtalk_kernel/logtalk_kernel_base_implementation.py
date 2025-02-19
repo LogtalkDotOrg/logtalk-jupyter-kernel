@@ -793,12 +793,6 @@ class LogtalkKernelBaseImplementation:
             plt.bar(**show_data_dict)
             plt.savefig(fig, format="svg")
             plt.close()
-        elif data_type == "pie":
-            fig = io.StringIO()
-            plt.title(data_title)
-            plt.pie(**show_data_dict)
-            plt.savefig(fig, format="svg")
-            plt.close()
         elif data_type == "hist":
             data_xlabel = show_data_dict["xlabel"]
             show_data_dict.pop("xlabel", None)
@@ -809,6 +803,28 @@ class LogtalkKernelBaseImplementation:
             plt.xlabel(data_xlabel)
             plt.ylabel(data_ylabel)
             plt.hist(**show_data_dict)
+            plt.savefig(fig, format="svg")
+            plt.close()
+        elif data_type == "pie":
+            fig = io.StringIO()
+            plt.title(data_title)
+            plt.pie(**show_data_dict)
+            plt.savefig(fig, format="svg")
+            plt.close()
+        elif data_type == "plot":
+            fig = io.StringIO()
+            plt.title(data_title)
+            data_x = show_data_dict["x"]
+            show_data_dict.pop("x", None)
+            data_y = show_data_dict["y"]
+            show_data_dict.pop("y", None)
+            plt.plot(data_x, data_y, **show_data_dict)
+            plt.savefig(fig, format="svg")
+            plt.close()
+        elif data_type == "scatter":
+            fig = io.StringIO()
+            plt.title(data_title)
+            plt.scatter(**show_data_dict)
             plt.savefig(fig, format="svg")
             plt.close()
 
