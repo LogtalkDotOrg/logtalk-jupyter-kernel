@@ -787,46 +787,34 @@ class LogtalkKernelBaseImplementation:
         data_title = show_data_dict["title"]
         show_data_dict.pop("title", None)
 
+        fig = io.StringIO()
+        plt.title(data_title)
+
         if data_type == "bar":
-            fig = io.StringIO()
-            plt.title(data_title)
             plt.bar(**show_data_dict)
-            plt.savefig(fig, format="svg")
-            plt.close()
+        elif data_type == "barh":
+            plt.barh(**show_data_dict)
         elif data_type == "hist":
             data_xlabel = show_data_dict["xlabel"]
             show_data_dict.pop("xlabel", None)
             data_ylabel = show_data_dict["ylabel"]
             show_data_dict.pop("ylabel", None)
-            fig = io.StringIO()
-            plt.title(data_title)
             plt.xlabel(data_xlabel)
             plt.ylabel(data_ylabel)
             plt.hist(**show_data_dict)
-            plt.savefig(fig, format="svg")
-            plt.close()
         elif data_type == "pie":
-            fig = io.StringIO()
-            plt.title(data_title)
             plt.pie(**show_data_dict)
-            plt.savefig(fig, format="svg")
-            plt.close()
         elif data_type == "plot":
-            fig = io.StringIO()
-            plt.title(data_title)
             data_x = show_data_dict["x"]
             show_data_dict.pop("x", None)
             data_y = show_data_dict["y"]
             show_data_dict.pop("y", None)
             plt.plot(data_x, data_y, **show_data_dict)
-            plt.savefig(fig, format="svg")
-            plt.close()
         elif data_type == "scatter":
-            fig = io.StringIO()
-            plt.title(data_title)
             plt.scatter(**show_data_dict)
-            plt.savefig(fig, format="svg")
-            plt.close()
+
+        plt.savefig(fig, format="svg")
+        plt.close()
 
         # Send the data to the client
         display_data = {
