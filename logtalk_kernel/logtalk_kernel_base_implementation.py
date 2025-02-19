@@ -812,6 +812,12 @@ class LogtalkKernelBaseImplementation:
             plt.plot(data_x, data_y, **show_data_dict)
         elif data_type == "scatter":
             plt.scatter(**show_data_dict)
+        elif data_type == "stem":
+            data_x = show_data_dict["x"]
+            show_data_dict.pop("x", None)
+            data_y = show_data_dict["y"]
+            show_data_dict.pop("y", None)
+            plt.stem(data_x, data_y, **show_data_dict)
 
         plt.savefig(fig, format="svg")
         plt.close()
