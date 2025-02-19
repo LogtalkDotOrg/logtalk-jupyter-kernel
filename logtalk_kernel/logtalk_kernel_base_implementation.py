@@ -794,13 +794,17 @@ class LogtalkKernelBaseImplementation:
             plt.bar(**show_data_dict)
         elif data_type == "barh":
             plt.barh(**show_data_dict)
+        elif data_type == "eventplot":
+            plt.eventplot(**show_data_dict)
         elif data_type == "hist":
-            data_xlabel = show_data_dict["xlabel"]
-            show_data_dict.pop("xlabel", None)
-            data_ylabel = show_data_dict["ylabel"]
-            show_data_dict.pop("ylabel", None)
-            plt.xlabel(data_xlabel)
-            plt.ylabel(data_ylabel)
+            if "xlabel" in show_data_dict:
+                data_xlabel = show_data_dict["xlabel"]
+                show_data_dict.pop("xlabel", None)
+                plt.xlabel(data_xlabel)
+            if "ylabel" in show_data_dict:
+                data_ylabel = show_data_dict["ylabel"]
+                show_data_dict.pop("ylabel", None)
+                plt.ylabel(data_ylabel)
             plt.hist(**show_data_dict)
         elif data_type == "pie":
             plt.pie(**show_data_dict)
@@ -818,6 +822,30 @@ class LogtalkKernelBaseImplementation:
             data_y = show_data_dict["y"]
             show_data_dict.pop("y", None)
             plt.stem(data_x, data_y, **show_data_dict)
+        elif data_type == "stackplot":
+            if "xlabel" in show_data_dict:
+                data_xlabel = show_data_dict["xlabel"]
+                show_data_dict.pop("xlabel", None)
+                plt.xlabel(data_xlabel)
+            if "ylabel" in show_data_dict:
+                data_ylabel = show_data_dict["ylabel"]
+                show_data_dict.pop("ylabel", None)
+                plt.ylabel(data_ylabel)
+            data_x = show_data_dict["x"]
+            show_data_dict.pop("x", None)
+            data_y = show_data_dict["y"]
+            show_data_dict.pop("y", None)
+            plt.stackplot(data_x, data_y, **show_data_dict)
+        elif data_type == "step":
+            if "xlabel" in show_data_dict:
+                data_xlabel = show_data_dict["xlabel"]
+                show_data_dict.pop("xlabel", None)
+                plt.xlabel(data_xlabel)
+            if "ylabel" in show_data_dict:
+                data_ylabel = show_data_dict["ylabel"]
+                show_data_dict.pop("ylabel", None)
+                plt.ylabel(data_ylabel)
+            plt.step(**show_data_dict)
 
         plt.savefig(fig, format="svg")
         plt.close()
