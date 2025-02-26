@@ -460,14 +460,29 @@ json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName-VarAtom|J
 		% Success or exception from findall_results_and_var_names/4
 		(	nonvar(ErrorMessageData) ->
 			assert_error_response(exception, ErrorMessageData, '', [])
-		;	% success
+		;	ground(Data),
 			handle_result_variable_bindings(Bindings, ResultBindings),
-			assert_success_response(query, ResultBindings, Output, [show_data-json(Data)])
+			convert_data_to_json(Data, JSON) ->
+			% success
+			assert_success_response(query, ResultBindings, Output, [show_data-JSON])
+		;	% invalid data format
+			assert_error_response(exception, 'Invalid Data format', '', [])
 		).
 
 	handle_show_data(_Bindings, _Goal) :-
 		% findall_results_and_var_names/4 failed
 		assert_error_response(failure, null, '', []).
+
+	convert_data_to_json(Pairs0, json(Pairs)) :-
+		convert_data_pairs_to_json(Pairs0, Pairs).
+
+	convert_data_pairs_to_json([], []).
+	convert_data_pairs_to_json([Key-Value0| Pairs0], [Key-Value| Pairs]) :-
+		(	Value0 = [_-_| _] ->
+			Value = json(Value0)
+		;	Value = Value0
+		),
+		convert_data_pairs_to_json(Pairs0, Pairs).
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	

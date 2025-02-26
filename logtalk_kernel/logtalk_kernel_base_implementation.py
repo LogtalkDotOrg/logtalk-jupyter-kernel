@@ -787,6 +787,7 @@ class LogtalkKernelBaseImplementation:
 
         data_title = show_data_dict["title"]
         show_data_dict.pop("title", None)
+        plt.title(data_title)
 
         if "xlabel" in show_data_dict:
             data_xlabel = show_data_dict["xlabel"]
@@ -807,8 +808,23 @@ class LogtalkKernelBaseImplementation:
             else:
                 plt.ylabel(data_ylabel)
 
-        fig = io.StringIO()
-        plt.title(data_title)
+        if "xscale" in show_data_dict:
+            data_xscale = show_data_dict["xscale"]
+            show_data_dict.pop("xscale", None)
+            plt.xscale(data_xscale)
+        if "yscale" in show_data_dict:
+            data_yscale = show_data_dict["yscale"]
+            show_data_dict.pop("yscale", None)
+            plt.yscale(data_yscale)
+
+        if "xticks" in show_data_dict:
+            data_xticks = show_data_dict["xticks"]
+            show_data_dict.pop("xticks", None)
+            plt.xticks(**data_xticks)
+        if "yticks" in show_data_dict:
+            data_yticks = show_data_dict["yticks"]
+            show_data_dict.pop("yticks", None)
+            plt.yticks(**data_yticks)
 
         if data_type == "bar":
             plt.bar(**show_data_dict)
@@ -861,6 +877,7 @@ class LogtalkKernelBaseImplementation:
         elif data_type == "step":
             plt.step(**show_data_dict)
 
+        fig = io.StringIO()
         plt.savefig(fig, format="svg")
         plt.close()
 
