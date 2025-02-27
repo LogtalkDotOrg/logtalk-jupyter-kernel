@@ -782,6 +782,14 @@ class LogtalkKernelBaseImplementation:
           {'type':'pie', 'title':'Pie Graph', 'x':[35, 20, 30, 40, 50, 30], 'labels':['Apple','Bananna','Grapes','Orange','PineApple','Dragon Fruit']}
         """
 
+        for key, value in show_data_dict.items():
+            if value == "true":
+                show_data_dict[key] = True
+            elif value == "false":
+                show_data_dict[key] = False
+            elif value == "none":
+                show_data_dict[key] = None
+
         data_type = show_data_dict["type"]
         show_data_dict.pop("type", None)
 
