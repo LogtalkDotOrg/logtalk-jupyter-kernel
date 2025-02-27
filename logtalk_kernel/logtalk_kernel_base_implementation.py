@@ -826,6 +826,15 @@ class LogtalkKernelBaseImplementation:
             show_data_dict.pop("yticks", None)
             plt.yticks(**data_yticks)
 
+        if "xlim" in show_data_dict:
+            data_xlim = show_data_dict["xlim"]
+            show_data_dict.pop("xlim", None)
+            plt.xlim(**data_xlim)
+        if "ylim" in show_data_dict:
+            data_ylim = show_data_dict["ylim"]
+            show_data_dict.pop("ylim", None)
+            plt.ylim(**data_ylim)
+
         if data_type == "bar":
             plt.bar(**show_data_dict)
         elif data_type == "barh":
