@@ -902,6 +902,10 @@ class LogtalkKernelBaseImplementation:
             data_y = show_data_dict["y"]
             show_data_dict.pop("y", None)
             plt.stem(data_x, data_y, **show_data_dict)
+        elif data_type == "boxplot":
+            data_x = show_data_dict["x"]
+            show_data_dict.pop("x", None)
+            plt.boxplot(data_x, **show_data_dict)
         elif data_type == "stackplot":
             data_x = show_data_dict["x"]
             show_data_dict.pop("x", None)
