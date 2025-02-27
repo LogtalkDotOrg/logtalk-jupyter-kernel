@@ -835,6 +835,23 @@ class LogtalkKernelBaseImplementation:
             show_data_dict.pop("ylim", None)
             plt.ylim(**data_ylim)
 
+        if "margins" in show_data_dict:
+            data_margins = show_data_dict["margins"]
+            show_data_dict.pop("margins", None)
+            plt.margins(**data_margins)
+
+        if "rc" in show_data_dict:
+            data_rc = show_data_dict["rc"]
+            show_data_dict.pop("rc", None)
+            data_rc_label = data_rc["label"]
+            data_rc.pop("label", None)
+            plt.rc(data_rc_label, **data_rc)
+
+        if "grid" in show_data_dict:
+            data_grid = show_data_dict["grid"]
+            show_data_dict.pop("grid", None)
+            plt.grid(**data_grid)
+
         if data_type == "bar":
             plt.bar(**show_data_dict)
         elif data_type == "barh":
