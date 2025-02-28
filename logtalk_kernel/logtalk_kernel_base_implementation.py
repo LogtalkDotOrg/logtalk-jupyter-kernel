@@ -906,6 +906,10 @@ class LogtalkKernelBaseImplementation:
             data_x = show_data_dict["x"]
             show_data_dict.pop("x", None)
             plt.boxplot(data_x, **show_data_dict)
+        elif data_type == "ecdf":
+            data_x = show_data_dict["x"]
+            show_data_dict.pop("x", None)
+            plt.ecdf(data_x, **show_data_dict)
         elif data_type == "errorbar":
             data_x = show_data_dict["x"]
             show_data_dict.pop("x", None)
