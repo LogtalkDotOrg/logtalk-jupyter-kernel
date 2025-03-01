@@ -928,6 +928,12 @@ class LogtalkKernelBaseImplementation:
             data_y = show_data_dict["y"]
             show_data_dict.pop("y", None)
             plt.hexbin(data_x, data_y, **show_data_dict)
+        elif data_type == "hist2d":
+            data_x = show_data_dict["x"]
+            show_data_dict.pop("x", None)
+            data_y = show_data_dict["y"]
+            show_data_dict.pop("y", None)
+            plt.hist2d(data_x, data_y, **show_data_dict)
         elif data_type == "step":
             plt.step(**show_data_dict)
 
