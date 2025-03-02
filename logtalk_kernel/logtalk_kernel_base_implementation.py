@@ -795,7 +795,12 @@ class LogtalkKernelBaseImplementation:
 
         data_title = show_data_dict["title"]
         show_data_dict.pop("title", None)
-        plt.title(data_title)
+        if isinstance(data_title, dict):
+            data_title_label = data_title["label"]
+            data_title.pop("label", None)
+            plt.title(data_title_label, **data_title)
+        else:
+            plt.title(data_title)
 
         if "xlabel" in show_data_dict:
             data_xlabel = show_data_dict["xlabel"]
