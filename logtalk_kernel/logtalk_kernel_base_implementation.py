@@ -795,12 +795,6 @@ class LogtalkKernelBaseImplementation:
 
         data_title = show_data_dict["title"]
         show_data_dict.pop("title", None)
-        if isinstance(data_title, dict):
-            data_title_label = data_title["label"]
-            data_title.pop("label", None)
-            plt.title(data_title_label, **data_title)
-        else:
-            plt.title(data_title)
 
         if "xlabel" in show_data_dict:
             data_xlabel = show_data_dict["xlabel"]
@@ -943,8 +937,21 @@ class LogtalkKernelBaseImplementation:
             data_y = show_data_dict["y"]
             show_data_dict.pop("y", None)
             plt.hist2d(data_x, data_y, **show_data_dict)
+        elif data_type == "polar":
+            data_theta = show_data_dict["theta"]
+            show_data_dict.pop("theta", None)
+            data_r = show_data_dict["r"]
+            show_data_dict.pop("r", None)
+            plt.polar(data_theta, data_r, **show_data_dict)
         elif data_type == "step":
             plt.step(**show_data_dict)
+
+        if isinstance(data_title, dict):
+            data_title_label = data_title["label"]
+            data_title.pop("label", None)
+            plt.title(data_title_label, **data_title)
+        else:
+            plt.title(data_title)
 
         if 'data_legend' in locals():
             plt.legend(**data_legend)
