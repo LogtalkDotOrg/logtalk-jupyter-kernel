@@ -864,10 +864,25 @@ class LogtalkKernelBaseImplementation:
             show_data_dict.pop("grid", None)
             plt.grid(**data_grid)
 
+        if "thetagrids" in show_data_dict:
+            data_thetagrids = show_data_dict["thetagrids"]
+            show_data_dict.pop("thetagrids", None)
+            plt.thetagrids(**data_thetagrids)
+
+        if "rgrids" in show_data_dict:
+            data_rgrids = show_data_dict["rgrids"]
+            show_data_dict.pop("rgrids", None)
+            plt.rgrids(**data_rgrids)
+
         if "autoscale" in show_data_dict:
             data_autoscale = show_data_dict["autoscale"]
             show_data_dict.pop("autoscale", None)
             plt.autoscale(**data_autoscale)
+
+        if "tight_layout" in show_data_dict:
+            data_tight_layout = show_data_dict["tight_layout"]
+            show_data_dict.pop("tight_layout", None)
+            plt.tight_layout(**data_tight_layout)
 
         if "legend" in show_data_dict:
             data_legend = show_data_dict["legend"]
