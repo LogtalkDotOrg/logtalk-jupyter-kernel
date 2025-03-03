@@ -864,6 +864,11 @@ class LogtalkKernelBaseImplementation:
             show_data_dict.pop("grid", None)
             plt.grid(**data_grid)
 
+        if "autoscale" in show_data_dict:
+            data_autoscale = show_data_dict["autoscale"]
+            show_data_dict.pop("autoscale", None)
+            plt.autoscale(**data_autoscale)
+
         if "legend" in show_data_dict:
             data_legend = show_data_dict["legend"]
             show_data_dict.pop("legend", None)
