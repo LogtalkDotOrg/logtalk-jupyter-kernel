@@ -479,7 +479,8 @@ json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName-VarAtom|J
 	convert_data_pairs_to_json([], []).
 	convert_data_pairs_to_json([Key-Value0| Pairs0], [Key-Value| Pairs]) :-
 		(	Value0 = [_-_| _] ->
-			Value = json(Value0)
+			convert_data_pairs_to_json(Value0, Value1),
+			Value = json(Value1)
 		;	Value = Value0
 		),
 		convert_data_pairs_to_json(Pairs0, Pairs).

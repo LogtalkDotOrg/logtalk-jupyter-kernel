@@ -863,6 +863,28 @@ class LogtalkKernelBaseImplementation:
             data_legend = show_data_dict["legend"]
             show_data_dict.pop("legend", None)
 
+        if "text" in show_data_dict:
+            data_text = show_data_dict["text"]
+            show_data_dict.pop("text", None)
+            data_text_x = data_text["x"]
+            data_text.pop("x", None)
+            data_text_y = data_text["y"]
+            data_text.pop("y", None)
+            data_text_s = data_text["s"]
+            data_text.pop("s", None)
+            plt.text(data_text_x, data_text_y, data_text_s, **data_text)
+
+        if "figtext" in show_data_dict:
+            data_text = show_data_dict["text"]
+            show_data_dict.pop("text", None)
+            data_text_x = data_text["x"]
+            data_text.pop("x", None)
+            data_text_y = data_text["y"]
+            data_text.pop("y", None)
+            data_text_s = data_text["s"]
+            data_text.pop("s", None)
+            plt.figtext(data_text_x, data_text_y, data_text_s, **data_text)
+
         if data_type == "bar":
             plt.bar(**show_data_dict)
         elif data_type == "barh":
