@@ -793,8 +793,13 @@ class LogtalkKernelBaseImplementation:
         data_type = show_data_dict["type"]
         show_data_dict.pop("type", None)
 
-        data_title = show_data_dict["title"]
-        show_data_dict.pop("title", None)
+        if "title" in show_data_dict:
+            data_title = show_data_dict["title"]
+            show_data_dict.pop("title", None)
+
+        if "suptitle" in show_data_dict:
+            data_suptitle = show_data_dict["suptitle"]
+            show_data_dict.pop("suptitle", None)
 
         if "xlabel" in show_data_dict:
             data_xlabel = show_data_dict["xlabel"]
@@ -968,12 +973,21 @@ class LogtalkKernelBaseImplementation:
         elif data_type == "step":
             plt.step(**show_data_dict)
 
-        if isinstance(data_title, dict):
-            data_title_label = data_title["label"]
-            data_title.pop("label", None)
-            plt.title(data_title_label, **data_title)
-        else:
-            plt.title(data_title)
+        if 'data_suptitle' in locals():
+            if isinstance(data_suptitle, dict):
+                data_suptitle_label = data_suptitle["label"]
+                data_suptitle.pop("label", None)
+                plt.suptitle(data_title_label, **data_suptitle)
+            else:
+                plt.suptitle(data_suptitle)
+
+        if 'data_title' in locals():
+            if isinstance(data_title, dict):
+                data_title_label = data_title["label"]
+                data_title.pop("label", None)
+                plt.title(data_title_label, **data_title)
+            else:
+                plt.title(data_title)
 
         if 'data_legend' in locals():
             plt.legend(**data_legend)
