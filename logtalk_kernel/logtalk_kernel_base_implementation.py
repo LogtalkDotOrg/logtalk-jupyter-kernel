@@ -868,6 +868,15 @@ class LogtalkKernelBaseImplementation:
             data_legend = show_data_dict["legend"]
             show_data_dict.pop("legend", None)
 
+        if "annotate" in show_data_dict:
+            data_annotate = show_data_dict["annotate"]
+            show_data_dict.pop("annotate", None)
+            data_annotate_text = data_annotate["text"]
+            data_annotate.pop("text", None)
+            data_annotate_xy = data_annotate["xy"]
+            data_annotate.pop("xy", None)
+            plt.annotate(data_annotate_text, data_annotate_xy, **data_annotate)
+
         if "text" in show_data_dict:
             data_text = show_data_dict["text"]
             show_data_dict.pop("text", None)
