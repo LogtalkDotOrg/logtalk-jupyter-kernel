@@ -782,6 +782,8 @@ class LogtalkKernelBaseImplementation:
           {'type':'pie', 'title':'Pie Graph', 'x':[35, 20, 30, 40, 50, 30], 'labels':['Apple','Bananna','Grapes','Orange','PineApple','Dragon Fruit']}
         """
 
+        fig, ax = plt.subplots()
+
         for key, value in show_data_dict.items():
             if value == "true":
                 show_data_dict[key] = True
@@ -800,6 +802,10 @@ class LogtalkKernelBaseImplementation:
         if "suptitle" in show_data_dict:
             data_suptitle = show_data_dict["suptitle"]
             show_data_dict.pop("suptitle", None)
+
+        if "bar_label" in show_data_dict:
+            data_bar_label = show_data_dict["bar_label"]
+            show_data_dict.pop("bar_label", None)
 
         if "xlabel" in show_data_dict:
             data_xlabel = show_data_dict["xlabel"]
@@ -920,87 +926,88 @@ class LogtalkKernelBaseImplementation:
             plt.figtext(data_text_x, data_text_y, data_text_s, **data_text)
 
         if data_type == "bar":
-            plt.bar(**show_data_dict)
+            p = ax.bar(**show_data_dict)
         elif data_type == "barh":
-            plt.barh(**show_data_dict)
+            p = ax.barh(**show_data_dict)
         elif data_type == "eventplot":
-            plt.eventplot(**show_data_dict)
+            p = ax.eventplot(**show_data_dict)
         elif data_type == "hist":
-            plt.hist(**show_data_dict)
+            p = ax.hist(**show_data_dict)
         elif data_type == "pie":
-            plt.pie(**show_data_dict)
+            p = ax.pie(**show_data_dict)
         elif data_type == "plot":
             data_x = show_data_dict["x"]
             show_data_dict.pop("x", None)
             data_y = show_data_dict["y"]
             show_data_dict.pop("y", None)
-            plt.plot(data_x, data_y, **show_data_dict)
+            p = ax.plot(data_x, data_y, **show_data_dict)
         elif data_type == "loglog":
             data_x = show_data_dict["x"]
             show_data_dict.pop("x", None)
             data_y = show_data_dict["y"]
             show_data_dict.pop("y", None)
-            plt.loglog(data_x, data_y, **show_data_dict)
+            p = ax.loglog(data_x, data_y, **show_data_dict)
         elif data_type == "semilogx":
             data_x = show_data_dict["x"]
             show_data_dict.pop("x", None)
             data_y = show_data_dict["y"]
             show_data_dict.pop("y", None)
-            plt.semilogx(data_x, data_y, **show_data_dict)
+            p = ax.semilogx(data_x, data_y, **show_data_dict)
         elif data_type == "semilogy":
             data_x = show_data_dict["x"]
             show_data_dict.pop("x", None)
             data_y = show_data_dict["y"]
             show_data_dict.pop("y", None)
-            plt.semilogy(data_x, data_y, **show_data_dict)
+            p = ax.semilogy(data_x, data_y, **show_data_dict)
         elif data_type == "scatter":
-            plt.scatter(**show_data_dict)
+            p = ax.scatter(**show_data_dict)
         elif data_type == "stem":
             data_x = show_data_dict["x"]
             show_data_dict.pop("x", None)
             data_y = show_data_dict["y"]
             show_data_dict.pop("y", None)
-            plt.stem(data_x, data_y, **show_data_dict)
+            p = ax.stem(data_x, data_y, **show_data_dict)
         elif data_type == "boxplot":
             data_x = show_data_dict["x"]
             show_data_dict.pop("x", None)
-            plt.boxplot(data_x, **show_data_dict)
+            p = ax.boxplot(data_x, **show_data_dict)
         elif data_type == "ecdf":
             data_x = show_data_dict["x"]
             show_data_dict.pop("x", None)
-            plt.ecdf(data_x, **show_data_dict)
+            p = ax.ecdf(data_x, **show_data_dict)
         elif data_type == "errorbar":
             data_x = show_data_dict["x"]
             show_data_dict.pop("x", None)
             data_y = show_data_dict["y"]
             show_data_dict.pop("y", None)
-            plt.errorbar(data_x, data_y, **show_data_dict)
+            p = ax.errorbar(data_x, data_y, **show_data_dict)
         elif data_type == "stackplot":
             data_x = show_data_dict["x"]
             show_data_dict.pop("x", None)
             data_y = show_data_dict["y"]
             show_data_dict.pop("y", None)
-            plt.stackplot(data_x, data_y, **show_data_dict)
+            p = ax.stackplot(data_x, data_y, **show_data_dict)
         elif data_type == "hexbin":
             data_x = show_data_dict["x"]
             show_data_dict.pop("x", None)
             data_y = show_data_dict["y"]
             show_data_dict.pop("y", None)
-            plt.hexbin(data_x, data_y, **show_data_dict)
+            p = ax.hexbin(data_x, data_y, **show_data_dict)
         elif data_type == "hist2d":
             data_x = show_data_dict["x"]
             show_data_dict.pop("x", None)
             data_y = show_data_dict["y"]
             show_data_dict.pop("y", None)
-            plt.hist2d(data_x, data_y, **show_data_dict)
+            p = ax.hist2d(data_x, data_y, **show_data_dict)
         elif data_type == "polar":
             data_theta = show_data_dict["theta"]
             show_data_dict.pop("theta", None)
             data_r = show_data_dict["r"]
             show_data_dict.pop("r", None)
+            plt.clf()
             plt.polar(data_theta, data_r, **show_data_dict)
         elif data_type == "step":
-            plt.step(**show_data_dict)
+            p = ax.step(**show_data_dict)
 
         if 'data_suptitle' in locals():
             if isinstance(data_suptitle, dict):
@@ -1021,14 +1028,17 @@ class LogtalkKernelBaseImplementation:
         if 'data_legend' in locals():
             plt.legend(**data_legend)
 
-        fig = io.StringIO()
-        plt.savefig(fig, format="svg")
+        if 'data_bar_label' in locals():
+            plt.bar_label(p, **data_bar_label)
+
+        plot = io.StringIO()
+        plt.savefig(plot, format="svg")
         plt.close()
 
         # Send the data to the client
         display_data = {
             'data': {
-                'image/svg+xml': fig.getvalue()
+                'image/svg+xml': plot.getvalue()
             },
             'metadata': {}}
         self.kernel.send_response(self.kernel.iopub_socket, 'display_data', display_data)
