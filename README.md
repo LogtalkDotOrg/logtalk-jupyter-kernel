@@ -166,7 +166,7 @@ The predicate argument is the name of the integration script used to run Logtalk
 
 ### Requirements
 
-- At least **Python** 3.5
+- At least **Python** 3.6
   - Tested with Python 3.11.7
 - **Jupyter** installation with JupyterLab and/or Juypter Notebook
   - Tested with

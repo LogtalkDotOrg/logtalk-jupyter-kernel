@@ -501,7 +501,7 @@ class LogtalkKernelBaseImplementation:
 
         The dictionary response_dict contains the key 'error'.
         The corresponding value is a dictionary containing the error data.
-        The member 'data' can contain members 'logtalk_message (e.g. a more specific error message)
+        The member 'data' can contain members 'logtalk_message' (e.g. a more specific error message)
         and 'output' (output of the request before the error occurred).
 
         Example
@@ -781,267 +781,277 @@ class LogtalkKernelBaseImplementation:
         ------
           {'type':'pie', 'title':'Pie Graph', 'x':[35, 20, 30, 40, 50, 30], 'labels':['Apple','Bananna','Grapes','Orange','PineApple','Dragon Fruit']}
         """
+        try:
+            fig, ax = plt.subplots()
+            
+            for key, value in show_data_dict.items():
+                if value == "true":
+                    show_data_dict[key] = True
+                elif value == "false":
+                    show_data_dict[key] = False
+                elif value == "none":
+                    show_data_dict[key] = None
+            
+            data_type = show_data_dict["type"]
+            show_data_dict.pop("type", None)
+            
+            if "title" in show_data_dict:
+                data_title = show_data_dict["title"]
+                show_data_dict.pop("title", None)
+            
+            if "suptitle" in show_data_dict:
+                data_suptitle = show_data_dict["suptitle"]
+                show_data_dict.pop("suptitle", None)
+            
+            if "bar_label" in show_data_dict:
+                data_bar_label = show_data_dict["bar_label"]
+                show_data_dict.pop("bar_label", None)
+            
+            if "xlabel" in show_data_dict:
+                data_xlabel = show_data_dict["xlabel"]
+                show_data_dict.pop("xlabel", None)
+                if isinstance(data_xlabel, dict):
+                    data_xlabel_label = data_xlabel["label"]
+                    data_xlabel.pop("label", None)
+                    plt.xlabel(data_xlabel_label, **data_xlabel)
+                else:
+                    plt.xlabel(data_xlabel)
+            if "ylabel" in show_data_dict:
+                data_ylabel = show_data_dict["ylabel"]
+                show_data_dict.pop("ylabel", None)
+                if isinstance(data_ylabel, dict):
+                    data_ylabel_label = data_ylabel["label"]
+                    data_ylabel.pop("label", None)
+                    plt.ylabel(data_ylabel_label, **data_ylabel)
+                else:
+                    plt.ylabel(data_ylabel)
+            
+            if "xscale" in show_data_dict:
+                data_xscale = show_data_dict["xscale"]
+                show_data_dict.pop("xscale", None)
+                plt.xscale(data_xscale)
+            if "yscale" in show_data_dict:
+                data_yscale = show_data_dict["yscale"]
+                show_data_dict.pop("yscale", None)
+                plt.yscale(data_yscale)
+            
+            if "xticks" in show_data_dict:
+                data_xticks = show_data_dict["xticks"]
+                show_data_dict.pop("xticks", None)
+                plt.xticks(**data_xticks)
+            if "yticks" in show_data_dict:
+                data_yticks = show_data_dict["yticks"]
+                show_data_dict.pop("yticks", None)
+                plt.yticks(**data_yticks)
+            
+            if "xlim" in show_data_dict:
+                data_xlim = show_data_dict["xlim"]
+                show_data_dict.pop("xlim", None)
+                plt.xlim(**data_xlim)
+            if "ylim" in show_data_dict:
+                data_ylim = show_data_dict["ylim"]
+                show_data_dict.pop("ylim", None)
+                plt.ylim(**data_ylim)
+            
+            if "margins" in show_data_dict:
+                data_margins = show_data_dict["margins"]
+                show_data_dict.pop("margins", None)
+                plt.margins(**data_margins)
+            
+            if "rc" in show_data_dict:
+                data_rc = show_data_dict["rc"]
+                show_data_dict.pop("rc", None)
+                data_rc_label = data_rc["label"]
+                data_rc.pop("label", None)
+                plt.rc(data_rc_label, **data_rc)
+            
+            if "grid" in show_data_dict:
+                data_grid = show_data_dict["grid"]
+                show_data_dict.pop("grid", None)
+                plt.grid(**data_grid)
+            
+            if "thetagrids" in show_data_dict:
+                data_thetagrids = show_data_dict["thetagrids"]
+                show_data_dict.pop("thetagrids", None)
+                plt.thetagrids(**data_thetagrids)
+            
+            if "rgrids" in show_data_dict:
+                data_rgrids = show_data_dict["rgrids"]
+                show_data_dict.pop("rgrids", None)
+                plt.rgrids(**data_rgrids)
+            
+            if "autoscale" in show_data_dict:
+                data_autoscale = show_data_dict["autoscale"]
+                show_data_dict.pop("autoscale", None)
+                plt.autoscale(**data_autoscale)
+            
+            if "tight_layout" in show_data_dict:
+                data_tight_layout = show_data_dict["tight_layout"]
+                show_data_dict.pop("tight_layout", None)
+                plt.tight_layout(**data_tight_layout)
+            
+            if "legend" in show_data_dict:
+                data_legend = show_data_dict["legend"]
+                show_data_dict.pop("legend", None)
+            
+            if "annotate" in show_data_dict:
+                data_annotate = show_data_dict["annotate"]
+                show_data_dict.pop("annotate", None)
+                data_annotate_text = data_annotate["text"]
+                data_annotate.pop("text", None)
+                data_annotate_xy = data_annotate["xy"]
+                data_annotate.pop("xy", None)
+                plt.annotate(data_annotate_text, data_annotate_xy, **data_annotate)
+            
+            if "text" in show_data_dict:
+                data_text = show_data_dict["text"]
+                show_data_dict.pop("text", None)
+                data_text_x = data_text["x"]
+                data_text.pop("x", None)
+                data_text_y = data_text["y"]
+                data_text.pop("y", None)
+                data_text_s = data_text["s"]
+                data_text.pop("s", None)
+                plt.text(data_text_x, data_text_y, data_text_s, **data_text)
+            
+            if "figtext" in show_data_dict:
+                data_text = show_data_dict["text"]
+                show_data_dict.pop("text", None)
+                data_text_x = data_text["x"]
+                data_text.pop("x", None)
+                data_text_y = data_text["y"]
+                data_text.pop("y", None)
+                data_text_s = data_text["s"]
+                data_text.pop("s", None)
+                plt.figtext(data_text_x, data_text_y, data_text_s, **data_text)
+            
+            if data_type == "bar":
+                p = ax.bar(**show_data_dict)
+            elif data_type == "barh":
+                p = ax.barh(**show_data_dict)
+            elif data_type == "eventplot":
+                p = ax.eventplot(**show_data_dict)
+            elif data_type == "hist":
+                p = ax.hist(**show_data_dict)
+            elif data_type == "pie":
+                p = ax.pie(**show_data_dict)
+            elif data_type == "plot":
+                data_x = show_data_dict["x"]
+                show_data_dict.pop("x", None)
+                data_y = show_data_dict["y"]
+                show_data_dict.pop("y", None)
+                p = ax.plot(data_x, data_y, **show_data_dict)
+            elif data_type == "loglog":
+                data_x = show_data_dict["x"]
+                show_data_dict.pop("x", None)
+                data_y = show_data_dict["y"]
+                show_data_dict.pop("y", None)
+                p = ax.loglog(data_x, data_y, **show_data_dict)
+            elif data_type == "semilogx":
+                data_x = show_data_dict["x"]
+                show_data_dict.pop("x", None)
+                data_y = show_data_dict["y"]
+                show_data_dict.pop("y", None)
+                p = ax.semilogx(data_x, data_y, **show_data_dict)
+            elif data_type == "semilogy":
+                data_x = show_data_dict["x"]
+                show_data_dict.pop("x", None)
+                data_y = show_data_dict["y"]
+                show_data_dict.pop("y", None)
+                p = ax.semilogy(data_x, data_y, **show_data_dict)
+            elif data_type == "scatter":
+                p = ax.scatter(**show_data_dict)
+            elif data_type == "stem":
+                data_x = show_data_dict["x"]
+                show_data_dict.pop("x", None)
+                data_y = show_data_dict["y"]
+                show_data_dict.pop("y", None)
+                p = ax.stem(data_x, data_y, **show_data_dict)
+            elif data_type == "boxplot":
+                data_x = show_data_dict["x"]
+                show_data_dict.pop("x", None)
+                p = ax.boxplot(data_x, **show_data_dict)
+            elif data_type == "ecdf":
+                data_x = show_data_dict["x"]
+                show_data_dict.pop("x", None)
+                p = ax.ecdf(data_x, **show_data_dict)
+            elif data_type == "errorbar":
+                data_x = show_data_dict["x"]
+                show_data_dict.pop("x", None)
+                data_y = show_data_dict["y"]
+                show_data_dict.pop("y", None)
+                p = ax.errorbar(data_x, data_y, **show_data_dict)
+            elif data_type == "stackplot":
+                data_x = show_data_dict["x"]
+                show_data_dict.pop("x", None)
+                data_y = show_data_dict["y"]
+                show_data_dict.pop("y", None)
+                p = ax.stackplot(data_x, data_y, **show_data_dict)
+            elif data_type == "hexbin":
+                data_x = show_data_dict["x"]
+                show_data_dict.pop("x", None)
+                data_y = show_data_dict["y"]
+                show_data_dict.pop("y", None)
+                p = ax.hexbin(data_x, data_y, **show_data_dict)
+            elif data_type == "hist2d":
+                data_x = show_data_dict["x"]
+                show_data_dict.pop("x", None)
+                data_y = show_data_dict["y"]
+                show_data_dict.pop("y", None)
+                p = ax.hist2d(data_x, data_y, **show_data_dict)
+            elif data_type == "polar":
+                data_theta = show_data_dict["theta"]
+                show_data_dict.pop("theta", None)
+                data_r = show_data_dict["r"]
+                show_data_dict.pop("r", None)
+                plt.clf()
+                plt.polar(data_theta, data_r, **show_data_dict)
+            elif data_type == "step":
+                p = ax.step(**show_data_dict)
+            
+            if 'data_suptitle' in locals():
+                if isinstance(data_suptitle, dict):
+                    data_suptitle_label = data_suptitle["label"]
+                    data_suptitle.pop("label", None)
+                    plt.suptitle(data_title_label, **data_suptitle)
+                else:
+                    plt.suptitle(data_suptitle)
+            
+            if 'data_title' in locals():
+                if isinstance(data_title, dict):
+                    data_title_label = data_title["label"]
+                    data_title.pop("label", None)
+                    plt.title(data_title_label, **data_title)
+                else:
+                    plt.title(data_title)
+            
+            if 'data_legend' in locals():
+                plt.legend(**data_legend)
+            
+            if 'data_bar_label' in locals():
+                plt.bar_label(p, **data_bar_label)
 
-        fig, ax = plt.subplots()
+            plot = io.StringIO()
+            plt.savefig(plot, format="svg")
+            plt.close()
+            out = plot.getvalue()
 
-        for key, value in show_data_dict.items():
-            if value == "true":
-                show_data_dict[key] = True
-            elif value == "false":
-                show_data_dict[key] = False
-            elif value == "none":
-                show_data_dict[key] = None
+            display_data = {
+                'data': {
+                    'image/svg+xml': out
+                },
+                'metadata': {}}
 
-        data_type = show_data_dict["type"]
-        show_data_dict.pop("type", None)
+        except Exception as exception:
+            display_data = {
+                'data': {
+                    'text/plain': f"{self.backend_data['error_prefix']} {exception}"
+                },
+                'metadata': {}}
 
-        if "title" in show_data_dict:
-            data_title = show_data_dict["title"]
-            show_data_dict.pop("title", None)
-
-        if "suptitle" in show_data_dict:
-            data_suptitle = show_data_dict["suptitle"]
-            show_data_dict.pop("suptitle", None)
-
-        if "bar_label" in show_data_dict:
-            data_bar_label = show_data_dict["bar_label"]
-            show_data_dict.pop("bar_label", None)
-
-        if "xlabel" in show_data_dict:
-            data_xlabel = show_data_dict["xlabel"]
-            show_data_dict.pop("xlabel", None)
-            if isinstance(data_xlabel, dict):
-                data_xlabel_label = data_xlabel["label"]
-                data_xlabel.pop("label", None)
-                plt.xlabel(data_xlabel_label, **data_xlabel)
-            else:
-                plt.xlabel(data_xlabel)
-        if "ylabel" in show_data_dict:
-            data_ylabel = show_data_dict["ylabel"]
-            show_data_dict.pop("ylabel", None)
-            if isinstance(data_ylabel, dict):
-                data_ylabel_label = data_ylabel["label"]
-                data_ylabel.pop("label", None)
-                plt.ylabel(data_ylabel_label, **data_ylabel)
-            else:
-                plt.ylabel(data_ylabel)
-
-        if "xscale" in show_data_dict:
-            data_xscale = show_data_dict["xscale"]
-            show_data_dict.pop("xscale", None)
-            plt.xscale(data_xscale)
-        if "yscale" in show_data_dict:
-            data_yscale = show_data_dict["yscale"]
-            show_data_dict.pop("yscale", None)
-            plt.yscale(data_yscale)
-
-        if "xticks" in show_data_dict:
-            data_xticks = show_data_dict["xticks"]
-            show_data_dict.pop("xticks", None)
-            plt.xticks(**data_xticks)
-        if "yticks" in show_data_dict:
-            data_yticks = show_data_dict["yticks"]
-            show_data_dict.pop("yticks", None)
-            plt.yticks(**data_yticks)
-
-        if "xlim" in show_data_dict:
-            data_xlim = show_data_dict["xlim"]
-            show_data_dict.pop("xlim", None)
-            plt.xlim(**data_xlim)
-        if "ylim" in show_data_dict:
-            data_ylim = show_data_dict["ylim"]
-            show_data_dict.pop("ylim", None)
-            plt.ylim(**data_ylim)
-
-        if "margins" in show_data_dict:
-            data_margins = show_data_dict["margins"]
-            show_data_dict.pop("margins", None)
-            plt.margins(**data_margins)
-
-        if "rc" in show_data_dict:
-            data_rc = show_data_dict["rc"]
-            show_data_dict.pop("rc", None)
-            data_rc_label = data_rc["label"]
-            data_rc.pop("label", None)
-            plt.rc(data_rc_label, **data_rc)
-
-        if "grid" in show_data_dict:
-            data_grid = show_data_dict["grid"]
-            show_data_dict.pop("grid", None)
-            plt.grid(**data_grid)
-
-        if "thetagrids" in show_data_dict:
-            data_thetagrids = show_data_dict["thetagrids"]
-            show_data_dict.pop("thetagrids", None)
-            plt.thetagrids(**data_thetagrids)
-
-        if "rgrids" in show_data_dict:
-            data_rgrids = show_data_dict["rgrids"]
-            show_data_dict.pop("rgrids", None)
-            plt.rgrids(**data_rgrids)
-
-        if "autoscale" in show_data_dict:
-            data_autoscale = show_data_dict["autoscale"]
-            show_data_dict.pop("autoscale", None)
-            plt.autoscale(**data_autoscale)
-
-        if "tight_layout" in show_data_dict:
-            data_tight_layout = show_data_dict["tight_layout"]
-            show_data_dict.pop("tight_layout", None)
-            plt.tight_layout(**data_tight_layout)
-
-        if "legend" in show_data_dict:
-            data_legend = show_data_dict["legend"]
-            show_data_dict.pop("legend", None)
-
-        if "annotate" in show_data_dict:
-            data_annotate = show_data_dict["annotate"]
-            show_data_dict.pop("annotate", None)
-            data_annotate_text = data_annotate["text"]
-            data_annotate.pop("text", None)
-            data_annotate_xy = data_annotate["xy"]
-            data_annotate.pop("xy", None)
-            plt.annotate(data_annotate_text, data_annotate_xy, **data_annotate)
-
-        if "text" in show_data_dict:
-            data_text = show_data_dict["text"]
-            show_data_dict.pop("text", None)
-            data_text_x = data_text["x"]
-            data_text.pop("x", None)
-            data_text_y = data_text["y"]
-            data_text.pop("y", None)
-            data_text_s = data_text["s"]
-            data_text.pop("s", None)
-            plt.text(data_text_x, data_text_y, data_text_s, **data_text)
-
-        if "figtext" in show_data_dict:
-            data_text = show_data_dict["text"]
-            show_data_dict.pop("text", None)
-            data_text_x = data_text["x"]
-            data_text.pop("x", None)
-            data_text_y = data_text["y"]
-            data_text.pop("y", None)
-            data_text_s = data_text["s"]
-            data_text.pop("s", None)
-            plt.figtext(data_text_x, data_text_y, data_text_s, **data_text)
-
-        if data_type == "bar":
-            p = ax.bar(**show_data_dict)
-        elif data_type == "barh":
-            p = ax.barh(**show_data_dict)
-        elif data_type == "eventplot":
-            p = ax.eventplot(**show_data_dict)
-        elif data_type == "hist":
-            p = ax.hist(**show_data_dict)
-        elif data_type == "pie":
-            p = ax.pie(**show_data_dict)
-        elif data_type == "plot":
-            data_x = show_data_dict["x"]
-            show_data_dict.pop("x", None)
-            data_y = show_data_dict["y"]
-            show_data_dict.pop("y", None)
-            p = ax.plot(data_x, data_y, **show_data_dict)
-        elif data_type == "loglog":
-            data_x = show_data_dict["x"]
-            show_data_dict.pop("x", None)
-            data_y = show_data_dict["y"]
-            show_data_dict.pop("y", None)
-            p = ax.loglog(data_x, data_y, **show_data_dict)
-        elif data_type == "semilogx":
-            data_x = show_data_dict["x"]
-            show_data_dict.pop("x", None)
-            data_y = show_data_dict["y"]
-            show_data_dict.pop("y", None)
-            p = ax.semilogx(data_x, data_y, **show_data_dict)
-        elif data_type == "semilogy":
-            data_x = show_data_dict["x"]
-            show_data_dict.pop("x", None)
-            data_y = show_data_dict["y"]
-            show_data_dict.pop("y", None)
-            p = ax.semilogy(data_x, data_y, **show_data_dict)
-        elif data_type == "scatter":
-            p = ax.scatter(**show_data_dict)
-        elif data_type == "stem":
-            data_x = show_data_dict["x"]
-            show_data_dict.pop("x", None)
-            data_y = show_data_dict["y"]
-            show_data_dict.pop("y", None)
-            p = ax.stem(data_x, data_y, **show_data_dict)
-        elif data_type == "boxplot":
-            data_x = show_data_dict["x"]
-            show_data_dict.pop("x", None)
-            p = ax.boxplot(data_x, **show_data_dict)
-        elif data_type == "ecdf":
-            data_x = show_data_dict["x"]
-            show_data_dict.pop("x", None)
-            p = ax.ecdf(data_x, **show_data_dict)
-        elif data_type == "errorbar":
-            data_x = show_data_dict["x"]
-            show_data_dict.pop("x", None)
-            data_y = show_data_dict["y"]
-            show_data_dict.pop("y", None)
-            p = ax.errorbar(data_x, data_y, **show_data_dict)
-        elif data_type == "stackplot":
-            data_x = show_data_dict["x"]
-            show_data_dict.pop("x", None)
-            data_y = show_data_dict["y"]
-            show_data_dict.pop("y", None)
-            p = ax.stackplot(data_x, data_y, **show_data_dict)
-        elif data_type == "hexbin":
-            data_x = show_data_dict["x"]
-            show_data_dict.pop("x", None)
-            data_y = show_data_dict["y"]
-            show_data_dict.pop("y", None)
-            p = ax.hexbin(data_x, data_y, **show_data_dict)
-        elif data_type == "hist2d":
-            data_x = show_data_dict["x"]
-            show_data_dict.pop("x", None)
-            data_y = show_data_dict["y"]
-            show_data_dict.pop("y", None)
-            p = ax.hist2d(data_x, data_y, **show_data_dict)
-        elif data_type == "polar":
-            data_theta = show_data_dict["theta"]
-            show_data_dict.pop("theta", None)
-            data_r = show_data_dict["r"]
-            show_data_dict.pop("r", None)
-            plt.clf()
-            plt.polar(data_theta, data_r, **show_data_dict)
-        elif data_type == "step":
-            p = ax.step(**show_data_dict)
-
-        if 'data_suptitle' in locals():
-            if isinstance(data_suptitle, dict):
-                data_suptitle_label = data_suptitle["label"]
-                data_suptitle.pop("label", None)
-                plt.suptitle(data_title_label, **data_suptitle)
-            else:
-                plt.suptitle(data_suptitle)
-
-        if 'data_title' in locals():
-            if isinstance(data_title, dict):
-                data_title_label = data_title["label"]
-                data_title.pop("label", None)
-                plt.title(data_title_label, **data_title)
-            else:
-                plt.title(data_title)
-
-        if 'data_legend' in locals():
-            plt.legend(**data_legend)
-
-        if 'data_bar_label' in locals():
-            plt.bar_label(p, **data_bar_label)
-
-        plot = io.StringIO()
-        plt.savefig(plot, format="svg")
-        plt.close()
-
-        # Send the data to the client
-        display_data = {
-            'data': {
-                'image/svg+xml': plot.getvalue()
-            },
-            'metadata': {}}
-        self.kernel.send_response(self.kernel.iopub_socket, 'display_data', display_data)
+        finally:
+            # Send the data to the client
+            self.kernel.send_response(self.kernel.iopub_socket, 'display_data', display_data)
 
 
     def handle_set_prolog_backend(self, prolog_backend):
