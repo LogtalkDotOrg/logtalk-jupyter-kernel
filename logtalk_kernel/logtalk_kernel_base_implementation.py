@@ -1045,7 +1045,7 @@ class LogtalkKernelBaseImplementation:
         except Exception as exception:
             display_data = {
                 'data': {
-                    'text/plain': f"{self.backend_data['error_prefix']} {exception}"
+                    'text/plain': f"{self.error_ansi_escape_codes} {self.backend_data['error_prefix']} {exception}"
                 },
                 'metadata': {}}
 
