@@ -125,13 +125,25 @@
 		comment is 'Prints variable bindings from previous queries. For each variable, the latest value it was bound to is shown. The variable value can be accessed with a ``$Var`` term by any query. In that case, the term is replaced by the value. If there is no previous value, an error message is printed.'
 	]).
 
+	:- public(print_table/1).
+	:- mode(print_table(+callable), one).
+	:- info(print_table/1, [
+		comment is 'Computes all solutions of the goal using ``findall/3`` and prints a table with the solution variable bindings. Values for variable names starting with an underscore are omitted. Must be the only goal of a query.',
+		argnames is ['Goal']
+	]).
+
+	:- public(print_and_save_table/3).
+	:- mode(print_and_save_table(+callable, +atom, +atom), one).
+	:- info(print_and_save_table/3, [
+		comment is 'Same as the ``print_table/1`` predicate but also saves the table to a file. Supported formats are ``csv`` and ``tsv``. Must be the only goal of a query.',
+		argnames is ['Goal', 'Format', 'File']
+	]).
+
 	:- public([
 		%halt/0,
 		predicate_docs/1,
-		print_sld_tree/1,          % print_sld_tree(+Goal)
-		print_table/1,             % print_table(+Goal)
+		%print_sld_tree/1,          % print_sld_tree(+Goal)
 		print_table/2,             % print_table(+ValuesLists, +VariableNames)
-		print_and_save_table/3,
 		print_transition_graph/4,  % print_transition_graph(+PredSpec, +FromIndex, +ToIndex, +LabelIndex)
 		show_term/1,
 		show_data/1,

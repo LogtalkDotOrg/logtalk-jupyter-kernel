@@ -931,9 +931,9 @@ sld_tree_edge_atoms([_GoalCodes-Current-Parent|SldData], [EdgeAtom|Edges]) :-
 
 % handle_print_transition_graph(+NodePredSpec, +EdgePredSpec, +FromIndex, +ToIndex, +LabelIndex)
 %
-% NodePredSpec needs to be a predicate spec of the form true or Module:PredName/PredArity or PredName/PredArity.
+% NodePredSpec needs to be a predicate spec of the form true or Object::PredName/PredArity or PredName/PredArity.
 % The first argument is the internal name of the node, passed on to EdgePredSpec, the second arg can be a dot attribute list
-% EdgePredSpec needs to be a predicate specification of the form Module:PredName/PredArity or PredName/PredArity.
+% EdgePredSpec needs to be a predicate specification of the form Object::PredName/PredArity or PredName/PredArity.
 % FromIndex, ToIndex, and LabelIndex need to be less or equal to PredArity.
 % FromIndex and ToIndex point to predicate arguments used as nodes.
 % LabelIndex points to the argument providing a label for an edge.
