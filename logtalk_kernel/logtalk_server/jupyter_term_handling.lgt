@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Copyright (c) 2022-2024 Paulo Moura
+%  Copyright (c) 2022-2025 Paulo Moura
 %  Copyright (c) 2022 Anne Brecklinghaus, Michael Leuschel, dgelessus
 %  SPDX-License-Identifier: MIT
 %
