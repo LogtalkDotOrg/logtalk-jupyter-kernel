@@ -377,11 +377,11 @@
 		atomic_list_concat(['show_data((', Goal, ')).'], Rest).
 
 	line_magic('%bindings', 'jupyter::print_variable_bindings.').
-	line_magic('%queries', 'jupyter::print_queries.').
-	line_magic('%help', 'jupyter::help.').
-	line_magic('%pwd', 'jupyter::pwd.').
-	line_magic('%magic', 'jupyter::magic.').
+	line_magic('%queries',  'jupyter::print_queries.').
+	line_magic('%help',     'jupyter::help.').
+	line_magic('%pwd',      'jupyter::pwd.').
+	line_magic('%magic',    'jupyter::magic.').
 	line_magic('%versions', 'jupyter::versions.').
-	line_magic('%flags', 'jupyter::print_table(current_logtalk_flag(Name,Value)).').
+	line_magic('%flags',    'jupyter::print_table(current_logtalk_flag(Name,Value)).').
 
 :- end_object.

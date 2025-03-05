@@ -39,9 +39,9 @@
 :- object(jupyter_query_handling).
 
 	:- info([
-		version is 0:1:0,
+		version is 0:2:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-12-01,
+		date is 2025-03-05,
 		comment is 'This object provides predicates to redirect the output of a query execution to a file and read it from the file.'
 	]).
 
@@ -54,7 +54,11 @@
 	% call_with_output_to_file(+Goal, -Output, -ErrorMessageData)
 	
 	:- public(delete_output_file/1).
-	% delete_output_file(+DeleteFile)
+	:- mode(delete_output_file(+boolean), one).
+	:- info(delete_output_file/1, [
+		comment is 'Deletes the output file when the argument is the atom ``true``.',
+		argnames is ['Boolean']
+	]).
 	
 	:- public(query_data/4).
 	:- dynamic(query_data/4).
@@ -197,17 +201,16 @@
 		read_output_from_file(OutputFileName, Goal, Output),
 		delete_output_file(true).
 
-	% reset_output_streams(+DeleteFile)
-	reset_output_streams(DeleteFile) :-
+	% reset_output_streams(+Boolean)
+	reset_output_streams(Boolean) :-
 		terminate_redirect_output_to_stream(output_to_file_stream),
-		delete_output_file(DeleteFile).
+		delete_output_file(Boolean).
 
-	% delete_output_file(+DeleteFile)
+	% delete_output_file(+Boolean)
 	delete_output_file(true) :-
-		!,
 		file_name(output, OutputFileName),
 		catch(delete_file(OutputFileName), _Exception, true).
-	delete_output_file(_).
+	delete_output_file(false).
 
 	% Print and read (error) messages
 

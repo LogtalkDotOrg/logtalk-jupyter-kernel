@@ -153,16 +153,16 @@
 	% error_object_code(ErrorCode, NumericErrorCode, JsonRpcErrorMessage)
 	%
 	% Pre-defined errorserror_object_code(parse_error, -32700, 'Invalid JSON was received by the server.').
-	error_object_code(invalid_request, -32600, 'The JSON sent is not a valid Request object.').
-	error_object_code(method_not_found, -32601, 'The method does not exist / is not available.').
-	error_object_code(invalid_params, -32602, 'Invalid method parameter(s).').
-	error_object_code(internal_error, -32603, 'Internal JSON-RPC error.').
+	error_object_code(invalid_request,       -32600, 'The JSON sent is not a valid Request object.').
+	error_object_code(method_not_found,      -32601, 'The method does not exist / is not available.').
+	error_object_code(invalid_params,        -32602, 'Invalid method parameter(s).').
+	error_object_code(internal_error,        -32603, 'Internal JSON-RPC error.').
 	% Prolog specific errors
-	error_object_code(failure, -4711, 'Failure').
-	error_object_code(exception, -4712, 'Exception').
-	error_object_code(no_active_call, -4713, 'No active call').
+	error_object_code(failure,               -4711, 'Failure').
+	error_object_code(exception,             -4712, 'Exception').
+	error_object_code(no_active_call,        -4713, 'No active call').
 	error_object_code(invalid_json_response, -4714, 'The Response object is no valid JSON object').
-	error_object_code(unhandled_exception, -4715, 'Unhandled exception').
+	error_object_code(unhandled_exception,   -4715, 'Unhandled exception').
 
 
 	% Send json request and read the response

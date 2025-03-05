@@ -35,9 +35,9 @@
 :- object(jupyter_variable_bindings).
 
 	:- info([
-		version is 0:1:0,
+		version is 0:2:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-12-11,
+		date is 2025-03-05,
 		comment is 'This object provides predicates to reuse previous values of variables in a query.'
 	]).
 
@@ -53,8 +53,13 @@
 
 	:- public(var_bindings/1).
 	:- dynamic(var_bindings/1).
-	% Bindings is a list of Name=Var pairs, where Name is the name of the variable Var of the latest query in which a variable of this name was assigned a value.
-	% var_bindings(-Bindings)
+	:- mode(var_bindings(-list), one).
+	:- info(var_bindings/1, [
+		comment is 'Variable bindings (``Name=Var`` pairs where ``Name`` is the name of the variable ``Var`` of the latest query in which a variable of this name was assigned a value).',
+		argnames is ['Bindings']
+	]).
+
+	var_bindings([]).
 
 	:- uses(list, [append/3, delete/3, member/2]).
 	:- uses(jupyter_logging, [log/1, log/2]).
@@ -64,8 +69,6 @@
 
 	logtalk::message_tokens(jupyter(no_var_binding(VarName)), jupyter) -->
 		['$~w was not bound by a previous query~n'-[VarName]], [nl].
-
-	var_bindings([]).
 
 	% Store variable var_bindings
 

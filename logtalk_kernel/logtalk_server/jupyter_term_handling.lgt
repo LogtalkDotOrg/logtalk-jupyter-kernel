@@ -669,7 +669,7 @@
 % Print SLD Trees
 
 % Create content for a file representing a graph resembling the SLD tree of an execution that can be rendered with DOT.
-% The collection of the data needs to be handled differntly for SWI- and SICStus Prolog:
+% The collection of the data needs to be handled differently for SWI- and SICStus Prolog:
 % - SICStus: a breakpoint which is removed after the execution.
 % - SWI: user:prolog_trace_interception/4 is used that calls assert_sld_data/4 which succeeds if SLD data is to be collected (if a clause collect_sld_data/0 exists).
 
