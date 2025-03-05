@@ -52,9 +52,9 @@
 :- object(jupyter_term_handling).
 
 	:- info([
-		version is 0:5:0,
+		version is 0:6:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-02-19,
+		date is 2025-03-05,
 		comment is 'This object provides predicates to handle terms received from the client, compute their results and assert them with term_response/1.'
 	]).
 
@@ -454,7 +454,6 @@ json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName-VarAtom|J
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 	handle_show_data(Bindings, Goal) :-
-		memberchk('Data'=_, Bindings),
 		call_with_output_to_file(jupyter_term_handling::get_data(Goal, Bindings, Data), Output, ErrorMessageData),
 		!,
 		% Success or exception from findall_results_and_var_names/4
@@ -626,7 +625,10 @@ handle_trace(TracePredSpec) :-
 % Print data
 
 get_data(Goal, Bindings, Data) :-
-	memberchk('Data'=Data, Bindings),
+	once((
+		member('Data'=Data, Bindings)
+	;	member('_Data'=Data, Bindings)
+	)),
 	{Goal}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

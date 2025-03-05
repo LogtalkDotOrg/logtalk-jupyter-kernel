@@ -28,9 +28,9 @@
 :- object(jupyter).
 
 	:- info([
-		version is 0:10:0,
+		version is 0:11:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-02-19,
+		date is 2025-03-05,
 		comment is 'This object provides special predicates which can be used in call requests by the client. Some of these predicates need to be the only goal of a query. Otherwise, they cannot be determined as special predicates and do not work as expected.'
 	]).
 
@@ -145,7 +145,7 @@
 		format('    %%tsv FILE.tsv~n', []),
 		format('        Prints a table with a column per variable binding for all goal solutions but also saves it to a TSV file~n', []),
 		format('    %%data~n', []),
-		format('        Data visualization for a goal binding a variable named Data with a list of pairs~n', []),
+		format('        Data visualization for a goal binding a variable named Data or _Data with a list of pairs~n', []),
 		format('    %%tree~n', []),
 		format('        Prints a tree representation of a term~n~n', []),
 		format('    %%highlight~n', []),

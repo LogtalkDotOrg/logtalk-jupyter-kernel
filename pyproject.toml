@@ -6,7 +6,7 @@ requires = [
 
 [project]
 name = "logtalk-jupyter-kernel"
-version = "0.24.0"
+version = "0.25.0"
 authors = [
   { name = "Paulo Moura", email = "pmoura@logtalk.org" },
   { name = "Anne Brecklinghaus" },
