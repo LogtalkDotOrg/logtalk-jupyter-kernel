@@ -34,9 +34,9 @@
 :- object(jupyter_server).
 
 	:- info([
-		version is 0:2:0,
+		version is 0:3:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2023-07-28,
+		date is 2025-03-05,
 		comment is 'Main object of the server.'
 	]).
 
@@ -105,17 +105,13 @@
 		['The list of names needs to be empty or of the same length as the values lists and contain ground terms only'-[]], [nl].
 	message_tokens(leash_pred) -->
 		['The leash mode cannot be changed in a Jupyter application as no user interaction can be provided at a breakpoint'-[]], [nl].
-	message_tokens(no_single_goal(Predicate)) -->
-		['~w needs to be the only goal in a term'-[Predicate]], [nl].
 	message_tokens(print_transition_graph_indices(Arity)) -->
 		['All indices need to be less or equal to the provided predicate arity ~w'-[Arity]], [nl].
 	message_tokens(print_transition_graph_pred_spec(PredSpec)) -->
 		['Incorrect predicate specification: ~w'-[PredSpec]], [nl],
 		['It needs to be of the form PredName/PredArity or Object::PredName/PredArity'-[]], [nl].
 	message_tokens(prolog_backend_no_atom) -->
-		['The Prolog backend ID needs to be an atom'-[]], [nl].
-	message_tokens(single_test_directive) -->
-		['The definition of a unit test cannot be split across multiple cells'-[]], [nl].
+		['The Prolog backend ID must be an atom'-[]], [nl].
 	message_tokens(trace_pred(TracePredSpec)) -->
 		['~w cannot be used in a Jupyter application'-[TracePredSpec]], [nl],
 		['However, there is juypter:trace(Goal)'-[]], [nl].

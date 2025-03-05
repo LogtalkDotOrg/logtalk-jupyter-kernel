@@ -217,110 +217,100 @@
 	is_query_alias(show_sld_tree(L), jupyter::print_sld_tree(L)) :-
 		\+ user::current_predicate(show_sld_tree/1).
 
-% handle_query_term_(+Query, +CallRequestId, +Stack, +Bindings, +OriginalTermData, +LoopCont, -Cont)
-handle_query_term_(Call, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont) :-
-	% log('Call: ~w~n',[Call]),
-	is_query_alias(Call,Alias),
-	!,
-	handle_query_term_(Alias, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont).
-% retry
-handle_query_term_(jupyter::retry, _CallRequestId, Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-	handle_retry(Stack).
-% halt
-handle_query_term_(jupyter::halt, _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, done) :- !,
-	% By unifying Cont=done, the loop reading and handling messages is stopped
-	handle_halt.
-% jupyter predicates
-handle_query_term_(jupyter::print_sld_tree(Goal), _CallRequestId, _Stack, Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-	handle_print_sld_tree(Goal, Bindings).
-handle_query_term_(jupyter::show_data(Goal), _CallRequestId, _Stack, Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-	handle_show_data(Bindings, Goal).
-handle_query_term_(jupyter::print_table(Goal), _CallRequestId, _Stack, Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-	handle_print_table_with_findall(Bindings, Goal).
-handle_query_term_(jupyter::print_and_save_table(Goal,Format,File), _CallRequestId, _Stack, Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-	handle_print_and_save_table_with_findall(Bindings, Goal, Format, File).
-handle_query_term_(jupyter::print_table(ValuesLists, VariableNames), _CallRequestId, _Stack, Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-	handle_print_table(Bindings, ValuesLists, VariableNames).
-handle_query_term_(jupyter::print_transition_graph(PredSpec, FromIndex, ToIndex, LabelIndex), _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-	handle_print_transition_graph(true,PredSpec, FromIndex, ToIndex, LabelIndex).
-handle_query_term_(jupyter::print_transition_graph(PredSpec, FromIndex, ToIndex), _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-	handle_print_transition_graph(true,PredSpec, FromIndex, ToIndex, 0).
-handle_query_term_(jupyter::show_graph(NodeSpec,PredSpec), _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-	handle_print_transition_graph(NodeSpec,PredSpec).
-handle_query_term_(jupyter::set_prolog_backend(Backend), _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-	handle_set_prolog_backend(Backend).
-handle_query_term_(jupyter::update_completion_data, _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-	handle_update_completion_data.
-handle_query_term_(jupyter::set_preference(Pref,Value), _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-	handle_set_preference(Pref,Value).
-% trace
-handle_query_term_(trace, _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-	handle_trace(trace/0).
-%:- if(swi).
-%handle_query_term_(trace(_Pred), _CallRequestId, _Stack,
-%                   _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-%  handle_trace(trace/1).
-%handle_query_term_(trace(_Pred, _Ports), _CallRequestId, _Stack,
-%                   _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-%  handle_trace(trace/2).
-%:- endif.
-% leash/1
-handle_query_term_(debugger::leash(_Ports), _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-	assert_error_response(exception, message_data(error, jupyter(leash_pred)), '', []).
-% Any other query
-handle_query_term_(Query, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont) :-
-	handle_query(Query, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont).
-
-
-% handle_query(+Goal, +CallRequestId, +Stack, +Bindings, +OriginalTermData, +LoopCont, -Cont)
-%
-% Goal is the current term of the request which is to be handled.
-%  In that case, no variable bindings are sent to the client.
-% CallRequestId is the ID of the current call request.
-%  It is needed for juypter:print_queries/1.
-% Stack is a list containing atoms representing the previous queries which might have exited with a choicepoint and can therefore be retried.
-%  It is needed for retry/0 queries.
-% Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the goal Goal.
-% LoopCont is one of continue and cut.
-%  If LoopCont = cut, the recurse loop (jupyter_request_handling:loop/3) will exit right away without making retrys of a term possible.
-% Cont will be processed by jupyter_request_handling::loop/3.
-handle_query(Goal, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont) :-
-	% In order to send the goal to the client, it has to be converted to an atom
-	% This has to be done before calling it causes variables to be bound
-	write_term_to_atom(Goal, GoalAtom, [variable_names(Bindings)]),
-	RecStack = [GoalAtom|Stack],
-	retractall(is_retry(_)),
-	asserta(is_retry(false)),
-	% Call the goal Goal
-	call_query_with_output_to_file(Goal, CallRequestId, Bindings, OriginalTermData, Output, ErrorMessageData, IsFailure),
-	retry_message_and_output(GoalAtom, Output, RetryMessageAndOutput),
-	% Exception, failure or success from Goal
-	(	nonvar(ErrorMessageData) -> % Exception
+	% handle_query_term_(+Query, +CallRequestId, +Stack, +Bindings, +OriginalTermData, +LoopCont, -Cont)
+	handle_query_term_(Call, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont) :-
+		% log('Call: ~w~n',[Call]),
+		is_query_alias(Call,Alias),
 		!,
-		assert_error_response(exception, ErrorMessageData, RetryMessageAndOutput, []),
-		Cont = continue
-	;	IsFailure == true -> % Failure
-		!,
-		% Also happens when 'retry' message requested a new solution and found none.
-		assert_error_response(failure, null, RetryMessageAndOutput, []),
-		Cont = continue
-	;	% Success
-		handle_result_variable_bindings(Bindings, ResultBindings),
-		assert_success_response(query, ResultBindings, RetryMessageAndOutput, []),
-		% Start a new recursive loop so that the current goal can be retried
-		% The loop will
-		% - exit right away if LoopCont=cut
-		% - fail if it receives a request to retry Goal
-		loop(LoopCont, RecStack, RecCont),
-		(	RecCont = cut,
+		handle_query_term_(Alias, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont).
+	% retry
+	handle_query_term_(jupyter::retry, _CallRequestId, Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+		handle_retry(Stack).
+	% halt
+	handle_query_term_(jupyter::halt, _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, done) :- !,
+		% By unifying Cont=done, the loop reading and handling messages is stopped
+		handle_halt.
+	% jupyter predicates
+	handle_query_term_(jupyter::print_sld_tree(Goal), _CallRequestId, _Stack, Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+		handle_print_sld_tree(Goal, Bindings).
+	handle_query_term_(jupyter::show_data(Goal), _CallRequestId, _Stack, Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+		handle_show_data(Bindings, Goal).
+	handle_query_term_(jupyter::print_table(Goal), _CallRequestId, _Stack, Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+		handle_print_table_with_findall(Bindings, Goal).
+	handle_query_term_(jupyter::print_and_save_table(Goal,Format,File), _CallRequestId, _Stack, Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+		handle_print_and_save_table_with_findall(Bindings, Goal, Format, File).
+	handle_query_term_(jupyter::print_table(ValuesLists, VariableNames), _CallRequestId, _Stack, Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+		handle_print_table(Bindings, ValuesLists, VariableNames).
+	handle_query_term_(jupyter::print_transition_graph(PredSpec, FromIndex, ToIndex, LabelIndex), _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+		handle_print_transition_graph(true,PredSpec, FromIndex, ToIndex, LabelIndex).
+	handle_query_term_(jupyter::print_transition_graph(PredSpec, FromIndex, ToIndex), _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+		handle_print_transition_graph(true,PredSpec, FromIndex, ToIndex, 0).
+	handle_query_term_(jupyter::show_graph(NodeSpec,PredSpec), _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+		handle_print_transition_graph(NodeSpec,PredSpec).
+	handle_query_term_(jupyter::set_prolog_backend(Backend), _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+		handle_set_prolog_backend(Backend).
+	handle_query_term_(jupyter::update_completion_data, _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+		handle_update_completion_data.
+	handle_query_term_(jupyter::set_preference(Pref,Value), _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+		handle_set_preference(Pref,Value).
+	% trace
+	handle_query_term_(trace, _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+		handle_trace(trace/0).
+	% leash/1
+	handle_query_term_(debugger::leash(_Ports), _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+		assert_error_response(exception, message_data(error, jupyter(leash_pred)), '', []).
+	% Any other query
+	handle_query_term_(Query, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont) :-
+		handle_query(Query, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont).
+
+	% handle_query(+Goal, +CallRequestId, +Stack, +Bindings, +OriginalTermData, +LoopCont, -Cont)
+	%
+	% Goal is the current term of the request which is to be handled.
+	%  In that case, no variable bindings are sent to the client.
+	% CallRequestId is the ID of the current call request.
+	%  It is needed for juypter:print_queries/1.
+	% Stack is a list containing atoms representing the previous queries which might have exited with a choicepoint and can therefore be retried.
+	%  It is needed for retry/0 queries.
+	% Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the goal Goal.
+	% LoopCont is one of continue and cut.
+	%  If LoopCont = cut, the recurse loop (jupyter_request_handling::loop/3) will exit right away without making retrys of a term possible.
+	% Cont will be processed by jupyter_request_handling::loop/3.
+	handle_query(Goal, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont) :-
+		% In order to send the goal to the client, it has to be converted to an atom
+		% This has to be done before calling it causes variables to be bound
+		write_term_to_atom(Goal, GoalAtom, [variable_names(Bindings)]),
+		RecStack = [GoalAtom|Stack],
+		retractall(is_retry(_)),
+		asserta(is_retry(false)),
+		% Call the goal Goal
+		call_query_with_output_to_file(Goal, CallRequestId, Bindings, OriginalTermData, Output, ErrorMessageData, IsFailure),
+		retry_message_and_output(GoalAtom, Output, RetryMessageAndOutput),
+		% Exception, failure or success from Goal
+		(	nonvar(ErrorMessageData) -> % Exception
 			!,
+			assert_error_response(exception, ErrorMessageData, RetryMessageAndOutput, []),
 			Cont = continue
-		;	% Possibly 'done'
-			Cont = RecCont
-		)
-	),
-	!.
-
+		;	IsFailure == true -> % Failure
+			!,
+			% Also happens when 'retry' message requested a new solution and found none.
+			assert_error_response(failure, null, RetryMessageAndOutput, []),
+			Cont = continue
+		;	% Success
+			handle_result_variable_bindings(Bindings, ResultBindings),
+			assert_success_response(query, ResultBindings, RetryMessageAndOutput, []),
+			% Start a new recursive loop so that the current goal can be retried
+			% The loop will
+			% - exit right away if LoopCont=cut
+			% - fail if it receives a request to retry Goal
+			loop(LoopCont, RecStack, RecCont),
+			(	RecCont = cut,
+				!,
+				Cont = continue
+			;	% Possibly 'done'
+				Cont = RecCont
+			)
+		),
+		!.
 
 	% output_and_failure_message(+Output, +FailureMessage, -OutputAndFailureMessage)
 	output_and_failure_message('', FailureMessage, FailureMessage) :- !.
@@ -375,34 +365,32 @@ handle_query(Goal, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, C
 	remove_singleton_variables([Binding|Bindings], [Binding|BindingsWithoutSingletons]) :-
 		remove_singleton_variables(Bindings, BindingsWithoutSingletons).
 
-
-% json_parsable_vars(+NonParsableVars, +Bindings, -JsonParsableVars)
-%
-% NonParsableVars and Bindings are lists of Name=Var pairs, where Name is the name of a variable Var occurring in the term currently being handled.
-% As not all of the values can be parsed to JSON (e.g. uninstantiated variables and compounds), they need to be made JSON parsable first.
-% Bindings is needed in case any variable term needs to be converted to an atom and contains other variables.
-% By using Bindings, the names of the variables can be preserved.
-% In case of domain variables with bounded domains (lower and upper bound exist) which are not bound to a single value,
-%  the value returned to the client is a list of lists where each of those lists contains a lower and upper bound of a range the variable can be in.
-json_parsable_vars([], _Variables, []) :- !.
-json_parsable_vars([VarName=Var|RemainingBindings], Bindings, JsonParsableBindings) :-
-	var(Var),
-	same_var(RemainingBindings, Var),
-	!,
-	% The list of Name=Var pairs contains at least one element OtherName=Var where Var is uninstantiated
-	% Unify the variable Var with VarName
-	Var=VarName,
-	json_parsable_vars(RemainingBindings, Bindings, JsonParsableBindings).
-json_parsable_vars([_VarName=Var|RemainingBindings], Bindings, JsonParsableBindings) :-
-	var(Var),
-	!,
-	% The variable is uninstantiated and therefore not included in the result list
-	json_parsable_vars(RemainingBindings, Bindings, JsonParsableBindings).
-json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName-VarAtom|JsonParsableBindings]) :-
-	% Convert the value to an atom as it may be compound and cannot be parsed to JSON otherwise
-	write_term_to_atom(Var, VarAtom, [variable_names(Bindings), quoted(true)]),
-	json_parsable_vars(RemainingBindings, Bindings, JsonParsableBindings).
-
+	% json_parsable_vars(+NonParsableVars, +Bindings, -JsonParsableVars)
+	%
+	% NonParsableVars and Bindings are lists of Name=Var pairs, where Name is the name of a variable Var occurring in the term currently being handled.
+	% As not all of the values can be parsed to JSON (e.g. uninstantiated variables and compounds), they need to be made JSON parsable first.
+	% Bindings is needed in case any variable term needs to be converted to an atom and contains other variables.
+	% By using Bindings, the names of the variables can be preserved.
+	% In case of domain variables with bounded domains (lower and upper bound exist) which are not bound to a single value,
+	%  the value returned to the client is a list of lists where each of those lists contains a lower and upper bound of a range the variable can be in.
+	json_parsable_vars([], _Variables, []) :- !.
+	json_parsable_vars([VarName=Var|RemainingBindings], Bindings, JsonParsableBindings) :-
+		var(Var),
+		same_var(RemainingBindings, Var),
+		!,
+		% The list of Name=Var pairs contains at least one element OtherName=Var where Var is uninstantiated
+		% Unify the variable Var with VarName
+		Var=VarName,
+		json_parsable_vars(RemainingBindings, Bindings, JsonParsableBindings).
+	json_parsable_vars([_VarName=Var|RemainingBindings], Bindings, JsonParsableBindings) :-
+		var(Var),
+		!,
+		% The variable is uninstantiated and therefore not included in the result list
+		json_parsable_vars(RemainingBindings, Bindings, JsonParsableBindings).
+	json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName-VarAtom|JsonParsableBindings]) :-
+		% Convert the value to an atom as it may be compound and cannot be parsed to JSON otherwise
+		write_term_to_atom(Var, VarAtom, [variable_names(Bindings), quoted(true)]),
+		json_parsable_vars(RemainingBindings, Bindings, JsonParsableBindings).
 
 	% same_var(+BindingsWithoutSingletons, +Var)
 	%
@@ -414,8 +402,6 @@ json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName-VarAtom|J
 	same_var([_Binding|BindingsWithoutSingletons], Var) :-
 		same_var(BindingsWithoutSingletons, Var).
 
-
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 	% Handling the different types of queries
@@ -595,7 +581,6 @@ json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName-VarAtom|J
 		forall(member(VariableName, VariableNames), ground(VariableName)),
 		!.
 
-
 	% convert_to_atom_list(+List, +Bindings, -AtomList)
 	%
 	% AtomList contains the elements of List after converting them to atoms.
@@ -608,76 +593,75 @@ json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName-VarAtom|J
 			AtomList
 		).
 
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	
+	% trace
+	
+	% trace/0, trace/1 and trace/2 cannot be used with this server, because the debugging messages are not printed in a way that they can be read in and sent to the client.
+	% Instead, jupyter::trace(Goal) can be used to print the trace of the goal Goal.
+	
+	% handle_trace(+TracePredSpec)
+	handle_trace(TracePredSpec) :-
+		assert_error_response(exception, message_data(error, jupyter(trace_pred(TracePredSpec))), '', []).
+	
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	
+	% Print data
+	
+	get_data(Goal, Bindings, Data) :-
+		once((
+			member('Data'=Data, Bindings)
+		;	member('_Data'=Data, Bindings)
+		)),
+		{Goal}.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% trace
-
-% trace/0, trace/1 and trace/2 cannot be used with this server, because the debugging messages are not printed in a way that they can be read in and sent to the client.
-% Instead, jupyter::trace(Goal) can be used to print the trace of the goal Goal.
-
-% handle_trace(+TracePredSpec)
-handle_trace(TracePredSpec) :-
-	assert_error_response(exception, message_data(error, jupyter(trace_pred(TracePredSpec))), '', []).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% Print data
-
-get_data(Goal, Bindings, Data) :-
-	once((
-		member('Data'=Data, Bindings)
-	;	member('_Data'=Data, Bindings)
-	)),
-	{Goal}.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% Print tables
-
-% findall_results_and_var_names(+Goal, +Bindings, -Results, -VarNames)
-%
-% Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the goal Goal.
-% Uses findall to find all results (ResultsLists) of the goal Goal.
-% ResultsLists contains lists containing values for each variable in Bindings.
-% VarNames is the list of variable names from Bindings.
-findall_results_and_var_names(Goal, Bindings, JsonParsableResultsLists, VarNames) :-
-	var_names_and_values(Bindings, VarNames, Vars),
-	% avoid a linter warning and ensure Goal is called in "user"
-	{findall(Vars, Goal, ResultsLists)},
-	json_parsable_results_lists(ResultsLists, VarNames, Bindings, JsonParsableResultsLists).
-
-
-% var_names_and_values(+Bindings, -VarNames, -Vars)
-var_names_and_values([], [], []).
-var_names_and_values([VarName=Var|Bindings], [VarName|VarNames], [Var|Vars]) :-
-	var_names_and_values(Bindings, VarNames, Vars).
-
-
-% json_parsable_results_lists(+ResultsLists, +VarNames, +Bindings, -JsonParsableResultsLists)
-%
-% ResultsLists is a list containing lists of values of the variables with names in VarNames.
-% As not all of the terms in ResultsLists can be parsed to JSON (e.g. uninstantiated variables and compounds), they need to be made JSON parsable first.
-% Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the goal which was called to get the results.
-% Bindings is needed to preserve the variable names when converting a result to an atom.
-json_parsable_results_lists([], _VarNames, _Bindings, []).
-json_parsable_results_lists([Results|ResultsLists], VarNames, Bindings, [JsonParsableResults|JsonParsableResultsLists]) :-
-	json_parsable_results(Results, VarNames, Bindings, JsonParsableResults),
-	json_parsable_results_lists(ResultsLists, VarNames, Bindings, JsonParsableResultsLists).
-
-
-% json_parsable_results(+Results, +VarNames, +Bindings, -JsonParsableResult)
-json_parsable_results([], _VarNames, _Bindings, []).
-json_parsable_results([Result|Results], [VarName|VarNames], Bindings, [Result|JsonParsableResults]) :-
-	% If the result is a variable, unify it with its name
-	var(Result),
-	!,
-	Result = VarName,
-	json_parsable_results(Results, VarNames, Bindings, JsonParsableResults).
-json_parsable_results([Result|Results], [_VarName|VarNames], Bindings, [ResultAtom|JsonParsableResults]) :-
-	% Convert the value to an atom as it may be compound and cannot be parsed to JSON otherwise
-	write_term_to_atom(Result, ResultAtom, [variable_names(Bindings), quoted(true)]),
-	json_parsable_results(Results, VarNames, Bindings, JsonParsableResults).
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	
+	% Print tables
+	
+	% findall_results_and_var_names(+Goal, +Bindings, -Results, -VarNames)
+	%
+	% Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the goal Goal.
+	% Uses findall to find all results (ResultsLists) of the goal Goal.
+	% ResultsLists contains lists containing values for each variable in Bindings.
+	% VarNames is the list of variable names from Bindings.
+	findall_results_and_var_names(Goal, Bindings, JsonParsableResultsLists, VarNames) :-
+		var_names_and_values(Bindings, VarNames, Vars),
+		% avoid a linter warning and ensure Goal is called in "user"
+		{findall(Vars, Goal, ResultsLists)},
+		json_parsable_results_lists(ResultsLists, VarNames, Bindings, JsonParsableResultsLists).
+	
+	
+	% var_names_and_values(+Bindings, -VarNames, -Vars)
+	var_names_and_values([], [], []).
+	var_names_and_values([VarName=Var|Bindings], [VarName|VarNames], [Var|Vars]) :-
+		var_names_and_values(Bindings, VarNames, Vars).
+	
+	
+	% json_parsable_results_lists(+ResultsLists, +VarNames, +Bindings, -JsonParsableResultsLists)
+	%
+	% ResultsLists is a list containing lists of values of the variables with names in VarNames.
+	% As not all of the terms in ResultsLists can be parsed to JSON (e.g. uninstantiated variables and compounds), they need to be made JSON parsable first.
+	% Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the goal which was called to get the results.
+	% Bindings is needed to preserve the variable names when converting a result to an atom.
+	json_parsable_results_lists([], _VarNames, _Bindings, []).
+	json_parsable_results_lists([Results|ResultsLists], VarNames, Bindings, [JsonParsableResults|JsonParsableResultsLists]) :-
+		json_parsable_results(Results, VarNames, Bindings, JsonParsableResults),
+		json_parsable_results_lists(ResultsLists, VarNames, Bindings, JsonParsableResultsLists).
+	
+	
+	% json_parsable_results(+Results, +VarNames, +Bindings, -JsonParsableResult)
+	json_parsable_results([], _VarNames, _Bindings, []).
+	json_parsable_results([Result|Results], [VarName|VarNames], Bindings, [Result|JsonParsableResults]) :-
+		% If the result is a variable, unify it with its name
+		var(Result),
+		!,
+		Result = VarName,
+		json_parsable_results(Results, VarNames, Bindings, JsonParsableResults).
+	json_parsable_results([Result|Results], [_VarName|VarNames], Bindings, [ResultAtom|JsonParsableResults]) :-
+		% Convert the value to an atom as it may be compound and cannot be parsed to JSON otherwise
+		write_term_to_atom(Result, ResultAtom, [variable_names(Bindings), quoted(true)]),
+		json_parsable_results(Results, VarNames, Bindings, JsonParsableResults).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
