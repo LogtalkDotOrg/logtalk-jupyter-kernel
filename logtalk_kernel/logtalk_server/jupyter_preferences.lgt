@@ -30,7 +30,7 @@
 	:- info([
 		version is 0:11:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-02-19,
+		date is 2025-03-05,
 		comment is 'Preferences management.'
 	]).
 
@@ -89,7 +89,7 @@
 		print_message(debug, jupyter, Message) as dbg(Message)
 	]).
 
-	version(0, 19, 0, beta).
+	version(0, 26, 0, beta).
 
 	preference_definition(verbosity, 1, natural, 'Verbosity level, 0=off, 10=maximal').
 
