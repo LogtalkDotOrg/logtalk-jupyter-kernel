@@ -146,8 +146,8 @@
 		print_table/2,             % print_table(+ValuesLists, +VariableNames)
 		print_transition_graph/4,  % print_transition_graph(+PredSpec, +FromIndex, +ToIndex, +LabelIndex)
 		show_term/1,
-		show_data/1,
-		update_completion_data/0
+		show_data/1
+%		update_completion_data/0
 	]).
 
 	:- uses(debugger, [leash/1, trace/0, notrace/0]).
