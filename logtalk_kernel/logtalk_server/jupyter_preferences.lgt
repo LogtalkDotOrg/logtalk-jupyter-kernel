@@ -28,7 +28,7 @@
 :- object(jupyter_preferences).
 
 	:- info([
-		version is 0:11:0,
+		version is 0:12:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
 		date is 2025-03-05,
 		comment is 'Preferences management.'
@@ -70,13 +70,6 @@
 		comment is 'Reset preferences.'
 	]).
 
-	:- public(version/4).
-	:- mode(version(-integer, -integer, -integer, -atom), one).
-	:- info(version/4, [
-		comment is 'Returns the current version.',
-		argnames is ['Major', 'Minor', 'Patch', 'Status']
-	]).
-
 	:- private(preference_value_/2).
 	:- dynamic(preference_value_/2).
 	:- mode(preference_value_(?atom, ?nonvar), zero_or_more).
@@ -88,8 +81,6 @@
 	:- uses(logtalk, [
 		print_message(debug, jupyter, Message) as dbg(Message)
 	]).
-
-	version(0, 27, 0, beta).
 
 	preference_definition(verbosity, 1, natural, 'Verbosity level, 0=off, 10=maximal').
 

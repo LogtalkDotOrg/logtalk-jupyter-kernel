@@ -203,6 +203,8 @@ Adjustments of the Logtalk server code are loaded when the server is restarted. 
 
 ### Building and publishing
 
+Make sure that both the `pyproject.toml` file and the `jupyter` object (in the `logtalk_kernel/logtalk_server/jupyter.lgt` file) report the same kernel version. 
+
 	python3 -m build .
 	twine upload dist/logtalk_jupyter_kernel-VERSION.tar.gz dist/logtalk_jupyter_kernel-VERSION-py3-none-any.whl
 

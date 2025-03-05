@@ -28,7 +28,7 @@
 :- object(jupyter).
 
 	:- info([
-		version is 0:11:0,
+		version is 0:12:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
 		date is 2025-03-05,
 		comment is 'This object provides special predicates which can be used in call requests by the client. Some of these predicates need to be the only goal of a query. Otherwise, they cannot be determined as special predicates and do not work as expected.'
@@ -36,31 +36,106 @@
 
 	:- initialization(debugger::leash(none)).
 
+	:- public(help/0).
+	:- mode(help, one).
+	:- info(help/0, [
+		comment is 'Prints the documentation for all public predicates defined in ``jupyter`` object.'
+	]).
+
+	:- public(version/0).
+	:- mode(version, one).
+	:- info(version/0, [
+		comment is 'Prints the kernel version.'
+	]).
+
+	:- public(versions/0).
+	:- mode(versions, one).
+	:- info(versions/0, [
+		comment is 'Prints the Logtalk, Prolog backend, and kernel versions.'
+	]).
+
+	:- public(version/4).
+	:- mode(version(-integer, -integer, -integer, -atom), one).
+	:- info(version/4, [
+		comment is 'Returns the current version.',
+		argnames is ['Major', 'Minor', 'Patch', 'Status']
+	]).
+
+	:- public(set_prolog_backend/1).
+	:- mode(set_prolog_backend(+atom), zero_or_more).
+	:- info(set_prolog_backend/1, [
+		comment is 'Activates the given Prolog backend. Needs to be the only goal of a query.',
+		argnames is ['Backend']
+	]).
+
+	:- public(magic/0).
+	:- mode(magic, one).
+	:- info(magic/0, [
+		comment is 'Prints the documentation of all cell and line magic.'
+	]).
+
+	:- public(trace/1).
+	:- mode(trace(+callable), zero_or_more).
+	:- info(trace/1, [
+		comment is 'Prints the trace of the goal ``Goal``.',
+		argnames is ['Goal']
+	]).
+
+	:- public(pwd/0).
+	:- mode(pwd, one).
+	:- info(pwd/0, [
+		comment is 'Prints the current working directory.'
+	]).
+
+	:- public(cd/1).
+	:- mode(cd(+atom), zero_or_more).
+	:- info(cd/1, [
+		comment is 'Changes the current working directory.',
+		argnames is ['Directory']
+	]).
+
+	:- public(retry/0).
+	:- mode(retry, one).
+	:- info(retry/0, [
+		comment is 'Causes backtracking of the latest active query. Needs to be the only goal of a query.'
+	]).
+
+	:- public(print_queries/0).
+	:- mode(print_queries, one).
+	:- info(print_queries/0, [
+		comment is 'Prints previous queries.'
+	]).
+
+	:- public(print_queries/1).
+	:- mode(print_queries(?list(callable)), one).
+	:- info(print_queries/1, [
+		comment is 'Prints previous queries which were executed in requests with IDs in ``Ids``.',
+		argnames is ['Ids']
+	]).
+
+	:- public(print_query_time/0).
+	:- mode(print_query_time, one).
+	:- info(print_query_time/0, [
+		comment is 'Prints previous query execution time.'
+	]).
+
+	:- public(print_variable_bindings/0).
+	:- mode(print_variable_bindings, one).
+	:- info(print_variable_bindings/0, [
+		comment is 'Prints variable bindings from previous queries. For each variable, the latest value it was bound to is shown. The variable value can be accessed with a ``$Var`` term by any query. In that case, the term is replaced by the value. If there is no previous value, an error message is printed.'
+	]).
+
 	:- public([
 		%halt/0,
-		help/0,
-		magic/0,
 		predicate_docs/1,
-		print_queries/0,
-		print_queries/1,           % print_queries(+Ids)
-		print_query_time/0,        % print_query_time
 		print_sld_tree/1,          % print_sld_tree(+Goal)
 		print_table/1,             % print_table(+Goal)
 		print_table/2,             % print_table(+ValuesLists, +VariableNames)
 		print_and_save_table/3,
 		print_transition_graph/4,  % print_transition_graph(+PredSpec, +FromIndex, +ToIndex, +LabelIndex)
-		print_variable_bindings/0,
-		pwd/0,
-		cd/1,
 		show_term/1,
 		show_data/1,
-		retry/0,
-		set_prolog_backend/1,      % set_prolog_backend(+Backend)
-		trace/1,                   % trace(+Goal)
-		update_completion_data/0,
-		version/4,
-		version/0,
-		versions/0
+		update_completion_data/0
 	]).
 
 	:- uses(debugger, [leash/1, trace/0, notrace/0]).
@@ -71,7 +146,6 @@
 	:- uses(jupyter_logging, [log/1, log/2]).
 	:- uses(jupyter_query_handling, [query_data/4, debug_mode_for_breakpoints/0]).
 	:- uses(jupyter_variable_bindings, [var_bindings/1]).
-	:- uses(jupyter_preferences, [version/4]).
 
 	version :-
 		version(Major, Minor, Patch, Status),
@@ -86,6 +160,8 @@
 		current_logtalk_flag(prolog_version, v(BackendMajor, BackendMinor, BackendPatch)),
 		format('~w ~w.~w.~w~n', [BackendName, BackendMajor, BackendMinor, BackendPatch]),
 		version.
+
+	version(0, 27, 0, beta).
 
 	backend(b,       'B-Prolog').
 	backend(ciao,    'Ciao Prolog').
@@ -397,7 +473,7 @@
 		print_queries(QueriesData, []).
 
 	% print_queries(+QueriesData, +PreviousNameVarPairs)
-	print_queries([], _PreviousNameVarPairs) :- !.
+	print_queries([], _PreviousNameVarPairs).
 	print_queries([QueryData], PreviousNameVarPairs) :-
 		!,
 		print_previous_query(QueryData, PreviousNameVarPairs, _NewPreviousNameVarPairs, QueryAtom),
