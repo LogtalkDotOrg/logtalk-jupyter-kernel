@@ -28,16 +28,31 @@
 :- object(jupyter_logging).
 
 	:- info([
-		version is 0:1:1,
+		version is 0:2:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2023-09-12,
+		date is 2025-03-05,
 		comment is 'Logging support.'
 	]).
 
-	:- public([
-		create_log_file/1,  % create_log_file(-IsSuccess)
-		log/1,              % log(+Term)
-		log/2               % log(+Control, +Arguments)
+	:- public(create_log_file/1).
+	:- mode(create_log_file(-boolean), zero_or_one).
+	:- info(create_log_file/1, [
+		comment is 'Creates a log file if possible. Each running backend uses its own log file.',
+		argnames is ['IsSuccess']
+	]).
+
+	:- public(log/1).
+	:- mode(log(@term), one).
+	:- info(log/1, [
+		comment is 'Logs a term.',
+		argnames is ['Term']
+	]).
+
+	:- public(log/2).
+	:- mode(log(+atom, @term), one).
+	:- info(log/2, [
+		comment is 'Logs arguments after the given format.',
+		argnames is ['Format', 'Arguments']
 	]).
 
 	:- uses(format, [format/3]).
