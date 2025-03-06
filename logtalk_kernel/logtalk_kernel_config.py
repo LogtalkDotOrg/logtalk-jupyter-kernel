@@ -28,42 +28,32 @@
 import platform
 import os
 
+## Constants
+DEFAULT_ERROR_PREFIX = "!     "
+DEFAULT_INFORMATIONAL_PREFIX = "% "
+DEFAULT_PROGRAM_ARGS = "default"
+
 c = get_config()
 
 ## If set to True, the logging level is set to DEBUG by the kernel so that Python debugging messages are logged.
-# Default:
-# c.LogtalkKernel.jupyter_logging = False
-
+c.LogtalkKernel.jupyter_logging = False
 ## If set to True, a log file is created by the Logtalk server
-# Default:
-# c.LogtalkKernel.server_logging = False
+c.LogtalkKernel.server_logging = False
 
 ## The Prolog backend integration script with which the server is started.
-# Default:
 if platform.system() == 'Windows':
-    #c.LogtalkKernel.backend = "eclipselgt.ps1"
-    #c.LogtalkKernel.backend = "gplgt.ps1"
-    #c.LogtalkKernel.backend = "sicstuslgt.ps1"
-    c.LogtalkKernel.backend = "swilgt.ps1"
-    #c.LogtalkKernel.backend = "tplgt.ps1"
-    #c.LogtalkKernel.backend = "xvmlgt.ps1"
-    #c.LogtalkKernel.backend = "yaplgt.ps1"
+    extension = ".ps1"
 elif 'LOGTALKHOME' in os.environ and 'LOGTALKUSER' in os.environ and os.environ['LOGTALKHOME'] == os.environ['LOGTALKUSER']:
-    #c.LogtalkKernel.backend = "eclipselgt.sh"
-    #c.LogtalkKernel.backend = "gplgt.sh"
-    #c.LogtalkKernel.backend = "sicstuslgt.sh"
-    c.LogtalkKernel.backend = "swilgt.sh"
-    #c.LogtalkKernel.backend = "tplgt.sh"
-    #c.LogtalkKernel.backend = "xvmlgt.sh"
-    #c.LogtalkKernel.backend = "yaplgt.sh"
+    extension = ".sh"
 else:
-    #c.LogtalkKernel.backend = "eclipselgt"
-    #c.LogtalkKernel.backend = "gplgt"
-    #c.LogtalkKernel.backend = "sicstuslgt"
-    c.LogtalkKernel.backend = "swilgt"
-    #c.LogtalkKernel.backend = "tplgt"
-    #c.LogtalkKernel.backend = "xvmlgt"
-    #c.LogtalkKernel.backend = "yaplgt"
+    extension = ""
+#c.LogtalkKernel.backend = "eclipselgt" + extension
+#c.LogtalkKernel.backend = "gplgt" + extension
+#c.LogtalkKernel.backend = "sicstuslgt" + extension
+c.LogtalkKernel.backend = "swilgt" + extension
+#c.LogtalkKernel.backend = "tplgt" + extension
+#c.LogtalkKernel.backend = "xvmlgt" + extension
+#c.LogtalkKernel.backend = "yaplgt" + extension
 
 ## The implementation specific data which is needed to run the Logtalk server for code execution.
 ## This is required to be a dictionary containing at least an entry for the configured backend.
@@ -82,148 +72,148 @@ c.LogtalkKernel.backend_data = {
    "eclipselgt": {
        "failure_response": "No",
        "success_response": "Yes",
-       "error_prefix": "!     ",
-       "informational_prefix": "% ",
-       "program_arguments": "default"
+       "error_prefix": DEFAULT_ERROR_PREFIX,
+       "informational_prefix": DEFAULT_INFORMATIONAL_PREFIX,
+       "program_arguments": DEFAULT_PROGRAM_ARGS
    },
    "eclipselgt.sh": {
        "failure_response": "No",
        "success_response": "Yes",
-       "error_prefix": "!     ",
-       "informational_prefix": "% ",
-       "program_arguments": "default"
+       "error_prefix": DEFAULT_ERROR_PREFIX,
+       "informational_prefix": DEFAULT_INFORMATIONAL_PREFIX,
+       "program_arguments": DEFAULT_PROGRAM_ARGS
    },
    "eclipselgt.ps1": {
        "failure_response": "No",
        "success_response": "Yes",
-       "error_prefix": "!     ",
-       "informational_prefix": "% ",
-       "program_arguments": "default"
+       "error_prefix": DEFAULT_ERROR_PREFIX,
+       "informational_prefix": DEFAULT_INFORMATIONAL_PREFIX,
+       "program_arguments": DEFAULT_PROGRAM_ARGS
    },
    "gplgt": {
        "failure_response": "no",
        "success_response": "yes",
-       "error_prefix": "!     ",
-       "informational_prefix": "% ",
-       "program_arguments": "default"
+       "error_prefix": DEFAULT_ERROR_PREFIX,
+       "informational_prefix": DEFAULT_INFORMATIONAL_PREFIX,
+       "program_arguments": DEFAULT_PROGRAM_ARGS
    },
    "gplgt.sh": {
        "failure_response": "no",
        "success_response": "yes",
-       "error_prefix": "!     ",
-       "informational_prefix": "% ",
-       "program_arguments": "default"
+       "error_prefix": DEFAULT_ERROR_PREFIX,
+       "informational_prefix": DEFAULT_INFORMATIONAL_PREFIX,
+       "program_arguments": DEFAULT_PROGRAM_ARGS
    },
    "gplgt.ps1": {
        "failure_response": "no",
        "success_response": "yes",
-       "error_prefix": "!     ",
-       "informational_prefix": "% ",
-       "program_arguments": "default"
+       "error_prefix": DEFAULT_ERROR_PREFIX,
+       "informational_prefix": DEFAULT_INFORMATIONAL_PREFIX,
+       "program_arguments": DEFAULT_PROGRAM_ARGS
    },
    "sicstuslgt": {
        "failure_response": "no",
        "success_response": "yes",
-       "error_prefix": "!     ",
-       "informational_prefix": "% ",
-       "program_arguments": "default"
+       "error_prefix": DEFAULT_ERROR_PREFIX,
+       "informational_prefix": DEFAULT_INFORMATIONAL_PREFIX,
+       "program_arguments": DEFAULT_PROGRAM_ARGS
    },
    "sicstuslgt.sh": {
        "failure_response": "no",
        "success_response": "yes",
-       "error_prefix": "!     ",
-       "informational_prefix": "% ",
-       "program_arguments": "default"
+       "error_prefix": DEFAULT_ERROR_PREFIX,
+       "informational_prefix": DEFAULT_INFORMATIONAL_PREFIX,
+       "program_arguments": DEFAULT_PROGRAM_ARGS
    },
    "sicstuslgt.ps1": {
        "failure_response": "no",
        "success_response": "yes",
-       "error_prefix": "!     ",
-       "informational_prefix": "% ",
-       "program_arguments": "default"
+       "error_prefix": DEFAULT_ERROR_PREFIX,
+       "informational_prefix": DEFAULT_INFORMATIONAL_PREFIX,
+       "program_arguments": DEFAULT_PROGRAM_ARGS
    },
    "swilgt": {
        "failure_response": "false",
        "success_response": "true",
-       "error_prefix": "!     ",
-       "informational_prefix": "% ",
-       "program_arguments": "default"
+       "error_prefix": DEFAULT_ERROR_PREFIX,
+       "informational_prefix": DEFAULT_INFORMATIONAL_PREFIX,
+       "program_arguments": DEFAULT_PROGRAM_ARGS
    },
    "swilgt.sh": {
        "failure_response": "false",
        "success_response": "true",
-       "error_prefix": "!     ",
-       "informational_prefix": "% ",
-       "program_arguments": "default"
+       "error_prefix": DEFAULT_ERROR_PREFIX,
+       "informational_prefix": DEFAULT_INFORMATIONAL_PREFIX,
+       "program_arguments": DEFAULT_PROGRAM_ARGS
    },
    "swilgt.ps1": {
        "failure_response": "false",
        "success_response": "true",
-       "error_prefix": "!     ",
-       "informational_prefix": "% ",
-       "program_arguments": "default"
+       "error_prefix": DEFAULT_ERROR_PREFIX,
+       "informational_prefix": DEFAULT_INFORMATIONAL_PREFIX,
+       "program_arguments": DEFAULT_PROGRAM_ARGS
    },
    "tplgt": {
        "failure_response": "false",
        "success_response": "true",
-       "error_prefix": "!     ",
-       "informational_prefix": "% ",
-       "program_arguments": "default"
+       "error_prefix": DEFAULT_ERROR_PREFIX,
+       "informational_prefix": DEFAULT_INFORMATIONAL_PREFIX,
+       "program_arguments": DEFAULT_PROGRAM_ARGS
    },
    "tplgt.sh": {
        "failure_response": "false",
        "success_response": "true",
-       "error_prefix": "!     ",
-       "informational_prefix": "% ",
-       "program_arguments": "default"
+       "error_prefix": DEFAULT_ERROR_PREFIX,
+       "informational_prefix": DEFAULT_INFORMATIONAL_PREFIX,
+       "program_arguments": DEFAULT_PROGRAM_ARGS
    },
    "tplgt.ps1": {
        "failure_response": "false",
        "success_response": "true",
-       "error_prefix": "!     ",
-       "informational_prefix": "% ",
-       "program_arguments": "default"
+       "error_prefix": DEFAULT_ERROR_PREFIX,
+       "informational_prefix": DEFAULT_INFORMATIONAL_PREFIX,
+       "program_arguments": DEFAULT_PROGRAM_ARGS
    },
    "xvmlgt": {
        "failure_response": "false",
        "success_response": "true",
-       "error_prefix": "!     ",
-       "informational_prefix": "% ",
-       "program_arguments": "default"
+       "error_prefix": DEFAULT_ERROR_PREFIX,
+       "informational_prefix": DEFAULT_INFORMATIONAL_PREFIX,
+       "program_arguments": DEFAULT_PROGRAM_ARGS
    },
    "xvmlgt.sh": {
        "failure_response": "false",
        "success_response": "true",
-       "error_prefix": "!     ",
-       "informational_prefix": "% ",
-       "program_arguments": "default"
+       "error_prefix": DEFAULT_ERROR_PREFIX,
+       "informational_prefix": DEFAULT_INFORMATIONAL_PREFIX,
+       "program_arguments": DEFAULT_PROGRAM_ARGS
    },
    "xvmlgt.ps1": {
        "failure_response": "false",
        "success_response": "true",
-       "error_prefix": "!     ",
-       "informational_prefix": "% ",
-       "program_arguments": "default"
+       "error_prefix": DEFAULT_ERROR_PREFIX,
+       "informational_prefix": DEFAULT_INFORMATIONAL_PREFIX,
+       "program_arguments": DEFAULT_PROGRAM_ARGS
    },
    "yaplgt": {
        "failure_response": "no",
        "success_response": "yes",
-       "error_prefix": "!     ",
-       "informational_prefix": "% ",
-       "program_arguments": "default"
+       "error_prefix": DEFAULT_ERROR_PREFIX,
+       "informational_prefix": DEFAULT_INFORMATIONAL_PREFIX,
+       "program_arguments": DEFAULT_PROGRAM_ARGS
    },
    "yaplgt.sh": {
        "failure_response": "no",
        "success_response": "yes",
-       "error_prefix": "!     ",
-       "informational_prefix": "% ",
-       "program_arguments": "default"
+       "error_prefix": DEFAULT_ERROR_PREFIX,
+       "informational_prefix": DEFAULT_INFORMATIONAL_PREFIX,
+       "program_arguments": DEFAULT_PROGRAM_ARGS
    },
    "yaplgt.ps1": {
        "failure_response": "no",
        "success_response": "yes",
-       "error_prefix": "!     ",
-       "informational_prefix": "% ",
-       "program_arguments": "default"
+       "error_prefix": DEFAULT_ERROR_PREFIX,
+       "informational_prefix": DEFAULT_INFORMATIONAL_PREFIX,
+       "program_arguments": DEFAULT_PROGRAM_ARGS
    }
 }
