@@ -39,46 +39,48 @@
 :- object(jupyter_query_handling).
 
 	:- info([
-		version is 0:2:0,
+		version is 0:3:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-03-05,
+		date is 2025-03-06,
 		comment is 'This object provides predicates to redirect the output of a query execution to a file and read it from the file.'
 	]).
 
 	:- public(call_query_with_output_to_file/7).
 	:- meta_predicate(call_query_with_output_to_file(*, *, *, *, *, *, *)).
 	% call_query_with_output_to_file(+Goal, +CallRequestId, +Bindings, +OriginalTermData, -Output, -ErrorMessageData -IsFailure)
-	
+
 	:- public(call_with_output_to_file/3).
 	:- meta_predicate(call_with_output_to_file(*, *, *)).
 	% call_with_output_to_file(+Goal, -Output, -ErrorMessageData)
-	
+
 	:- public(delete_output_file/1).
 	:- mode(delete_output_file(+boolean), one).
 	:- info(delete_output_file/1, [
 		comment is 'Deletes the output file when the argument is the atom ``true``.',
 		argnames is ['Boolean']
 	]).
-	
+
 	:- public(query_data/4).
 	:- dynamic(query_data/4).
 	% query_data(-CallRequestId, -Runtime, -TermData, -OriginalTermData)
-	
+
 	:- public(redirect_output_to_file/0).
-	
-	:- public(remove_output_lines_for/1).
-	:- dynamic(remove_output_lines_for/1).
-	% remove_output_lines_for(Type)
-	
+	:- mode(redirect_output_to_file, one).
+	:- info(redirect_output_to_file/0, [
+		comment is 'Redirects output to file.'
+	]).
+
 	:- public(retrieve_message/2).
 	% retrieve_message(+ErrorMessageData, -Message)
-	
+
 	:- public(send_reply_on_error/0).
 	:- dynamic(send_reply_on_error/0).
 
-	:- public(debug_mode_for_breakpoints/0).
-	
 	:- public(safe_call_without_sending_error_replies/1).
+
+	:- private(remove_output_lines_for/1).
+	:- dynamic(remove_output_lines_for/1).
+	% remove_output_lines_for(Type)
 
 	:- meta_predicate(call_with_exception_handling(*, *)).
 	:- meta_predicate(safe_call_without_sending_error_replies(0)).
@@ -170,8 +172,6 @@
 			% In case of an exception, switch debug mode off so that no more debugging messages are printed
 			(notrace, ErrorMessageData = message_data(error, Exception))
 		).
-
-	debug_mode_for_breakpoints.
 
 	% assert_query_data(+CallRequestId,  +Runtime, +TermData, +OriginalTermData)
 	assert_query_data(0, _Runtime, _TermData, _OriginalTermData) :-

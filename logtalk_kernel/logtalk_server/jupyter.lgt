@@ -28,9 +28,9 @@
 :- object(jupyter).
 
 	:- info([
-		version is 0:12:0,
+		version is 0:13:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-03-05,
+		date is 2025-03-06,
 		comment is 'This object provides special predicates which can be used in call requests by the client. Some of these predicates need to be the only goal of a query. Otherwise, they cannot be determined as special predicates and do not work as expected.'
 	]).
 
@@ -174,7 +174,7 @@
 	:- uses(term_io, [read_term_from_codes/3, write_term_to_codes/3, format_to_codes/3]).
 	:- uses(user, [atomic_list_concat/2]).
 	:- uses(jupyter_logging, [log/1, log/2]).
-	:- uses(jupyter_query_handling, [query_data/4, debug_mode_for_breakpoints/0]).
+	:- uses(jupyter_query_handling, [query_data/4]).
 	:- uses(jupyter_variable_bindings, [var_bindings/1]).
 
 	version :-
