@@ -646,17 +646,15 @@ class LogtalkKernelBaseImplementation:
         """
 
         # Write the content to a file
-        f = open("graph.gv", "w")
-        f.write(graph_file_content)
-        f.close()
+        with open("graph.gv", "w") as f:
+            f.write(graph_file_content)
 
         # Render a svg file
         render(engine='dot', format='svg', filepath='graph.gv', outfile='graph.svg').replace('\\', '/')
 
         # Read the svg file content
-        svg_file = open("graph.svg", "r")
-        svg_content = svg_file.read()
-        svg_file.close()
+        with open("graph.svg", "r") as svg_file:
+            svg_content = svg_file.read()
 
         # Remove the created files
         remove("graph.gv")
@@ -694,26 +692,8 @@ class LogtalkKernelBaseImplementation:
         values_lists = print_table_dict["ValuesLists"]
         variable_names = print_table_dict["VariableNames"]
 
-        table_header_markdown_string = ""
-        table_markdown_string = ""
-
-        # Create a header line with the variable names
-        for variable_name in variable_names:
-            table_header_markdown_string = table_header_markdown_string + str(variable_name) + " | "
-            table_markdown_string = table_markdown_string + ":- | "
-
-        table_markdown_string = table_header_markdown_string  + "\n" + table_markdown_string
-
-        # For each values list, add a markdown table line
-        for values_list in values_lists:
-            line_markdown_string = ""
-            for value in values_list:
-                line_markdown_string = line_markdown_string + str(value) + " | "
-
-            table_markdown_string = table_markdown_string + "\n" + line_markdown_string
-
-        display_data = {'data': {'text/plain': table_markdown_string, 'text/markdown': table_markdown_string.replace('$', '\$').replace('~', '\~')}, 'metadata': {}}
-        self.kernel.send_response(self.kernel.iopub_socket, 'display_data', display_data)
+        table_markdown_string = self.create_markdown_table(variable_names, values_lists)
+        self.send_markdown_table_to_frontend(table_markdown_string)
 
 
     def handle_print_and_save_table(self, print_and_save_table_dict):
@@ -741,6 +721,21 @@ class LogtalkKernelBaseImplementation:
         output_format = print_and_save_table_dict["Format"]
         output_file = print_and_save_table_dict["File"]
 
+        table_markdown_string = self.create_markdown_table(variable_names, values_lists)
+        self.send_markdown_table_to_frontend(table_markdown_string)
+        self.save_table_to_file(variable_names, values_lists, output_format, output_file)
+
+
+    def create_markdown_table(self, variable_names, values_lists):
+        """Create a markdown formatted table string.
+        
+        Args:
+            variable_names: List of column headers
+            values_lists: List of row values
+            
+        Returns:
+            Formatted markdown table string
+        """
         table_header_markdown_string = ""
         table_markdown_string = ""
 
@@ -758,15 +753,26 @@ class LogtalkKernelBaseImplementation:
                 line_markdown_string = line_markdown_string + str(value) + " | "
 
             table_markdown_string = table_markdown_string + "\n" + line_markdown_string
+            
+        return table_markdown_string
 
-        display_data = {'data': {'text/plain': table_markdown_string, 'text/markdown': table_markdown_string.replace('$', '\$').replace('~', '\~')}, 'metadata': {}}
+
+    def send_markdown_table_to_frontend(self, table_markdown_string):
+        """Sends the markdown table string to the frontend."""
+        display_data = {
+            'data': {
+                'text/plain': table_markdown_string,
+                'text/markdown': table_markdown_string.replace('$', '\$').replace('~', '\~')
+            },
+            'metadata': {}
+        }
         self.kernel.send_response(self.kernel.iopub_socket, 'display_data', display_data)
 
-        if output_format == "csv":
-            delimiter = ','
-        else:
-            delimiter = '\t'
 
+    def save_table_to_file(self, variable_names, values_lists, output_format, output_file):
+        """Saves the table to a file in the specified format."""
+        delimiters = {"csv": ",", "tsv": "\t"}
+        delimiter = delimiters.get(output_format, "\t")
         with open(output_file, 'w') as csvfile:
             csvwriter = csv.writer(csvfile, delimiter=delimiter)
             csvwriter.writerow(variable_names)
