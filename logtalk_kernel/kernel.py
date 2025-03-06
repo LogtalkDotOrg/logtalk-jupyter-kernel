@@ -77,6 +77,8 @@ from logtalk_kernel.logtalk_kernel_base_implementation import LogtalkKernelBaseI
 
 
 class LogtalkKernel(Kernel):
+    """Jupyter kernel implementation for Logtalk."""
+
     kernel_name = 'logtalk_kernel'
     implementation = kernel_name
     implementation_version = '1.0'
@@ -376,16 +378,18 @@ class LogtalkKernel(Kernel):
 
 
     def __init__(self, **kwargs):
+        """Initialize the kernel with logging and configuration."""
         super().__init__(**kwargs)
 
-        # Set the logging format
-        logging.basicConfig(format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s')
-
-        self.logger = logging.getLogger()
+        # Configure logging
+        logging.basicConfig(
+            format='[%(asctime)s] {%(filename)s:%(lineno)d} %(levelname)s - %(message)s'
+        )
+        self.logger = logging.getLogger(__name__)
         # For development, the logging level can be set to level DEBUG, so that all debug messages (including the ones about loading a configuration file) are output
         #self.logger.setLevel(logging.DEBUG)
 
-        # Load the configuration and configured implementation specific data
+        # Load configuration and backend data
         self.load_config_file()
         load_exception_message = self.load_backend_data(self.backend)
         if load_exception_message:
@@ -397,50 +401,55 @@ class LogtalkKernel(Kernel):
 
 
     def load_config_file(self):
+        """Load Logtalk kernel configuration from config files.
+        
+        Searches Jupyter config paths and current directory for logtalk_kernel_config.py.
+        Config in current directory overrides other locations.
         """
-        Searches the search paths for Jupyter config files and the current working directory for logtalk_kernel_config.py files.
-        If such files exist, they are loaded.
-        If a config file exists in the current working directory, its configuration overrides values from other config files.
-
-        Based on _load_config_files(cls, basefilename, path, log, raise_config_file_errors) from traitlets.config.application.Application.
-        """
-
-        config_file_name = 'logtalk_kernel_config.py'
-
-        # Get the search path for Jupyter config files and add the current working directory
+        CONFIG_FILE = 'logtalk_kernel_config.py'
+        
+        # Get config search paths
         config_paths = jupyter_config_path()
         config_paths.insert(0, os.getcwd())
-
-        # List all existing Prolog kernel config files
-        existing_file_paths = [p for p in config_paths if os.path.exists(os.path.join(p, config_file_name))]
-        # existing_file_paths list is in descending priority order, so it needs to be reversed
-        existing_file_paths.reverse()
-
-        if not existing_file_paths:
-            self.logger.debug("No " + config_file_name + " file found in one of these paths: " + str(config_paths))
-            self.logger.debug("Using the default configuration")
+    
+        # Find existing config files
+        existing_paths = [
+            p for p in config_paths 
+            if os.path.exists(os.path.join(p, CONFIG_FILE))
+        ]
+        existing_paths.reverse()  # Higher priority paths first
+    
+        if not existing_paths:
+            self.logger.debug(
+                f"No {CONFIG_FILE} found in: {config_paths}. Using defaults."
+            )
             return
-
-        # For all paths, load the config file and update the configuration
-        for existing_file_path in existing_file_paths:
-            loader = PyFileConfigLoader(config_file_name, path=existing_file_path, log=self.logger)
-
-            config = None
+    
+        # Load each config file
+        for path in existing_paths:
+            loader = PyFileConfigLoader(
+                CONFIG_FILE, 
+                path=path,
+                log=self.logger
+            )
+    
             try:
                 config = loader.load_config()
             except ConfigFileNotFound:
-                self.logger.error("Could not find the config file " + os.path.join(existing_file_path, config_file_name), exc_info=True)
+                self.logger.error(
+                    f"Config file not found: {os.path.join(path, CONFIG_FILE)}", 
+                    exc_info=True
+                )
             except Exception:
-                self.logger.error("Exception while loading config file " + os.path.join(existing_file_path, config_file_name), exc_info=True)
+                self.logger.error(
+                    f"Error loading config: {os.path.join(path, CONFIG_FILE)}", 
+                    exc_info=True
+                )
             else:
-                # Update the configuration
                 self.update_config(config)
-
-                # If configured, enable the logging of debug messages
                 if self.jupyter_logging:
                     self.logger.setLevel(logging.DEBUG)
-
-                self.logger.debug("Loaded config file: " + loader.full_filename)
+                self.logger.debug(f"Loaded config: {loader.full_filename}")
 
 
     def load_backend_data(self, backend):
@@ -450,22 +459,22 @@ class LogtalkKernel(Kernel):
         """
 
         # Check if there is an item for the backend
-        if not backend in self.backend_data:
-            return "There is no configured backend_data entry for the Prolog backend '" + backend + "'"
+        if backend not in self.backend_data:
+            return f"No configured backend_data entry for Prolog backend '{backend}'"
 
         # Check if all required keys are contained in the dictionary
-        missing_keys = []
-        for key in self.required_backend_data_keys:
-            if not key in self.backend_data[backend]:
-                missing_keys.append(key)
+        missing_keys = [
+            key for key in self.required_backend_data_keys 
+            if key not in self.backend_data[backend]
+        ]
 
         if missing_keys == []:
             # The implementation data is valid
             self.active_backend_data = self.backend_data[backend]
         elif len(missing_keys) == 1:
-            return "The configured backend_data dict for the Prolog backend '" + backend + "' needs to contain an entry for '" + missing_keys[0] + "'"
+            return f"Backend data for '{backend}' missing entry '{missing_keys[0]}'"
         else:
-            return "The configured backend_data dict for the Prolog backend '" + backend + "' needs to contain entries for '" + "', '".join(missing_keys) + "'"
+            return f"Backend data for '{backend}' missing entries: {', '.join(missing_keys)}"
 
 
     def load_kernel_implementation(self):
@@ -537,10 +546,10 @@ class LogtalkKernel(Kernel):
         Change the Prolog backend to the one with ID prolog_backend.
         If there is a running server for that backend, it is activated.
         Otherwise, the backend-specific data is loaded (which starts a new server) and set as the active one.
-        Returns True if something goes wrong and the new backend cannot be used.
+        Returns False if the new backend is successfully used, True otherwise.
         """
 
-        self.logger.debug('Change Prolog backend to ' + str(prolog_backend))
+        self.logger.debug(f'Change Prolog backend to {prolog_backend}')
 
         if prolog_backend in self.active_kernel_implementations:
             # There is a running Logtalk server for the provided implementation ID
@@ -554,12 +563,12 @@ class LogtalkKernel(Kernel):
                 self.logger.debug(load_exception_message)
                 # The configured backend_data is invalid
                 # Display an error message
-                load_exception_message = self.active_backend_data["error_prefix"] + load_exception_message
+                error_message = self.active_backend_data["error_prefix"] + load_exception_message
 
                 display_data = {
                     'data': {
-                        'text/plain': load_exception_message,
-                        'text/markdown': '<pre style="' + self.active_kernel_implementation.output_text_style + 'color:red">' + load_exception_message + '</pre>'                    },
+                        'text/plain': error_message,
+                        'text/markdown': '<pre style="' + self.active_kernel_implementation.output_text_style + 'color:red">' + error_message + '</pre>'                    },
                     'metadata': {}}
                 self.send_response(self.iopub_socket, 'display_data', display_data)
                 return True
@@ -567,6 +576,7 @@ class LogtalkKernel(Kernel):
                 self.backend = prolog_backend
                 # Create an implementation object which starts the Logtalk server
                 self.load_kernel_implementation()
+                return False
 
 
     def interrupt_all(self):
