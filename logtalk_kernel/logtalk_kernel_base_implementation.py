@@ -1019,7 +1019,7 @@ class LogtalkKernelBaseImplementation:
                 if isinstance(data_suptitle, dict):
                     data_suptitle_label = data_suptitle["label"]
                     data_suptitle.pop("label", None)
-                    plt.suptitle(data_title_label, **data_suptitle)
+                    plt.suptitle(data_suptitle_label, **data_suptitle)
                 else:
                     plt.suptitle(data_suptitle)
             
