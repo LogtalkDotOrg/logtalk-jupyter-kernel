@@ -45,13 +45,18 @@
 :- object(jupyter_request_handling).
 
 	:- info([
-		version is 0:9:0,
+		version is 0:10:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-02-19,
+		date is 2025-03-06,
 		comment is 'This object provides predicates to start a loop reading and handling JSON RPC requests.'
 	]).
 
-	:- public(loop/3).  % loop(+ContIn, +Stack, -ContOut)
+	:- public(loop/3).
+	:- mode(loop(+callable, +atom, +atom), zero_or_one).
+	:- info(loop/3, [
+		comment is 'Reads and processes requests from the client. Fails if it receives a request to retry an active goal - this causes the call to compute the next solution.',
+		argnames is ['ContIn', 'Stack', 'ContOut']
+	]).
 
 	:- uses(term_io, [format_to_atom/3, write_term_to_atom/3]).
 	:- uses(user, [atomic_list_concat/2]).
@@ -99,7 +104,8 @@
 	% Succeeds with ContOut = done if it receives a request to quit.
 	% Fails if it receives a request to retry an active goal - this causes the call to compute the next solution.
 	loop(Cont, _Stack, _ContOut) :-
-		var(Cont), !,
+		var(Cont),
+		!,
 		fail.
 	loop(done, _Stack, done) :-
 		!,

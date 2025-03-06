@@ -64,7 +64,7 @@
 	:- public(set_prolog_backend/1).
 	:- mode(set_prolog_backend(+atom), zero_or_more).
 	:- info(set_prolog_backend/1, [
-		comment is 'Activates the given Prolog backend. Needs to be the only goal of a query.',
+		comment is 'Activates the given Prolog backend. Must be the only goal of a query.',
 		argnames is ['Backend']
 	]).
 
@@ -97,7 +97,7 @@
 	:- public(retry/0).
 	:- mode(retry, one).
 	:- info(retry/0, [
-		comment is 'Causes backtracking of the latest active query. Needs to be the only goal of a query.'
+		comment is 'Causes backtracking of the latest active query. Must be the only goal of a query.'
 	]).
 
 	:- public(print_queries/0).
@@ -139,14 +139,32 @@
 		argnames is ['Goal', 'Format', 'File']
 	]).
 
+	:- public(print_table/2).
+	:- mode(print_table(@list(term), @list(atom)), one).
+	:- info(print_table/2, [
+		comment is 'Prints a table of the values using the variable names to fill the header of the table. Must be the only goal of a query.',
+		argnames is ['Values', 'VariableNames']
+	]).
+
+	:- public(show_term/1).
+	:- mode(show_term(@term), one).
+	:- info(show_term/1, [
+		comment is 'Displays a term as a graph. Must be the only goal of a query.',
+		argnames is ['Term']
+	]).
+
+	:- public(show_data/1).
+	:- mode(show_data(+callable), one).
+	:- info(show_data/1, [
+		comment is 'Displays data produced by a goal. Expects a variable named Data or _Data to be bound to a list fo pairs. Must be the only goal of a query.',
+		argnames is ['Goal']
+	]).
+
 	:- public([
 		%halt/0,
 		predicate_docs/1,
 		%print_sld_tree/1,          % print_sld_tree(+Goal)
-		print_table/2,             % print_table(+ValuesLists, +VariableNames)
-		print_transition_graph/4,  % print_transition_graph(+PredSpec, +FromIndex, +ToIndex, +LabelIndex)
-		show_term/1,
-		show_data/1
+		print_transition_graph/4  % print_transition_graph(+PredSpec, +FromIndex, +ToIndex, +LabelIndex)
 %		update_completion_data/0
 	]).
 
@@ -295,7 +313,7 @@
 %		atomic_list_concat([
 %			'jupyter::print_sld_tree(+Goal)',
 %			'\n\n    Executes the goal Goal and prints a graph resembling its SLD tree.',
-%			'\n\n    Needs to be the only goal of a query.'
+%			'\n\n    Must be the only goal of a query.'
 %		], Doc).
 	predicate_doc('jupyter::print_table/1', Doc) :-
 		atomic_list_concat([
@@ -303,7 +321,7 @@
 			'\n\n    Computes all results of the goal Goal with findall/3.',
 			'\n    These are printed in a table.',
 			'\n    Values for variable names starting with an underscore are omitted.',
-			'\n\n    Needs to be the only goal of a query.',
+			'\n\n    Must be the only goal of a query.',
 			'\n\n    Example: jupyter::print_table(current_logtalk_flag(Name, Value)).'
 		], Doc).
 	predicate_doc('jupyter::print_and_save_table/3', Doc) :-
@@ -313,7 +331,7 @@
 			'\n    These are printed in a table but also saved to a file.',
 			'\n    Supported file formats are csv and tsv.',
 			'\n    Values for variable names starting with an underscore are omitted.',
-			'\n\n    Needs to be the only goal of a query.',
+			'\n\n    Must be the only goal of a query.',
 			'\n\n    Example: jupyter::print_and_save_table(current_logtalk_flag(Name, Value), tsv, \'flags.tsv\').'
 		], Doc).
 	predicate_doc('jupyter::print_table/2', Doc) :-
@@ -326,7 +344,7 @@
 			'\n    If VariableNames=[], capital letters are used.',
 			'\n    Otherwise, VariableNames needs to be a list of ground terms.',
 			'\n    It needs to be of the same length as the values lists.',
-			'\n\n    Needs to be the only goal of a query.',
+			'\n\n    Must be the only goal of a query.',
 			'\n\n    Can be used with a predicate like findall/3, but not directly.',
 			'\n    Instead, a previous binding can be accessed with a $Var term.',
 			'\n\n    Examples:',
@@ -342,20 +360,20 @@
 			'\n\n    FromIndex and ToIndex point to predicate arguments used as nodes.',
 			'\n    LabelIndex points to the argument providing a label for an edge.',
 			'\n    If LabelIndex=0, no label is shown.',
-			'\n\n    Needs to be the only goal of a query.'
+			'\n\n    Must be the only goal of a query.'
 		], Doc).
 	predicate_doc('jupyter::show_term/1', Doc) :-
 		atomic_list_concat([
 			'jupyter::show_term(+Term)',
 			'\n\n    Displays a term as a graph.',
-			'\n\n    Needs to be the only goal of a query.'
+			'\n\n    Must be the only goal of a query.'
 		], Doc).
 	predicate_doc('jupyter::show_data/1', Doc) :-
 		atomic_list_concat([
 			'jupyter::show_data(+Goal)',
 			'\n\n    Displays data produced by a goal.',
-			'\n\n    Expects a variable named Data to be found to a list fo pairs.',
-			'\n\n    Needs to be the only goal of a query.'
+			'\n\n    Expects a variable named Data or _Data to be bound to a list fo pairs.',
+			'\n\n    Must be the only goal of a query.'
 		], Doc).
    predicate_doc('jupyter::print_variable_bindings/0', Doc) :-
 		atomic_list_concat([
@@ -380,13 +398,13 @@
 		atomic_list_concat([
 			'jupyter::retry or retry',
 			'\n\n    Causes backtracking of the latest active query.',
-			'\n\n    Needs to be the only goal of a query.'
+			'\n\n    Must be the only goal of a query.'
 		], Doc).
 	predicate_doc('jupyter::set_prolog_backend/1', Doc) :-
 		atomic_list_concat([
 			'jupyter::set_prolog_backend(+Backend)',
 			'\n\n    Activates the given Prolog backend.',
-			'\n\n    Needs to be the only goal of a query.'
+			'\n\n    must be the only goal of a query.'
 		], Doc).
 	predicate_doc('jupyter::trace/1', Doc) :-
 		atomic_list_concat([
@@ -395,7 +413,7 @@
 			'\n\n    Logtalk code needs to be compiled in debug mode.',
 			'\n    By default, no port is leashed so that no user interaction is requested.',
 			'\n    All previously set breakpoints are still active.',
-			'\n\n    Needs to be the only goal of a query in order to work as expected.'
+			'\n\n    Must be the only goal of a query in order to work as expected.'
 		], Doc).
 %	predicate_doc('jupyter::update_completion_data/0', Doc) :-
 %		atomic_list_concat([
@@ -403,7 +421,7 @@
 %			'\n\n    Updates the predicate data used for code completion using Tab.',
 %			'\n\n    This is done by retrieving all built-in and exported predicates.',
 %			'\n    Needed to use completion for predicates from a newly loaded code.',
-%			'\n\n    Needs to be the only goal of a query.'
+%			'\n\n    Must be the only goal of a query.'
 %		], Doc).
 
 	% Trace
