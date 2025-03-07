@@ -39,9 +39,9 @@
 :- object(jupyter_query_handling).
 
 	:- info([
-		version is 0:3:0,
+		version is 0:3:1,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-03-06,
+		date is 2025-03-07,
 		comment is 'This object provides predicates to redirect the output of a query execution to a file and read it from the file.'
 	]).
 
@@ -139,7 +139,7 @@
 	call_query_with_output_to_file(Goal, CallRequestId, Bindings, OriginalTermData, Output, ErrorMessageData, IsFailure) :-
 		% Compute the atom of the goal Goal before calling it causes variables to be bound
 		% The atom is needed for the term data which is asserted
-		write_term_to_codes(Goal, GoalCodes, [variable_names(Bindings)]),
+		write_term_to_codes(Goal, GoalCodes, [quoted(true), variable_names(Bindings)]),
 		atom_codes(GoalAtom, GoalCodes),
 		prepare_call_with_output_to_file,
 		% Call the goal Goal and compute the runtime
