@@ -658,7 +658,7 @@
 		!,
 		Result = VarName,
 		json_parsable_results(Results, VarNames, AllVarNames, Bindings, JsonParsableResults).
-	json_parsable_results([Result|Results], [VarName|VarNames], AllVarNames, Bindings, [ResultAtom|JsonParsableResults]) :-
+	json_parsable_results([Result|Results], [_VarName|VarNames], AllVarNames, Bindings, [ResultAtom|JsonParsableResults]) :-
 		% Convert the value to an atom as it may be compound and cannot be parsed to JSON otherwise
 		(	member(Result, AllVarNames) ->
 			% 
