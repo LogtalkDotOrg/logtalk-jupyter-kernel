@@ -86,12 +86,11 @@
 	:- meta_predicate(safe_call_without_sending_error_replies(0)).
 
 	:- uses(debugger, [notrace/0]).
-	:- uses(list, [append/2, append/3, length/2]).
+	:- uses(list, [append/2, append/3]).
 	:- uses(logtalk, [print_message/3]).
 	:- uses(os, [delete_file/1, wall_time/1]).
 	:- uses(reader, [line_to_codes/2 as read_line_to_codes/2]).
 	:- uses(term_io, [write_term_to_codes/3]).
-	:- uses(jupyter_logging, [log/1, log/2]).
 
 	% TermData and OriginalTermData are terms of the form term_data(TermAtom, Bindings)
 

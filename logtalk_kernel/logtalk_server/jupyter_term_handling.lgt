@@ -87,18 +87,16 @@
 
 	:- uses(debugger, [debug/0, trace/0, notrace/0]).
 	:- uses(term_io, [write_term_to_atom/3, write_term_to_codes/3, format_to_codes/3, read_term_from_codes/3]).
-	:- uses(format, [format/2]).
-	:- uses(list, [append/2, append/3, delete/3, length/2, reverse/2,  member/2, memberchk/2, nth1/3]).
+	:- uses(list, [append/2, append/3, delete/3, length/2,  member/2, nth1/3]).
 	:- uses(logtalk, [print_message(debug, jupyter, Message) as dbg(Message)]).
 	:- uses(meta, [map/3 as maplist/3]).
-	:- uses(os, [delete_file/1]).
 	:- uses(user, [atomic_list_concat/2]).
 
 	:- uses(jupyter_logging, [log/1, log/2]).
 	:- uses(jupyter_query_handling, [call_with_output_to_file/3, call_query_with_output_to_file/7, redirect_output_to_file/0, safe_call_without_sending_error_replies/1]).
 	:- uses(jupyter_jsonrpc, [send_error_reply/3, json_error_term/5]).
 	:- uses(jupyter_request_handling, [loop/3]).
-	:- uses(jupyter_preferences, [set_preference/3, get_preference/2, get_preferences/1]).
+	:- uses(jupyter_preferences, [set_preference/3, get_preference/2]).
 	:- uses(jupyter_variable_bindings, [term_with_stored_var_bindings/4, store_var_bindings/1]).
 
 	% is_retry(IsRetry)

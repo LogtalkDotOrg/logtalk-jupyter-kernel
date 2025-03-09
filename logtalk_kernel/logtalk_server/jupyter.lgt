@@ -170,8 +170,8 @@
 
 	:- uses(debugger, [leash/1, trace/0, notrace/0]).
 	:- uses(format, [format/2]).
-	:- uses(list, [append/3, last/2, member/2, reverse/2]).
-	:- uses(term_io, [read_term_from_codes/3, write_term_to_codes/3, format_to_codes/3]).
+	:- uses(list, [append/3, last/2, member/2]).
+	:- uses(term_io, [read_term_from_codes/3]).
 	:- uses(user, [atomic_list_concat/2]).
 	:- uses(jupyter_logging, [log/1, log/2]).
 	:- uses(jupyter_query_handling, [query_data/4]).

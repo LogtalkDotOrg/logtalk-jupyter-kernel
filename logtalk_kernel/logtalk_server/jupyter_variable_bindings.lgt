@@ -35,9 +35,9 @@
 :- object(jupyter_variable_bindings).
 
 	:- info([
-		version is 0:2:0,
+		version is 0:3:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-03-05,
+		date is 2025-03-09,
 		comment is 'This object provides predicates to reuse previous values of variables in a query.'
 	]).
 
@@ -62,7 +62,6 @@
 	var_bindings([]).
 
 	:- uses(list, [append/3, delete/3, member/2]).
-	:- uses(jupyter_logging, [log/1, log/2]).
 
 	:- multifile(logtalk::message_tokens//2).
 	:- dynamic(logtalk::message_tokens//2).

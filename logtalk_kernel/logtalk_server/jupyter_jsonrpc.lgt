@@ -28,9 +28,9 @@
 :- object(jupyter_jsonrpc).
 
 	:- info([
-		version is 0:1:0,
+		version is 0:2:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2022-12-02,
+		date is 2025-03-09,
 		comment is 'This object andles all reading, writing, and parsing of JSON messages. It is based on jsonrpc_server.pl and jsonrpc_client.pl from SICStus 4.5.1.'
 	]).
 
@@ -64,7 +64,7 @@
 	:- uses(os, [null_device_path/1]).
 	:- uses(term_io, [read_term_from_codes/4, write_term_to_atom/3]).
 	:- uses(jupyter_query_handling, [retrieve_message/2]).
-	:- uses(jupyter_logging, [log/1, log/2]).
+	:- uses(jupyter_logging, [log/1]).
 	:- uses(json(list,dash,atom), [
 		generate(stream(Stream),JSON) as json_write(Stream,JSON),
 		parse(line(Stream),JSON) as json_read(Stream,JSON)
@@ -235,7 +235,7 @@
 
 	% write_message(+JSON)
 	write_message(JSON) :-
-		jupyter_logging::log(JSON),
+		log(JSON),
 		% If sending the JSON message to the client directly fails (because the term JSON might not be parsable to JSON),
 		%  the client would receive an incomplete message.
 		% Instead, try writing JSON to a file and send an error reply if this fails.

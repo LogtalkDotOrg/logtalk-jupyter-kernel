@@ -34,9 +34,9 @@
 :- object(jupyter_server).
 
 	:- info([
-		version is 0:3:0,
+		version is 0:4:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-03-05,
+		date is 2025-03-09,
 		comment is 'Main object of the server.'
 	]).
 
@@ -53,7 +53,6 @@
 		argnames is ['VerbosityLevel']
 	]).
 
-	:- uses(jupyter_logging, [log/1, log/2]).
 	:- uses(jupyter_request_handling, [loop/3]).
 %	:- uses(jupyter_term_handling, [assert_sld_data/4]).
 	:- uses(jupyter_preferences, [set_preference/2]).
