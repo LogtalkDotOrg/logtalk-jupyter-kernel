@@ -52,13 +52,13 @@
 :- object(jupyter_term_handling).
 
 	:- info([
-		version is 0:6:1,
+		version is 0:7:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-03-07,
+		date is 2025-03-09,
 		comment is 'This object provides predicates to handle terms received from the client, compute their results and assert them with term_response/1.'
 	]).
 
-	:- public(assert_sld_data/4).
+	%:- public(assert_sld_data/4).
 	% assert_sld_data(Port, Goal, Frame, ParentFrame)
 
 	:- public(handle_term/5).
@@ -73,12 +73,17 @@
 
 	:- public(get_data/3).
 	:- meta_predicate(get_data(*, *, *)).
+	:- mode(get_data(+callable, +list, -term), one).
+	:- info(get_data/3, [
+		comment is 'Proves a goal and returns the binding for the ``Data`` or ``_Data`` variable.',
+		argnames is ['Goal', 'Bindings', 'Data']
+	]).
 
 	:- public(dot_subnode/3).
 
 	:- public(dot_subtree/3).
 
-	:- meta_predicate(call_with_sld_failure_handling(*, *)).
+%	:- meta_predicate(call_with_sld_failure_handling(*, *)).
 
 	:- uses(debugger, [debug/0, trace/0, notrace/0]).
 	:- uses(term_io, [write_term_to_atom/3, write_term_to_codes/3, format_to_codes/3, read_term_from_codes/3]).
@@ -214,8 +219,8 @@
 		\+ user::current_predicate(print_queries/0).
 	is_query_alias(print_queries(L), jupyter::print_queries(L)) :-
 		\+ user::current_predicate(print_queries/1).
-	is_query_alias(show_sld_tree(L), jupyter::print_sld_tree(L)) :-
-		\+ user::current_predicate(show_sld_tree/1).
+%	is_query_alias(show_sld_tree(L), jupyter::print_sld_tree(L)) :-
+%		\+ user::current_predicate(show_sld_tree/1).
 
 	% handle_query_term_(+Query, +CallRequestId, +Stack, +Bindings, +OriginalTermData, +LoopCont, -Cont)
 	handle_query_term_(Call, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont) :-
@@ -231,8 +236,8 @@
 		% By unifying Cont=done, the loop reading and handling messages is stopped
 		handle_halt.
 	% jupyter predicates
-	handle_query_term_(jupyter::print_sld_tree(Goal), _CallRequestId, _Stack, Bindings, _OriginalTermData, _LoopCont, continue) :- !,
-		handle_print_sld_tree(Goal, Bindings).
+%	handle_query_term_(jupyter::print_sld_tree(Goal), _CallRequestId, _Stack, Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+%		handle_print_sld_tree(Goal, Bindings).
 	handle_query_term_(jupyter::show_data(Goal), _CallRequestId, _Stack, Bindings, _OriginalTermData, _LoopCont, continue) :- !,
 		handle_show_data(Bindings, Goal).
 	handle_query_term_(jupyter::print_table(Goal), _CallRequestId, _Stack, Bindings, _OriginalTermData, _LoopCont, continue) :- !,
@@ -667,15 +672,13 @@
 		),
 		json_parsable_results(Results, VarNames, AllVarNames, Bindings, JsonParsableResults).
 
-
+/*
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Print SLD Trees
 
 % Create content for a file representing a graph resembling the SLD tree of an execution that can be rendered with DOT.
-% The collection of the data needs to be handled differently for SWI- and SICStus Prolog:
-% - SICStus: a breakpoint which is removed after the execution.
-% - SWI: user:prolog_trace_interception/4 is used that calls assert_sld_data/4 which succeeds if SLD data is to be collected (if a clause collect_sld_data/0 exists).
+% The collection of the data uses Logtalk trace events. SLD data is collected when a clause collect_sld_data/0 exists.
 
 % So far, data is collected for call ports only and no leaves are shown marking a successful or failing branch.
 % In order to add such leaves, data needs to be collected for other ports as well.
@@ -713,7 +716,7 @@ assert_sld_data(call, MGoal, Current, Parent) :-
 	% If the goal is module name expanded with the user module, remove the module expansion
 	(	MGoal = user::Goal ->
 		true
-	;	Goal = MGoal
+	;	MGoal = Goal
 	),
 	% Assert the goal as character codes so that the variable names can be preserved and replaced consistently
 	write_term_to_codes(Goal, GoalCodes, [quoted(true)]),
@@ -920,7 +923,7 @@ sld_tree_edge_atoms([_GoalCodes-Current-Parent|SldData], [EdgeAtom|Edges]) :-
 	format_to_codes('    \"~w\" -> \"~w\"~n', [Parent, Current], EdgeCodes),
 	atom_codes(EdgeAtom, EdgeCodes),
 	sld_tree_edge_atoms(SldData, Edges).
-
+*/
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

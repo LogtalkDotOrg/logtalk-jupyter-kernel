@@ -39,9 +39,9 @@
 :- object(jupyter_query_handling).
 
 	:- info([
-		version is 0:3:1,
+		version is 0:4:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-03-07,
+		date is 2025-03-09,
 		comment is 'This object provides predicates to redirect the output of a query execution to a file and read it from the file.'
 	]).
 
@@ -78,8 +78,8 @@
 
 	:- public(safe_call_without_sending_error_replies/1).
 
-	:- private(remove_output_lines_for/1).
-	:- dynamic(remove_output_lines_for/1).
+%	:- private(remove_output_lines_for/1).
+%	:- dynamic(remove_output_lines_for/1).
 	% remove_output_lines_for(Type)
 
 	:- meta_predicate(call_with_exception_handling(*, *)).
@@ -322,23 +322,23 @@
 			read_lines(Stream, Lines)
 		).
 
-	% remove_output_lines(++Lines, -NewLines)
-	%
-	% Lines is a list of codes corresponding to lines read from a file to which output of a goal was written.
-	% In some cases such as for a jupyter::trace/1 or juypter::print_sld_tree/1 call, not all lines should be included in the output sent to the client.
-	remove_output_lines(Lines, NewLines) :-
-		remove_output_lines_for(sld_tree_breakpoint_messages),
-		!,
-		retractall(remove_output_lines_for(sld_tree_breakpoint_messages)),
-		% The output was produced by a call of jupyter::print_sld_tree
-		% The first two lines are of the following form:
-		% "% The debugger will first leap -- showing spypoints (debug)"
-		% "% Generic spypoint added, BID=1"
-		% The last line is like the following:
-		% "% Generic spypoint, BID=1, removed (last)"
-		% The lines corresponding to those messages are removed
-		append(LinesWithoutLast, [_LastLine], Lines),
-		LinesWithoutLast = [_First, _Second|NewLines].
+%	% remove_output_lines(++Lines, -NewLines)
+%	%
+%	% Lines is a list of codes corresponding to lines read from a file to which output of a goal was written.
+%	% In some cases such as for a jupyter::trace/1 or juypter::print_sld_tree/1 call, not all lines should be included in the output sent to the client.
+%	remove_output_lines(Lines, NewLines) :-
+%		remove_output_lines_for(sld_tree_breakpoint_messages),
+%		!,
+%		retractall(remove_output_lines_for(sld_tree_breakpoint_messages)),
+%		% The output was produced by a call of jupyter::print_sld_tree
+%		% The first two lines are of the following form:
+%		% "% The debugger will first leap -- showing spypoints (debug)"
+%		% "% Generic spypoint added, BID=1"
+%		% The last line is like the following:
+%		% "% Generic spypoint, BID=1, removed (last)"
+%		% The lines corresponding to those messages are removed
+%		append(LinesWithoutLast, [_LastLine], Lines),
+%		LinesWithoutLast = [_First, _Second|NewLines].
 	remove_output_lines(Lines, Lines).
 
 :- end_object.

@@ -55,7 +55,7 @@
 
 	:- uses(jupyter_logging, [log/1, log/2]).
 	:- uses(jupyter_request_handling, [loop/3]).
-	:- uses(jupyter_term_handling, [assert_sld_data/4]).
+%	:- uses(jupyter_term_handling, [assert_sld_data/4]).
 	:- uses(jupyter_preferences, [set_preference/2]).
 
 	start :-
@@ -66,16 +66,16 @@
 		% Start the loop handling requests from the client
 		loop(continue, [], _ContOut).
 
-	:- multifile(logtalk::trace_event/2).
-	:- dynamic(logtalk::trace_event/2).
-
-	% the Logtalk runtime calls all defined logtalk::trace_event/2 hooks using
-	% a failure-driven loop; thus we don't have to worry about handling all
-	% events or failing after handling an event to give other hooks a chance
-	logtalk::trace_event(top_goal(Goal, _), _) :-
-		assert_sld_data(call, Goal, _Frame, _ParentFrame).
-	logtalk::trace_event(goal(Goal, _), _) :-
-		assert_sld_data(call, Goal, _Frame, _ParentFrame).
+%	:- multifile(logtalk::trace_event/2).
+%	:- dynamic(logtalk::trace_event/2).
+%
+%	% the Logtalk runtime calls all defined logtalk::trace_event/2 hooks using
+%	% a failure-driven loop; thus we don't have to worry about handling all
+%	% events or failing after handling an event to give other hooks a chance
+%	logtalk::trace_event(top_goal(Goal, _), _) :-
+%		assert_sld_data(call, Goal, _Frame, _ParentFrame).
+%	logtalk::trace_event(goal(Goal, _), _) :-
+%		assert_sld_data(call, Goal, _Frame, _ParentFrame).
 
 	:- multifile(logtalk::message_prefix_stream/4).
 	:- dynamic(logtalk::message_prefix_stream/4).
