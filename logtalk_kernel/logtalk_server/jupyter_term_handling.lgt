@@ -52,9 +52,9 @@
 :- object(jupyter_term_handling).
 
 	:- info([
-		version is 0:7:0,
+		version is 0:8:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-03-09,
+		date is 2025-03-10,
 		comment is 'This object provides predicates to handle terms received from the client, compute their results and assert them with term_response/1.'
 	]).
 
@@ -94,7 +94,7 @@
 
 	:- uses(jupyter_logging, [log/1, log/2]).
 	:- uses(jupyter_query_handling, [call_with_output_to_file/3, call_query_with_output_to_file/7, redirect_output_to_file/0, safe_call_without_sending_error_replies/1]).
-	:- uses(jupyter_jsonrpc, [send_error_reply/3, json_error_term/5]).
+	:- uses(jupyter_jsonrpc, [json_error_term/5]).
 	:- uses(jupyter_request_handling, [loop/3]).
 	:- uses(jupyter_preferences, [set_preference/3, get_preference/2]).
 	:- uses(jupyter_variable_bindings, [term_with_stored_var_bindings/4, store_var_bindings/1]).

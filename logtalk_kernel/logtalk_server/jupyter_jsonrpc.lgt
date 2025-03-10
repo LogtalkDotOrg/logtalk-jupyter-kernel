@@ -28,14 +28,18 @@
 :- object(jupyter_jsonrpc).
 
 	:- info([
-		version is 0:2:0,
+		version is 0:3:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-03-09,
+		date is 2025-03-10,
 		comment is 'This object andles all reading, writing, and parsing of JSON messages. It is based on jsonrpc_server.pl and jsonrpc_client.pl from SICStus 4.5.1.'
 	]).
 
 	:- public(json_error_term/5).
-	% json_error_term(+ErrorCode, +ErrorMessageData, +Output, +AdditionalData, -JsonErrorTerm)
+	:- mode(json_error_term(+integer, +compound, +atom, +list(pair), -json), one).
+	:- info(json_error_term/5, [
+		comment is 'Returns a JSON representation of the given error.',
+		argnames is ['ErrorCode', 'ErrorMessageData', 'Output', 'AdditionalData', 'JsonErrorTerm']
+	]).
 
 	:- public(next_jsonrpc_message/1).
 	:- mode(next_jsonrpc_message(-json), one).
@@ -45,13 +49,25 @@
 	]).
 
 	:- public(parse_json_terms_request/3).
-	% parse_json_terms_request(+Params, -TermsAndVariables, -ParsingErrorMessageData)
+	:- mode(parse_json_terms_request(+json, -list(pair), -compound), one).
+	:- info(parse_json_terms_request/3, [
+		comment is 'Parses a JSON message.',
+		argnames is ['Params', 'TermsAndVariables', 'ParsingErrorMessageData']
+	]).
 
 	:- public(send_error_reply/3).
-	% send_error_reply(+Id, +ErrorCode, +ErrorMessage)
+	:- mode(send_error_reply(+integer, +integer, +atom), one).
+	:- info(send_error_reply/3, [
+		comment is 'Sends an error reply.',
+		argnames is ['Id', 'ErrorCode', 'ErrorMessage']
+	]).
 
 	:- public(send_json_request/6).
-	% send_json_request(+Method, +Params, +Id, +InputStream, +OutputStream, -Reply)
+	:- mode(send_json_request(+atom, +list, +integer, +stream_or_alias, +stream_or_alias, -json), one).
+	:- info(send_json_request/6, [
+		comment is 'Sends a JSON request by writing it to the input stream and reading the response from the output stream.',
+		argnames is ['Method', 'Params', 'Id', 'InputStream', 'OutputStream', 'Reply']
+	]).
 
 	:- public(send_success_reply/2).
 	:- mode(send_success_reply(+integer, +nonvar), one).
@@ -75,19 +91,11 @@
 	% Create a JSON-RPC Request object (http://www.jsonrpc.org/specification#request_object)
 	jsonrpc_request(Method, Params, Id, json([jsonrpc-'2.0',id-Id,method-Method,params-Params])).
 
-	jsonrpc_request(Method, Id, json([jsonrpc-'2.0',id-Id,method-Method])).
-
-
 	% Create a JSON-RPC success Response object (http://www.jsonrpc.org/specification#response_object)
 	jsonrpc_response(Result, Id, json([jsonrpc-'2.0',id-Id,result-Result])).
 
-
 	% Create a JSON-RPC error Response object (http://www.jsonrpc.org/specification#response_object)
 	jsonrpc_error_response(Error, Id, json([jsonrpc-'2.0',id-Id,error-Error])).
-
-	% Create a JSON-RPC error Response object (http://www.jsonrpc.org/specification#response_object)
-	jsonrpc_error_response(Error, json([jsonrpc-'2.0',id- @(null),error-Error])).
-
 
 	% Create a JSON-RPC Error object (http://www.jsonrpc.org/specification#error_object)
 	jsonrpc_error(Code, Message, Data, json([code-Code,message-Message,data-Data])).
@@ -146,10 +154,6 @@
 		jsonrpc_error(NumericErrorCode, JsonRpcErrorMessage, RPCError).
 
 
-	% error_object_code(+Name, -Code)
-	error_object_code(Name, Code) :-
-		error_object_code(Name, Code, _Description).
-
 	% error_object_code(ErrorCode, NumericErrorCode, JsonRpcErrorMessage)
 	%
 	% Pre-defined errorserror_object_code(parse_error, -32700, 'Invalid JSON was received by the server.').
@@ -165,12 +169,6 @@
 	error_object_code(unhandled_exception,   -4715, 'Unhandled exception').
 
 
-	% Send json request and read the response
-
-	% send_json_request(+Method, +Params, +Id, +InputStream, +OutputStream, -Reply)
-	%
-	% Sends a request by writing it to the input stream and reads the response from the output stream.
-	% Used for the tests in jupyter_server_tests.pl.
 	send_json_request(Method, Params, Id, InputStream, OutputStream, Reply) :-
 		jsonrpc_request(Method, Params, Id, Request),
 		% Send the request

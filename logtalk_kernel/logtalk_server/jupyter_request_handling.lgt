@@ -45,9 +45,9 @@
 :- object(jupyter_request_handling).
 
 	:- info([
-		version is 0:10:0,
+		version is 0:11:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-03-06,
+		date is 2025-03-10,
 		comment is 'This object provides predicates to start a loop reading and handling JSON RPC requests.'
 	]).
 
@@ -61,7 +61,7 @@
 	:- uses(term_io, [format_to_atom/3, write_term_to_atom/3]).
 	:- uses(user, [atomic_list_concat/2]).
 
-	:- uses(jupyter_logging, [create_log_file/1, log/1, log/2]).
+	:- uses(jupyter_logging, [create_log_file/1, log/1]).
 	:- uses(jupyter_jsonrpc, [send_success_reply/2, send_error_reply/3, next_jsonrpc_message/1, parse_json_terms_request/3]).
 	:- uses(jupyter_term_handling, [handle_term/5, term_response/1]).
 	:- uses(jupyter_query_handling, [send_reply_on_error/0, retrieve_message/2]).
