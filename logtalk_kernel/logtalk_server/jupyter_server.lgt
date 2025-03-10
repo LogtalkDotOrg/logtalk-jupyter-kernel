@@ -34,9 +34,9 @@
 :- object(jupyter_server).
 
 	:- info([
-		version is 0:4:0,
+		version is 0:5:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-03-09,
+		date is 2025-03-10,
 		comment is 'Main object of the server.'
 	]).
 
@@ -98,6 +98,8 @@
 	message_tokens(goal_failed(Goal)) -->
 		['~w - goal failed'-[Goal]], [nl].
 
+	message_tokens(set_preference(Preference,Value)) -->
+		['Invalid preference or preference value: ~q - ~q'-[Preference, Value]], [nl].
 	message_tokens(invalid_table_values_lists_length) -->
 		['The values lists need to be of the same length'-[]], [nl].
 	message_tokens(invalid_table_variable_names) -->
