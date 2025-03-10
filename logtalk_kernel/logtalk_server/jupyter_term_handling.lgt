@@ -62,14 +62,27 @@
 	% assert_sld_data(Port, Goal, Frame, ParentFrame)
 
 	:- public(handle_term/5).
-	% handle_term(+Term, +CallRequestId, +Stack, +Bindings, -Cont)
+	:- mode(handle_term(+callable, +integer, +list(atom), +list, -term), one).
+	:- info(handle_term/5, [
+		comment is '.',
+		argnames is ['Term', 'CallRequestId', 'Stack', 'Bindings', 'Cont']
+	]).
 
 	:- public(term_response/1).
 	:- dynamic(term_response/1).
-	% term_response(JsonResponse),
+	:- mode(term_response(+json), zero_or_more).
+	:- info(term_response/1, [
+		comment is 'JSON term response table.',
+		argnames is ['JsonResponse']
+	]).
 
 	:- public(findall_results_and_var_names/4).
 	:- meta_predicate(findall_results_and_var_names(*, *, *, *)).
+	:- mode(findall_results_and_var_names(+callable, +list, -list, -list(atom)), one).
+	:- info(findall_results_and_var_names/4, [
+		comment is 'Finds all solutions to a goal returning the binding values and the variable names.',
+		argnames is ['Goal', 'Bindings', 'Results', 'VarNames']
+	]).
 
 	:- public(get_data/3).
 	:- meta_predicate(get_data(*, *, *)).
@@ -93,15 +106,19 @@
 	:- uses(user, [atomic_list_concat/2]).
 
 	:- uses(jupyter_logging, [log/1, log/2]).
-	:- uses(jupyter_query_handling, [call_with_output_to_file/3, call_query_with_output_to_file/7, redirect_output_to_file/0, safe_call_without_sending_error_replies/1]).
+	:- uses(jupyter_query_handling, [call_with_output_to_file/3, call_query_with_output_to_file/7, redirect_output_to_file/0]).
 	:- uses(jupyter_jsonrpc, [json_error_term/5]).
 	:- uses(jupyter_request_handling, [loop/3]).
 	:- uses(jupyter_preferences, [set_preference/3, get_preference/2]).
 	:- uses(jupyter_variable_bindings, [term_with_stored_var_bindings/4, store_var_bindings/1]).
 
-	% is_retry(IsRetry)
 	:- private(is_retry/1).
 	:- dynamic(is_retry/1).
+	:- mode(is_retry(-boolean), one).
+	:- info(is_retry/1, [
+		comment is 'True iff we are backtracking into a query.',
+		argnames is ['IsRetry']
+	]).
 
 	% handle_term(+Term, +CallRequestId, +Stack, +Bindings, -Cont)
 	%

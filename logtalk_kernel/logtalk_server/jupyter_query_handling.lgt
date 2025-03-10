@@ -39,19 +39,27 @@
 :- object(jupyter_query_handling).
 
 	:- info([
-		version is 0:4:0,
+		version is 0:5:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-03-09,
+		date is 2025-03-10,
 		comment is 'This object provides predicates to redirect the output of a query execution to a file and read it from the file.'
 	]).
 
 	:- public(call_query_with_output_to_file/7).
 	:- meta_predicate(call_query_with_output_to_file(*, *, *, *, *, *, *)).
-	% call_query_with_output_to_file(+Goal, +CallRequestId, +Bindings, +OriginalTermData, -Output, -ErrorMessageData -IsFailure)
+	:- mode(call_query_with_output_to_file(+callable, +integer, +list, +compound, -atom, -compound, -boolean), one).
+	:- info(call_query_with_output_to_file/7, [
+		comment is 'Calls a goal returning its output and any error message data in case of an exception.',
+		argnames is ['Goal', 'CallRequestId', 'Bindings', 'OriginalTermData', 'Output', 'ErrorMessageData', 'IsFailure']
+	]).
 
 	:- public(call_with_output_to_file/3).
 	:- meta_predicate(call_with_output_to_file(*, *, *)).
-	% call_with_output_to_file(+Goal, -Output, -ErrorMessageData)
+	:- mode(call_with_output_to_file(+callable, -atom, -compound), zero_or_one).
+	:- info(call_with_output_to_file/3, [
+		comment is 'Calls a goal returning its output and any error message data in case of an exception.',
+		argnames is ['Goal', 'Output', 'ErrorMessageData']
+	]).
 
 	:- public(delete_output_file/1).
 	:- mode(delete_output_file(+boolean), one).
@@ -62,7 +70,11 @@
 
 	:- public(query_data/4).
 	:- dynamic(query_data/4).
-	% query_data(-CallRequestId, -Runtime, -TermData, -OriginalTermData)
+	:- mode(query_data(-integer, -float, -compound, -compound), zero_or_more).
+	:- info(query_data/4, [
+		comment is 'Table of query data.',
+		argnames is ['CallRequestId', 'Runtime', 'TermData', 'OriginalTermData']
+	]).
 
 	:- public(redirect_output_to_file/0).
 	:- mode(redirect_output_to_file, one).
@@ -71,19 +83,22 @@
 	]).
 
 	:- public(retrieve_message/2).
-	% retrieve_message(+ErrorMessageData, -Message)
+	:- mode(retrieve_message(+atom, -atom), one).
+	:- mode(retrieve_message(+compound, -atom), one).
+	:- info(retrieve_message/2, [
+		comment is 'Retrieves the message text from priting the message given its data. Returns the empty atom when the data is athe atom ``null``.',
+		argnames is ['ErrorMessageData', 'Message']
+	]).
 
 	:- public(send_reply_on_error/0).
 	:- dynamic(send_reply_on_error/0).
 
-	:- public(safe_call_without_sending_error_replies/1).
-
+%	:- public(safe_call_without_sending_error_replies/1).
+%	:- meta_predicate(safe_call_without_sending_error_replies(0)).
+%
 %	:- private(remove_output_lines_for/1).
 %	:- dynamic(remove_output_lines_for/1).
 	% remove_output_lines_for(Type)
-
-	:- meta_predicate(call_with_exception_handling(*, *)).
-	:- meta_predicate(safe_call_without_sending_error_replies(0)).
 
 	:- uses(debugger, [notrace/0]).
 	:- uses(list, [append/2, append/3]).
@@ -104,13 +119,13 @@
 	file_name(output, '.server_output').
 	file_name(test, 'test_definition.pl').
 
-	safe_call_without_sending_error_replies(Goal) :-
-		retractall(send_reply_on_error),
-		% call_cleanup(Goal, assert(send_reply_on_error)).
-		(	catch(Goal, Error, (assertz(send_reply_on_error), throw(Error))) ->
-			assertz(send_reply_on_error)
-		;	assertz(send_reply_on_error)
-		).
+%	safe_call_without_sending_error_replies(Goal) :-
+%		retractall(send_reply_on_error),
+%		% call_cleanup(Goal, assert(send_reply_on_error)).
+%		(	catch(Goal, Error, (assertz(send_reply_on_error), throw(Error))) ->
+%			assertz(send_reply_on_error)
+%		;	assertz(send_reply_on_error)
+%		).
 
 	% Call a goal and read all output
 
@@ -164,6 +179,7 @@
 		redirect_output_to_stream(OutputStream).
 
 	% call_with_exception_handling(+Goal, -ErrorMessageData)
+	:- meta_predicate(call_with_exception_handling(*, *)).
 	call_with_exception_handling(Goal, ErrorMessageData) :-
 		catch(
 			{Goal},
