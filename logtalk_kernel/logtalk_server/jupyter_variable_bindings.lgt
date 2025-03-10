@@ -35,9 +35,9 @@
 :- object(jupyter_variable_bindings).
 
 	:- info([
-		version is 0:3:0,
+		version is 0:4:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-03-09,
+		date is 2025-03-10,
 		comment is 'This object provides predicates to reuse previous values of variables in a query.'
 	]).
 
@@ -66,6 +66,8 @@
 	:- multifile(logtalk::message_tokens//2).
 	:- dynamic(logtalk::message_tokens//2).
 
+	logtalk::message_tokens(jupyter(invalid_var_reference(VarName)), jupyter) -->
+		['$~w is not a valid variable reference'-[VarName]], [nl].
 	logtalk::message_tokens(jupyter(no_var_binding(VarName)), jupyter) -->
 		['$~w was not bound by a previous query~n'-[VarName]], [nl].
 
@@ -106,6 +108,9 @@
 	expand_term(Atomic, _Bindings, Atomic, []) :-
 		atomic(Atomic),
 		!.
+	expand_term($(Var), _Bindings, _Value, _) :-
+		nonvar(Var),
+		throw(jupyter(invalid_var_reference(Var))).
 	expand_term($(Var), Bindings, Value, [Name=Value]) :-
 		!,
 		% Get the name of the variable to get the previous value
