@@ -19,7 +19,7 @@ Logtalk 3.81.0 (or later version) plus at least one of the supported Prolog back
 - [GNU Prolog 1.6.0 or later](http://www.gprolog.org/) (use git version until 1.6.0 is released)
 - [SICStus Prolog 4.5.1 or later](https://sicstus.sics.se/)
 - [SWI-Prolog 8.4.3 or later](https://www.swi-prolog.org/) (default)
-- [Trealla Prolog 2.18.7 or later](https://github.com/trealla-prolog/trealla)
+- [Trealla Prolog 2.65.5 or later](https://github.com/trealla-prolog/trealla)
 - [XVM 10.0.0 or later](https://permion.ai/)
 - [YAP 7.2.1 or later](https://github.com/vscosta)
 
@@ -166,13 +166,14 @@ The predicate argument is the name of the integration script used to run Logtalk
 
 ### Requirements
 
-- At least **Python** 3.6
+- At least **Python** 3.7
   - Tested with Python 3.11.7
 - **Jupyter** installation with JupyterLab and/or Juypter Notebook
   - Tested with
     - `jupyter_core`: 5.7.2
     - `jupyterlab`: 4.2.3
     - `notebook`: 7.2.1
+	- `jupytext`: 1.16.7
 - Logtalk and one or more supported Prolog backends (see above)
 - Installing **Graphviz** with `python3 -m pip` may not suffice (notably, on Windows)
   - Also run the Graphviz [installer](https://graphviz.org/download/) and add its executables to the `PATH` (a reboot may be required afterwards)
