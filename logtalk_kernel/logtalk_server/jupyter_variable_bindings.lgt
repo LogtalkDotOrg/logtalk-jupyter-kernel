@@ -35,9 +35,9 @@
 :- object(jupyter_variable_bindings).
 
 	:- info([
-		version is 0:4:0,
+		version is 0:5:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-03-10,
+		date is 2025-05-01,
 		comment is 'This object provides predicates to reuse previous values of variables in a query.'
 	]).
 
@@ -49,7 +49,11 @@
 	]).
 
 	:- public(term_with_stored_var_bindings/4).
-	% term_with_stored_var_bindings(+Term, +Bindings, -ExpandedTerm, -UpdatedBindings)
+	:- mode(term_with_stored_var_bindings(+term, +list, -term, -list), one).
+	:- info(term_with_stored_var_bindings/4, [
+		comment is 'Expands ``Term`` by replacing all ``$Var`` terms with the latest value of the ``Var`` variables from a previous execution.',
+		argnames is ['Term', 'Bindings', 'ExpandedTerm', 'UpdatedBindings']
+	]).
 
 	:- public(var_bindings/1).
 	:- dynamic(var_bindings/1).
@@ -163,6 +167,7 @@
 	updated_variables([], [], []) :- !.
 	updated_variables([], [Name=Value|BindingsToUpdateWith], [Name=Value|UpdatedBindings]) :-
 		nonvar(Value),
+		acyclic_term(Value),
 		!,
 		updated_variables([], BindingsToUpdateWith, UpdatedBindings).
 	updated_variables([], [_Name=_Value|BindingsToUpdateWith], UpdatedBindings) :-
@@ -170,6 +175,7 @@
 	updated_variables([Name=_Var|BindingsToUpdate], BindingsToUpdateWith, [Name=Value|UpdatedBindings]) :-
 		member(Name=Value, BindingsToUpdateWith),
 		nonvar(Value),
+		acyclic_term(Value),
 		% There is a value Value for the variable with name Name in BindingsToUpdateWith -> use that value
 		!,
 		% Delete the entry from the list BindingsToUpdateWith as it has been processed

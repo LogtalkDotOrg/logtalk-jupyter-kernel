@@ -52,9 +52,9 @@
 :- object(jupyter_term_handling).
 
 	:- info([
-		version is 0:8:0,
+		version is 0:9:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-03-10,
+		date is 2025-05-01,
 		comment is 'This object provides predicates to handle terms received from the client, compute their results and assert them with term_response/1.'
 	]).
 
@@ -1357,8 +1357,12 @@ handle_update_completion_data.
 	% AdditionalData is a list containing Key=Value pairs providing additional data for the client.
 	assert_success_response(Type, Bindings, Output, AdditionalData) :-
 		dbg('Success ~w:~n ~w~n~w~n ~w~n'+[Type,Bindings,Output,AdditionalData]),
-		assertz(term_response(json([status-success, type-Type, bindings-json(Bindings), output-Output|AdditionalData]))).
-
+		% use a catch/3 to succeed in case of assert error due to cyclic terms in TermData by discarding the bindings
+		catch(
+			assertz(term_response(json([status-success, type-Type, bindings-json(Bindings), output-Output|AdditionalData]))),
+			_,
+			assertz(term_response(json([status-success, type-Type, bindings-json([]), output-Output|AdditionalData])))
+	).
 
 	% assert_error_response(+ErrorCode, +ErrorMessageData, +Output, +AdditionalData)
 	%

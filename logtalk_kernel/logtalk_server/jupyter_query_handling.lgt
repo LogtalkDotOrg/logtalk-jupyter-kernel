@@ -39,9 +39,9 @@
 :- object(jupyter_query_handling).
 
 	:- info([
-		version is 0:5:0,
+		version is 0:6:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-03-10,
+		date is 2025-05-01,
 		comment is 'This object provides predicates to redirect the output of a query execution to a file and read it from the file.'
 	]).
 
@@ -203,7 +203,8 @@
 			StoreOriginalTermData = OriginalTermData
 		),
 		% Assert the data with assertz/1 so that they can be accessed in the correct order with jupyter:print_queries/1
-		assertz(query_data(CallRequestId, Runtime, TermData, StoreOriginalTermData)).
+		% use a catch/3 to succeed in case of assert error due to cyclic terms in TermData
+		catch(assertz(query_data(CallRequestId, Runtime, TermData, StoreOriginalTermData)), _, true).
 	assert_query_data(_CallRequestId, _Runtime, _TermData, _OriginalTermData).
 
 	% cleanup_and_read_output_from_file(+Goal, -Output)
