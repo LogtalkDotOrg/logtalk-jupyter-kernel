@@ -30,7 +30,7 @@ Base class for the actual execution of requests received by the Logtalk Jupyter 
 It provides code for starting a Logtalk server and communicating with it.
 Additionally, code completion and inspection are implemented.
 
-By subclassing this, basically all functionality of the Logtalk kernel can be overriden.
+By subclassing this, basically all functionality of the Logtalk kernel can be overridden.
 For further information, see 'kernel.py'.
 """
 
@@ -43,6 +43,7 @@ import subprocess
 import csv
 import io
 import matplotlib.pyplot as plt
+import ipywidgets as widgets
 
 from graphviz import render
 from IPython.core.completer import CompletionSplitter
@@ -611,8 +612,60 @@ class LogtalkKernelBaseImplementation:
         if 'set_prolog_backend' in dict:
             if self.handle_set_prolog_backend(dict['set_prolog_backend']):
                 failure_keys.append(['set_prolog_backend'])
+        if 'text_input_widget' in dict:
+            if self.handle_text_input_widget(dict['text_input_widget']):
+                failure_keys.append(['text_input_widget'])
 
         return failure_keys
+
+
+    def handle_text_input_widget(self, widget_dict):
+        """
+        Minimal support for displaying a text input widget using ipywidgets.
+        widget_dict example: { 'description': 'Label', 'value': 'default', 'placeholder': 'Type here...' }
+        Persists the widget value for later retrieval.
+        """
+        try:
+            description = widget_dict.get('description', '')
+            value = widget_dict.get('value', '')
+            placeholder = widget_dict.get('placeholder', '')
+            text_widget = widgets.Text(
+                value=value,
+                placeholder=placeholder,
+                description=description,
+                disabled=widget_dict.get('disabled', False)
+            )
+            # Persist the widget for later value retrieval
+            if not hasattr(self, '_text_input_widgets'):
+                self._text_input_widgets = []
+            self._text_input_widgets.append(text_widget)
+            from IPython.display import display
+            display(text_widget)
+        except Exception as e:
+            display_data = {
+                'data': {
+                    'text/plain': f"{self.error_ansi_escape_codes} {self.backend_data['error_prefix']} {e}"
+                },
+                'metadata': {}
+            }
+            self.kernel.send_response(self.kernel.iopub_socket, 'display_data', display_data)
+
+    def get_text_input_widget_value(self, widget_dict):
+        """
+        Retrieve the value from a text input widget dict or from the persisted widget if available.
+        widget_dict example: { 'description': 'Label', 'value': 'default', 'placeholder': 'Type here...' }
+        Returns the value or an empty string if not present.
+        """
+        try:
+            # Try to get the value from the persisted widget if possible
+            if hasattr(self, '_text_input_widgets'):
+                for widget in self._text_input_widgets:
+                    if widget.description == widget_dict.get('description', ''):
+                        return widget.value
+            # Fallback to the value in the dict
+            return widget_dict.get('value', '')
+        except Exception:
+            return ''
 
 
     def handle_completion_data_update(self, predicate_atoms):

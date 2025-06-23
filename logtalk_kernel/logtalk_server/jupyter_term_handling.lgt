@@ -92,6 +92,8 @@
 		argnames is ['Goal', 'Bindings', 'Data']
 	]).
 
+	:- public(create_text_widget/2).
+
 	:- public(dot_subnode/3).
 
 	:- public(dot_subtree/3).
@@ -273,6 +275,8 @@
 		handle_update_completion_data.
 	handle_query_term_(jupyter::set_preference(Pref,Value), _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
 		handle_set_preference(Pref,Value).
+	handle_query_term_(jupyter::create_text_widget(Description,DefaultValue), _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+		handle_create_text_widget(Description, DefaultValue).
 	% trace
 	handle_query_term_(trace, _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
 		handle_trace(trace/0).
@@ -612,6 +616,20 @@
 			),
 			AtomList
 		).
+
+   % Handle jupyter::create_text_widget/2
+    handle_create_text_widget(Description, DefaultValue) :-
+        !,
+        % Send to the kernel for rendering
+        assert_success_response(query, [], '', [text_input_widget-json([description-Description, value-DefaultValue, placeholder-'Type here...'])]).
+
+    % Handle jupyter::get_text_widget_value/2
+    % handle_query_term_(jupyter::get_text_widget_value(WidgetDict, Value), CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, continue) :-
+    %     !,
+    %     jupyter_widgets::get_text_widget_value(WidgetDict, Value),
+    %     assert_success_response(query, [], '', []).
+
+
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	
