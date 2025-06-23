@@ -1,0 +1,332 @@
+/**
+ * Logtalk Jupyter Kernel Widget Support
+ * JavaScript communication layer for HTML/JavaScript widgets
+ */
+
+// Global widget state management with direct kernel reference
+window.LogtalkWidgets = {
+    widgets: new Map(),
+    
+    // Register a widget
+    registerWidget: function(widgetId, type, initialValue) {
+        this.widgets.set(widgetId, {
+            type: type,
+            value: initialValue,
+            element: document.getElementById(widgetId)
+        });
+    },
+    
+    // Update widget value and notify kernel
+    updateWidget: async function(widgetId, value) {
+        const widget = this.widgets.get(widgetId);
+        if (!widget) return;
+        
+        // Update local state
+        widget.value = value;
+        
+        // Send update to kernel
+        await this.sendWidgetUpdate(widgetId, value);
+
+        // Update DOM element
+        const element = widget.element;
+        if (element) {
+            switch (widget.type) {
+                case 'text_input':
+                case 'number_input':
+                case 'dropdown':
+                    element.value = value;
+                    break;
+                case 'slider':
+                    element.value = value;
+                    const valueDisplay = document.getElementById(widgetId + '_value');
+                    if (valueDisplay) valueDisplay.textContent = value;
+                    break;
+                case 'checkbox':
+                    element.checked = (value === true || value === 'true');
+                    break;
+            }
+        }
+    },
+    
+    // Send widget update to kernel using the message queue
+    sendWidgetUpdate: async function(widgetId, value) {
+        if (!window.JUPYTER_KERNEL) {
+            console.error('❌ No kernel available for widget update');
+            return;
+        }
+
+        const escapedValue = typeof value === 'string' ? 
+            `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'` : 
+            typeof value === 'boolean' ? (value ? 'true' : 'false') : 
+            String(value);
+
+        const code = `jupyter_widget_handling::set_widget_value('${widgetId}', ${escapedValue}).`;
+        console.log('📤 Sending widget update:', code);
+
+        try {
+            await window.JUPYTER_MESSAGE_QUEUE.add(code, {
+                silent: true,
+                store_history: false
+            });
+            console.log('✅ Widget update sent successfully');
+        } catch (error) {
+            console.error('❌ Failed to send widget update:', error);
+        }
+    },
+    
+    // Get widget value
+    getWidgetValue: function(widgetId) {
+        return this.widgets.has(widgetId) ? this.widgets.get(widgetId).value : null;
+    },
+    
+    // Set widget value from kernel
+    setWidgetValue: function(widgetId, value) {
+        const widget = this.widgets.get(widgetId);
+        if (widget) {
+            widget.value = value;
+            // Update DOM
+            const element = widget.element;
+            if (element) {
+                if (widget.type === 'checkbox') {
+                    element.checked = (value === true || value === 'true');
+                } else {
+                    element.value = value;
+                }
+                // For sliders, update display value
+                if (widget.type === 'slider') {
+                    const valueDisplay = document.getElementById(widgetId + '_value');
+                    if (valueDisplay) valueDisplay.textContent = value;
+                }
+            }
+        }
+    }
+};
+
+// Universal kernel execution handler - all code execution should go through here
+async function executeInKernel(code, options = {}) {
+    console.log('📝 Executing in kernel:', code);
+
+    if (!window.JUPYTER_KERNEL) {
+        const error = new Error('No kernel reference available');
+        console.error('❌', error);
+        throw error;
+    }
+
+    const defaultOptions = {
+        silent: true,
+        store_history: false,
+        user_expressions: {},
+        allow_stdin: false,
+        stop_on_error: false,
+        ...options
+    };
+
+    try {
+        const result = await window.JUPYTER_KERNEL.do_execute(code, defaultOptions);
+        console.log('✅ Code executed successfully:', result);
+        return result;
+    } catch (error) {
+        console.error('❌ Failed to execute code:', error);
+        throw error;
+    }
+}
+
+// Global message queue to prevent concurrent execution
+if (!window.JUPYTER_MESSAGE_QUEUE) {
+    window.JUPYTER_MESSAGE_QUEUE = {
+        queue: [],
+        processing: false,
+
+        async add(code, options = {}) {
+            return new Promise((resolve, reject) => {
+                this.queue.push({ code, options, resolve, reject });
+                if (!this.processing) {
+                    this.processNext();
+                }
+            });
+        },
+
+        async processNext() {
+            if (this.queue.length === 0) {
+                this.processing = false;
+                return;
+            }
+
+            this.processing = true;
+            const { code, options, resolve, reject } = this.queue.shift();
+
+            try {
+                const result = await executeInKernel(code, options);
+                resolve(result);
+            } catch (error) {
+                reject(error);
+            }
+
+            // Process next message
+            this.processNext();
+        }
+    };
+}
+
+// Single handler for all kernel execution requests
+document.addEventListener('kernel_execute', async function(event) {
+    const { code, options = {}, msg_id } = event.detail;
+    
+    try {
+        const result = await window.JUPYTER_MESSAGE_QUEUE.add(code, options);
+        
+        document.dispatchEvent(new CustomEvent('kernel_execute_complete', {
+            detail: {
+                msg_id,
+                result: { status: 'ok', data: result }
+            }
+        }));
+    } catch (error) {
+        document.dispatchEvent(new CustomEvent('kernel_execute_complete', {
+            detail: {
+                msg_id,
+                error: error.message
+            }
+        }));
+    }
+});
+
+// Manual kernel connection function for debugging
+function connectLogtalkWidgetsToKernel() {
+    console.log('Attempting manual kernel connection...');
+
+    // Try all possible kernel references
+    const kernelSources = [
+        () => Jupyter && Jupyter.notebook && Jupyter.notebook.kernel,
+        () => IPython && IPython.notebook && IPython.notebook.kernel,
+        () => window.parent.Jupyter && window.parent.Jupyter.notebook && window.parent.Jupyter.notebook.kernel,
+        () => window.parent.IPython && window.parent.IPython.notebook && window.parent.IPython.notebook.kernel
+    ];
+
+    for (let i = 0; i < kernelSources.length; i++) {
+        try {
+            const kernel = kernelSources[i]();
+            if (kernel) {
+                LogtalkWidgets.kernel = kernel;
+                console.log(`Kernel connected via method ${i + 1}:`, kernel);
+                return true;
+            }
+        } catch (e) {
+            console.log(`Kernel connection method ${i + 1} failed:`, e);
+        }
+    }
+
+    console.log('All kernel connection methods failed');
+    return false;
+}
+
+// Make functions globally available for debugging
+window.connectLogtalkWidgetsToKernel = connectLogtalkWidgetsToKernel;
+window.LogtalkWidgets = LogtalkWidgets;
+
+// Initialize widgets once when DOM is ready
+function initializeWidgets() {
+    console.log('🔄 Initializing Logtalk widgets...');
+
+    // Kernel will be available in window.JUPYTER_KERNEL injected from Python
+    if (!window.JUPYTER_KERNEL) {
+        console.error('❌ No kernel information available from Python');
+        return;
+    }
+
+    console.log('✅ Kernel found:', {
+        name: window.JUPYTER_KERNEL.name,
+        id: window.JUPYTER_KERNEL.id,
+        session_id: window.JUPYTER_KERNEL.session_id
+    });
+}
+
+// Wait for DOM and call initialize once
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeWidgets, { once: true });
+} else {
+    initializeWidgets();
+}
+
+// Define and inject CSS styles only if not already present
+(function injectWidgetStyles() {
+    if (!document.getElementById('logtalk-widget-styles')) {
+        const widgetStyles = `
+        <style id="logtalk-widget-styles">
+        .logtalk-widget {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            background-color: #fafafa;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .logtalk-widget label {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 5px;
+            display: inline-block;
+        }
+
+        .logtalk-widget input[type="text"],
+        .logtalk-widget input[type="number"],
+        .logtalk-widget select {
+            width: 200px;
+            padding: 6px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .logtalk-widget input[type="text"]:focus,
+        .logtalk-widget input[type="number"]:focus,
+        .logtalk-widget select:focus {
+            outline: none;
+            border-color: #007cba;
+            box-shadow: 0 0 0 2px rgba(0, 124, 186, 0.2);
+        }
+
+        .logtalk-widget input[type="range"] {
+            width: 200px;
+            margin: 5px 0;
+        }
+
+        .logtalk-widget input[type="checkbox"] {
+            margin-right: 8px;
+            transform: scale(1.2);
+        }
+
+        .logtalk-widget button {
+            background-color: #007cba;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .logtalk-widget button:hover {
+            background-color: #005a87;
+        }
+
+        .logtalk-widget button:active {
+            background-color: #004a73;
+        }
+        </style>
+        `;
+
+        if (document.head) {
+            document.head.insertAdjacentHTML('beforeend', widgetStyles);
+        }
+    }
+})();
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    const initialized = window.LogtalkWidgets.init();
+    console.log('Logtalk Widgets initialized with kernel:', initialized);
+});

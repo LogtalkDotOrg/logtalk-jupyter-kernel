@@ -273,6 +273,19 @@
 		handle_update_completion_data.
 	handle_query_term_(jupyter::set_preference(Pref,Value), _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
 		handle_set_preference(Pref,Value).
+	% Widget handling
+	handle_query_term_(jupyter_widget_handling::create_text_input(WidgetId, Label, DefaultValue), _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+		jupyter_widget_handling::create_text_input(WidgetId, Label, DefaultValue).
+	handle_query_term_(jupyter_widget_handling::create_number_input(WidgetId, Label, DefaultValue, Options), _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+		jupyter_widget_handling::create_number_input(WidgetId, Label, DefaultValue, Options).
+	handle_query_term_(jupyter_widget_handling::create_slider(WidgetId, Label, Min, Max, DefaultValue), _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+		jupyter_widget_handling::create_slider(WidgetId, Label, Min, Max, DefaultValue).
+	handle_query_term_(jupyter_widget_handling::create_dropdown(WidgetId, Label, Options), _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+		jupyter_widget_handling::create_dropdown(WidgetId, Label, Options).
+	handle_query_term_(jupyter_widget_handling::create_checkbox(WidgetId, Label, DefaultValue), _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+		jupyter_widget_handling::create_checkbox(WidgetId, Label, DefaultValue).
+	handle_query_term_(jupyter_widget_handling::create_button(WidgetId, Label), _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
+		jupyter_widget_handling::create_button(WidgetId, Label).
 	% trace
 	handle_query_term_(trace, _CallRequestId, _Stack, _Bindings, _OriginalTermData, _LoopCont, continue) :- !,
 		handle_trace(trace/0).
@@ -1348,6 +1361,7 @@ handle_update_completion_data.
 	% For each term which is processed and produces a result, this result is asserted.
 	% This way, all results can be sent to the client when all terms of a request have been handled.
 
+	:- public(assert_success_response/4).
 	% assert_success_response(+Type, +Bindings, +Output, +AdditionalData)
 	%
 	% Type is the type of the term read from the client.

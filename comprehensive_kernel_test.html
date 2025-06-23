@@ -1,0 +1,194 @@
+<!-- 
+COMPREHENSIVE KERNEL TEST
+Copy this into a new cell in your notebook and use %%html magic
+This will identify your exact Jupyter environment and test kernel access
+-->
+
+%%html
+<script>
+console.log('🔍 === COMPREHENSIVE JUPYTER ENVIRONMENT ANALYSIS ===');
+
+// Environment Detection
+console.log('📍 Environment Info:');
+console.log('  User Agent:', navigator.userAgent);
+console.log('  Current URL:', window.location.href);
+console.log('  Protocol:', window.location.protocol);
+console.log('  Host:', window.location.host);
+
+// Detect Jupyter Environment Type
+console.log('🏷️ Environment Type Detection:');
+const isJupyterLab = window.location.href.includes('/lab') || window.location.href.includes('jupyterlab');
+const isClassicNotebook = window.location.href.includes('/tree') || window.location.href.includes('/notebooks') || window.location.href.includes('/notebook');
+const isVSCode = navigator.userAgent.includes('VS Code') || typeof acquireVsCodeApi !== 'undefined';
+const isColab = window.location.href.includes('colab.research.google.com');
+
+console.log('  JupyterLab:', isJupyterLab);
+console.log('  Classic Notebook:', isClassicNotebook);
+console.log('  VS Code:', isVSCode);
+console.log('  Google Colab:', isColab);
+
+// Check Global Objects
+console.log('🌐 Global Objects:');
+console.log('  typeof Jupyter:', typeof Jupyter);
+console.log('  typeof IPython:', typeof IPython);
+console.log('  typeof window.parent:', typeof window.parent);
+console.log('  typeof window.top:', typeof window.top);
+console.log('  typeof acquireVsCodeApi:', typeof acquireVsCodeApi);
+
+// Detailed Jupyter Object Analysis
+if (typeof Jupyter !== 'undefined') {
+    console.log('📊 Jupyter Object Analysis:');
+    console.log('  Jupyter.notebook:', !!Jupyter.notebook);
+    console.log('  Jupyter.version:', Jupyter.version || 'unknown');
+    
+    if (Jupyter.notebook) {
+        console.log('  Jupyter.notebook.kernel:', !!Jupyter.notebook.kernel);
+        console.log('  Jupyter.notebook.session:', !!Jupyter.notebook.session);
+        console.log('  Jupyter.notebook.contents:', !!Jupyter.notebook.contents);
+        
+        if (Jupyter.notebook.kernel) {
+            console.log('    Kernel name:', Jupyter.notebook.kernel.name || 'unknown');
+            console.log('    Kernel id:', Jupyter.notebook.kernel.id || 'unknown');
+            console.log('    Execute function:', typeof Jupyter.notebook.kernel.execute);
+            console.log('    Is connected:', Jupyter.notebook.kernel.is_connected ? Jupyter.notebook.kernel.is_connected() : 'unknown');
+        }
+    }
+    
+    // Check for JupyterLab specific objects
+    if (Jupyter.lab) {
+        console.log('  JupyterLab detected via Jupyter.lab');
+    }
+}
+
+// Check IPython
+if (typeof IPython !== 'undefined') {
+    console.log('📊 IPython Object Analysis:');
+    console.log('  IPython.notebook:', !!IPython.notebook);
+    if (IPython.notebook) {
+        console.log('  IPython.notebook.kernel:', !!IPython.notebook.kernel);
+    }
+}
+
+// Check Parent/Top Windows
+console.log('🪟 Window Hierarchy Check:');
+['parent', 'top'].forEach(windowType => {
+    const win = window[windowType];
+    if (win && win !== window) {
+        console.log(`  ${windowType} window different from current`);
+        try {
+            console.log(`    ${windowType}.Jupyter:`, typeof win.Jupyter);
+            console.log(`    ${windowType}.IPython:`, typeof win.IPython);
+            if (win.Jupyter && win.Jupyter.notebook) {
+                console.log(`    ${windowType}.Jupyter.notebook.kernel:`, !!win.Jupyter.notebook.kernel);
+            }
+        } catch (e) {
+            console.log(`    ${windowType} window access blocked:`, e.message);
+        }
+    }
+});
+
+// JupyterLab Specific Checks
+console.log('🧪 JupyterLab Specific Checks:');
+const labObjects = ['jupyterapp', 'jupyterlab'];
+labObjects.forEach(objName => {
+    if (typeof window[objName] !== 'undefined') {
+        console.log(`  window.${objName}:`, !!window[objName]);
+        const obj = window[objName];
+        if (obj) {
+            console.log(`    ${objName}.shell:`, !!obj.shell);
+            console.log(`    ${objName}.serviceManager:`, !!obj.serviceManager);
+            if (obj.shell && obj.shell.currentWidget) {
+                console.log(`    Current widget:`, !!obj.shell.currentWidget);
+                const widget = obj.shell.currentWidget;
+                if (widget.context) {
+                    console.log(`    Widget context:`, !!widget.context);
+                    if (widget.context.sessionContext) {
+                        console.log(`    Session context:`, !!widget.context.sessionContext);
+                        if (widget.context.sessionContext.session) {
+                            console.log(`    Session:`, !!widget.context.sessionContext.session);
+                            const session = widget.context.sessionContext.session;
+                            if (session.kernel) {
+                                console.log(`    Session kernel:`, !!session.kernel);
+                                console.log(`    Kernel name:`, session.kernel.name || 'unknown');
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Test Kernel Execution Methods
+console.log('🧪 Testing Kernel Execution Methods:');
+
+const testCode = 'write("Kernel test from JavaScript"), nl.';
+let successfulMethods = [];
+
+// Method 1: Standard Jupyter
+if (typeof Jupyter !== 'undefined' && Jupyter.notebook && Jupyter.notebook.kernel) {
+    try {
+        Jupyter.notebook.kernel.execute(testCode, { silent: false });
+        successfulMethods.push('Jupyter.notebook.kernel');
+        console.log('✅ Method 1 (Jupyter.notebook.kernel): SUCCESS');
+    } catch (e) {
+        console.log('❌ Method 1 (Jupyter.notebook.kernel): FAILED -', e.message);
+    }
+} else {
+    console.log('⏭️ Method 1 (Jupyter.notebook.kernel): SKIPPED - not available');
+}
+
+// Method 2: IPython
+if (typeof IPython !== 'undefined' && IPython.notebook && IPython.notebook.kernel) {
+    try {
+        IPython.notebook.kernel.execute(testCode, { silent: false });
+        successfulMethods.push('IPython.notebook.kernel');
+        console.log('✅ Method 2 (IPython.notebook.kernel): SUCCESS');
+    } catch (e) {
+        console.log('❌ Method 2 (IPython.notebook.kernel): FAILED -', e.message);
+    }
+} else {
+    console.log('⏭️ Method 2 (IPython.notebook.kernel): SKIPPED - not available');
+}
+
+// Method 3: JupyterLab
+if (typeof window.jupyterapp !== 'undefined' && window.jupyterapp.shell) {
+    try {
+        const widget = window.jupyterapp.shell.currentWidget;
+        if (widget && widget.context && widget.context.sessionContext && widget.context.sessionContext.session) {
+            const kernel = widget.context.sessionContext.session.kernel;
+            if (kernel && kernel.requestExecute) {
+                kernel.requestExecute({ code: testCode });
+                successfulMethods.push('JupyterLab kernel');
+                console.log('✅ Method 3 (JupyterLab): SUCCESS');
+            } else {
+                console.log('❌ Method 3 (JupyterLab): FAILED - no requestExecute');
+            }
+        } else {
+            console.log('❌ Method 3 (JupyterLab): FAILED - no session');
+        }
+    } catch (e) {
+        console.log('❌ Method 3 (JupyterLab): FAILED -', e.message);
+    }
+} else {
+    console.log('⏭️ Method 3 (JupyterLab): SKIPPED - not available');
+}
+
+// Summary
+console.log('📋 === SUMMARY ===');
+console.log('Environment type:', isJupyterLab ? 'JupyterLab' : isClassicNotebook ? 'Classic Notebook' : isVSCode ? 'VS Code' : isColab ? 'Google Colab' : 'Unknown');
+console.log('Successful kernel methods:', successfulMethods.length > 0 ? successfulMethods : 'NONE');
+
+if (successfulMethods.length > 0) {
+    console.log('🎉 GOOD NEWS: At least one kernel method works!');
+    console.log('💡 Recommended method:', successfulMethods[0]);
+} else {
+    console.log('⚠️ WARNING: No kernel methods worked');
+    console.log('💡 This might be a restricted environment or different Jupyter setup');
+}
+
+console.log('🔍 === END ANALYSIS ===');
+</script>
+
+<p><strong>Check the browser console for detailed analysis results.</strong></p>
+<p>This test will identify your exact Jupyter environment and which kernel execution methods work.</p>

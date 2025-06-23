@@ -1,0 +1,176 @@
+<!-- 
+Copy this into a new cell in your notebook and change the cell type to "Raw" or create an HTML cell with %%html magic
+-->
+
+<script>
+console.log('=== Comprehensive Jupyter Environment Debug ===');
+console.log('typeof Jupyter:', typeof Jupyter);
+console.log('typeof IPython:', typeof IPython);
+console.log('typeof window.parent:', typeof window.parent);
+console.log('User Agent:', navigator.userAgent);
+console.log('Current URL:', window.location.href);
+
+// Check for different Jupyter environments
+console.log('--- Environment Detection ---');
+console.log('JupyterLab detected:', window.location.href.includes('/lab'));
+console.log('Classic Notebook detected:', window.location.href.includes('/tree') || window.location.href.includes('/notebooks'));
+console.log('VS Code detected:', navigator.userAgent.includes('VS Code'));
+
+// Check all possible kernel locations
+console.log('--- Kernel Location Check ---');
+const kernelPaths = [
+    'Jupyter.notebook.kernel',
+    'IPython.notebook.kernel',
+    'window.parent.Jupyter.notebook.kernel',
+    'window.parent.IPython.notebook.kernel',
+    'window.top.Jupyter.notebook.kernel',
+    'window.top.IPython.notebook.kernel'
+];
+
+kernelPaths.forEach(path => {
+    try {
+        const kernel = eval(path);
+        console.log(`${path}:`, !!kernel);
+        if (kernel) {
+            console.log(`  - Kernel name: ${kernel.name || 'unknown'}`);
+            console.log(`  - Execute function: ${typeof kernel.execute}`);
+        }
+    } catch (e) {
+        console.log(`${path}: Error - ${e.message}`);
+    }
+});
+
+// Check for JupyterLab kernel manager
+if (typeof window.jupyterapp !== 'undefined') {
+    console.log('JupyterLab app detected:', !!window.jupyterapp);
+    if (window.jupyterapp && window.jupyterapp.shell) {
+        console.log('JupyterLab shell available');
+    }
+}
+
+// Check for VS Code notebook API
+if (typeof acquireVsCodeApi !== 'undefined') {
+    console.log('VS Code API detected');
+    try {
+        const vscode = acquireVsCodeApi();
+        console.log('VS Code API acquired:', !!vscode);
+    } catch (e) {
+        console.log('VS Code API error:', e.message);
+    }
+}
+
+if (typeof Jupyter !== 'undefined') {
+    console.log('Jupyter.notebook:', !!Jupyter.notebook);
+    if (Jupyter.notebook) {
+        console.log('Jupyter.notebook.kernel:', !!Jupyter.notebook.kernel);
+        if (Jupyter.notebook.kernel) {
+            console.log('Kernel name:', Jupyter.notebook.kernel.name);
+            console.log('Kernel execute function:', typeof Jupyter.notebook.kernel.execute);
+            
+            // Test kernel execution directly
+            console.log('Testing direct kernel execution...');
+            try {
+                Jupyter.notebook.kernel.execute('write("Hello from JavaScript!"), nl.', {
+                    silent: false,
+                    store_history: false
+                });
+                console.log('Direct kernel execution successful!');
+            } catch (e) {
+                console.error('Direct kernel execution failed:', e);
+            }
+        }
+    }
+}
+
+if (typeof IPython !== 'undefined') {
+    console.log('IPython.notebook:', !!IPython.notebook);
+    if (IPython.notebook) {
+        console.log('IPython.notebook.kernel:', !!IPython.notebook.kernel);
+    }
+}
+
+// Try to find any kernel references
+const possibleKernels = [];
+if (typeof Jupyter !== 'undefined' && Jupyter.notebook && Jupyter.notebook.kernel) {
+    possibleKernels.push('Jupyter.notebook.kernel');
+}
+if (typeof IPython !== 'undefined' && IPython.notebook && IPython.notebook.kernel) {
+    possibleKernels.push('IPython.notebook.kernel');
+}
+if (window.parent && window.parent.Jupyter && window.parent.Jupyter.notebook && window.parent.Jupyter.notebook.kernel) {
+    possibleKernels.push('window.parent.Jupyter.notebook.kernel');
+}
+
+console.log('Available kernels:', possibleKernels);
+
+// Test widget update function directly
+if (possibleKernels.length > 0) {
+    console.log('Testing widget update with available kernel...');
+    
+    // Get the first available kernel
+    let testKernel = null;
+    if (typeof Jupyter !== 'undefined' && Jupyter.notebook && Jupyter.notebook.kernel) {
+        testKernel = Jupyter.notebook.kernel;
+    }
+    
+    if (testKernel) {
+        console.log('Found kernel, testing widget update...');
+        const testCode = "jupyter_widget_handling::set_widget_value('test_widget', 'direct_test_value').";
+        
+        try {
+            testKernel.execute(testCode, {
+                silent: true,
+                store_history: false,
+                user_expressions: {},
+                allow_stdin: false,
+                stop_on_error: false
+            });
+            console.log('Widget update test successful!');
+        } catch (e) {
+            console.error('Widget update test failed:', e);
+        }
+    }
+}
+
+console.log('=== End Debug ===');
+
+// Make kernel available globally for manual testing
+if (typeof Jupyter !== 'undefined' && Jupyter.notebook && Jupyter.notebook.kernel) {
+    window.testKernel = Jupyter.notebook.kernel;
+    console.log('Kernel available as window.testKernel for manual testing');
+}
+</script>
+
+<p>Check the browser console for debug output. If you see "Direct kernel execution successful!", then we can fix the widget connection.</p>
+
+<script>
+// Simple manual widget update function for testing
+function manualWidgetUpdate(widgetId, value) {
+    console.log('Manual widget update called:', widgetId, value);
+    
+    if (typeof Jupyter !== 'undefined' && Jupyter.notebook && Jupyter.notebook.kernel) {
+        const escapedValue = typeof value === 'string' ? `'${value.replace(/'/g, "\\'")}'` : value;
+        const code = `jupyter_widget_handling::set_widget_value('${widgetId}', ${escapedValue}).`;
+        
+        console.log('Executing:', code);
+        
+        Jupyter.notebook.kernel.execute(code, {
+            silent: true,
+            store_history: false,
+            user_expressions: {},
+            allow_stdin: false,
+            stop_on_error: false
+        });
+        
+        console.log('Manual widget update sent');
+        return true;
+    } else {
+        console.error('No kernel available for manual widget update');
+        return false;
+    }
+}
+
+// Make function globally available
+window.manualWidgetUpdate = manualWidgetUpdate;
+console.log('manualWidgetUpdate function available globally');
+</script>

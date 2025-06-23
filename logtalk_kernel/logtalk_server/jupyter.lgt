@@ -164,8 +164,23 @@
 		%halt/0,
 		predicate_docs/1,
 		%print_sld_tree/1,          % print_sld_tree(+Goal)
-		print_transition_graph/4  % print_transition_graph(+PredSpec, +FromIndex, +ToIndex, +LabelIndex)
+		print_transition_graph/4,   % print_transition_graph(+PredSpec, +FromIndex, +ToIndex, +LabelIndex)
 %		update_completion_data/0
+		% Widget support
+		create_text_input/3,        % create_text_input(+WidgetId, +Label, +DefaultValue)
+		create_number_input/4,      % create_number_input(+WidgetId, +Label, +DefaultValue, +Options)
+		create_slider/5,            % create_slider(+WidgetId, +Label, +Min, +Max, +DefaultValue)
+		create_dropdown/3,          % create_dropdown(+WidgetId, +Label, +Options)
+		create_checkbox/3,          % create_checkbox(+WidgetId, +Label, +DefaultValue)
+		create_button/2,            % create_button(+WidgetId, +Label)
+		get_widget_value/2,         % get_widget_value(+WidgetId, -Value)
+		% Widget debugging
+		widgets/0,                  % widgets
+		widgets/1,                  % widgets(-Widgets)
+		% Form support
+		create_input_form/2,        % create_input_form(+FormId, +FieldSpecs)
+		create_input_form/3,        % create_input_form(+FormId, +FieldSpecs, +Options)
+		get_form_data/2             % get_form_data(+FormId, -Data)
 	]).
 
 	:- uses(debugger, [leash/1, trace/0, notrace/0]).
@@ -191,7 +206,7 @@
 		format('~w ~w.~w.~w~n', [BackendName, BackendMajor, BackendMinor, BackendPatch]),
 		version.
 
-	version(0, 31, 0, beta).
+	version(0, 32, 0, beta).
 
 	backend(b,       'B-Prolog').
 	backend(ciao,    'Ciao Prolog').
@@ -579,5 +594,44 @@
 		!.
 	var_name([_NameVarPair|NameVarPairs], Var, Name) :-
 		var_name(NameVarPairs, Var, Name).
+
+	% Widget delegation methods
+	create_text_input(WidgetId, Label, DefaultValue) :-
+		jupyter_widget_handling::create_text_input(WidgetId, Label, DefaultValue).
+
+	create_number_input(WidgetId, Label, DefaultValue, Options) :-
+		jupyter_widget_handling::create_number_input(WidgetId, Label, DefaultValue, Options).
+
+	create_slider(WidgetId, Label, Min, Max, DefaultValue) :-
+		jupyter_widget_handling::create_slider(WidgetId, Label, Min, Max, DefaultValue).
+
+	create_dropdown(WidgetId, Label, Options) :-
+		jupyter_widget_handling::create_dropdown(WidgetId, Label, Options).
+
+	create_checkbox(WidgetId, Label, DefaultValue) :-
+		jupyter_widget_handling::create_checkbox(WidgetId, Label, DefaultValue).
+
+	create_button(WidgetId, Label) :-
+		jupyter_widget_handling::create_button(WidgetId, Label).
+
+	get_widget_value(WidgetId, Value) :-
+		jupyter_widget_handling::get_widget_value(WidgetId, Value).
+
+	% Widget debugging methods
+	widgets :-
+		jupyter_widget_handling::widgets.
+
+	widgets(Widgets) :-
+		jupyter_widget_handling::widgets(Widgets).
+
+	% Form delegation methods
+	create_input_form(FormId, FieldSpecs) :-
+		jupyter_form_handling::create_input_form(FormId, FieldSpecs).
+
+	create_input_form(FormId, FieldSpecs, Options) :-
+		jupyter_form_handling::create_input_form(FormId, FieldSpecs, Options).
+
+	get_form_data(FormId, Data) :-
+		jupyter_form_handling::get_form_data(FormId, Data).
 
 :- end_object.

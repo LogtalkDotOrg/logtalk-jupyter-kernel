@@ -1,0 +1,16 @@
+{
+    "argv": [
+        "/usr/local/opt/python@3.10/bin/python3.10",
+        "-m",
+        "logtalk_kernel",
+        "-f",
+        "{connection_file}"
+    ],
+    "display_name": "Logtalk",
+    "language": "logtalk",
+    "custom": {
+        "js": [
+            "kernel-loader.js"
+        ]
+    }
+}

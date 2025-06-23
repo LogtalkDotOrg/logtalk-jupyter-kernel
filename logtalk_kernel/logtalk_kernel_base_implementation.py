@@ -43,6 +43,7 @@ import subprocess
 import csv
 import io
 import matplotlib.pyplot as plt
+import re
 
 from graphviz import render
 from IPython.core.completer import CompletionSplitter
@@ -51,10 +52,13 @@ from os import remove
 from signal import signal, SIGINT
 
 
-path = os.path.dirname(__file__)
+path = os.path.dirname(__file__)  # pylint: disable=invalid-name
 
 
 class LogtalkKernelBaseImplementation:
+    """
+    Base implementation of the Logtalk Jupyter kernel
+    """
 
     error_ansi_escape_codes =  "\x1b[1;31m" # red and bold
 
@@ -79,6 +83,8 @@ class LogtalkKernelBaseImplementation:
         self.configure_token_splitters()
         #self.retrieve_predicate_information()
 
+        # Send kernel info to frontend
+        self.send_kernel_info_js()
 
     def start_logtalk_server(self):
         """Tries to (re)start the Logtalk server process with the configured arguments."""
@@ -89,7 +95,7 @@ class LogtalkKernelBaseImplementation:
             # Use the default
             program_arguments = self.kernel.default_program_arguments[self.backend]
             # The third element of the list is the path to the Logtalk source code relative to the directory this file is located in
-            # In order for it to be found, the path needs to be extended by the location of this file
+            # In order for it to be found, the path needs to be extended to the location of this file
             program_arguments[3] = program_arguments[3].replace("logtalk_server/loader.lgt", os.path.join(path, os.path.join("logtalk_server", "loader.lgt")))
             program_arguments[3] = program_arguments[3].replace("\\", "\\\\")
 
@@ -105,6 +111,7 @@ class LogtalkKernelBaseImplementation:
             extended_program_arguments = ["pwsh.exe", "-ExecutionPolicy", "Unrestricted", "-Command"] + program_arguments
         else:
             extended_program_arguments = program_arguments
+        
         self.logtalk_proc = subprocess.Popen(
             extended_program_arguments,
             stdout=subprocess.PIPE,
@@ -155,6 +162,25 @@ class LogtalkKernelBaseImplementation:
         # For the inspection additionally use ':' as a delimiter for splitting as most of the predicate names the tokens are compared to are not module name expanded
         self.inspection_splitter = CompletionSplitter()
         self.inspection_splitter.delims = splitter_delims + ':'
+
+
+    def send_kernel_info_js(self):
+        """Send JavaScript to the frontend to set kernel name and reference."""
+        kernel_name = getattr(self.kernel, 'kernel_name', 'logtalk')
+        js_code = f"""
+        <script>
+           window.LOGTALK_KERNEL_NAME = "{kernel_name}";
+            window.JUPYTER_KERNEL = window.JUPYTER_KERNEL || {{}};
+           window.JUPYTER_KERNEL.kernel_name = "{kernel_name}";
+        </script>
+        """
+        display_data = {
+            'data': {
+                'text/html': js_code
+            },
+            'metadata': {}
+        }
+        self.kernel.send_response(self.kernel.iopub_socket, 'display_data', display_data)
 
 
     def retrieve_predicate_information(self):
@@ -566,14 +592,32 @@ class LogtalkKernelBaseImplementation:
         }
 
 
-    def send_response_display_data(self, text, ansi_escape_codes=""):
-        """Sends a response to the frontend containing plain text."""
+    def send_response_display_data(self, text, ansi_escape_codes="", data=None):
+        """Sends a response to the frontend containing plain text and optional additional data."""
+        display_data = {'data': {}, 'metadata': {}}
+        
+        if text:
+            display_data['data']['text/plain'] = ansi_escape_codes + text
+            
+        if data:
+            display_data['data'].update(data)
+            
+        self.kernel.send_response(self.kernel.iopub_socket, 'display_data', display_data)
 
+    def send_widget_html(self, html_content):
+        """Send widget HTML content to the frontend."""
+        # Ensure html_content is properly escaped and handled as a string
+        if isinstance(html_content, dict) and 'widget_html' in html_content:
+            html_content = str(html_content['widget_html'])
+        else:
+            html_content = str(html_content)
+            
         display_data = {
             'data': {
-                'text/plain': ansi_escape_codes + text
+                'text/html': html_content
             },
-            'metadata': {}}
+            'metadata': {}
+        }
         self.kernel.send_response(self.kernel.iopub_socket, 'display_data', display_data)
 
 
@@ -611,6 +655,9 @@ class LogtalkKernelBaseImplementation:
         if 'set_prolog_backend' in dict:
             if self.handle_set_prolog_backend(dict['set_prolog_backend']):
                 failure_keys.append(['set_prolog_backend'])
+        if 'widget_html' in dict:
+            if self.handle_widget_html(dict['widget_html']):
+                failure_keys.append(['widget_html'])
 
         return failure_keys
 
@@ -1063,3 +1110,51 @@ class LogtalkKernelBaseImplementation:
     def handle_set_prolog_backend(self, prolog_backend):
         """The user requested to change the active Prolog backend, which needs to be handled by the kernel."""
         return self.kernel.change_prolog_backend(prolog_backend)
+
+
+    def handle_widget_html(self, html_content):
+        """Handle widget HTML content from Logtalk server."""
+        try:
+            # Ensure we have valid HTML content
+            if isinstance(html_content, dict) and 'widget_html' in html_content:
+                html = html_content['widget_html']
+            else:
+                html = str(html_content)
+
+            # Send the widget HTML to the frontend
+            self.kernel.send_response(
+                self.kernel.iopub_socket,
+                'display_data',
+                {
+                    'data': {
+                        'text/html': html_content
+                    },
+                    'metadata': {}
+                }
+            )
+            return False  # Success
+        except Exception as e:
+            self.logger.error(f"Error handling widget HTML: {e}", exc_info=True)
+            return True  # Failure
+
+
+    def handle_execute_request(self, stream, ident, msg):
+        """Handle code execution requests from widgets."""
+        try:
+            code = msg['content']['code']
+            silent = msg['content'].get('silent', False)
+            store_history = msg['content'].get('store_history', True)
+            user_expressions = msg['content'].get('user_expressions', {})
+            allow_stdin = msg['content'].get('allow_stdin', False)
+
+            result = self.do_execute(code, silent, store_history, user_expressions, allow_stdin)
+            
+            return result
+        except Exception as e:
+            self.logger.error(f"Error executing code: {str(e)}")
+            return {
+                'status': 'error',
+                'ename': type(e).__name__,
+                'evalue': str(e),
+                'traceback': []
+            }

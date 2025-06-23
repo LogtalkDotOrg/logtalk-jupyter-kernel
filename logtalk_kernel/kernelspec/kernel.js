@@ -24,6 +24,23 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+define(function() {
+    var onload = function(){
+        console.log("I am being loaded")    
+    }
+    // Load jupyter-api.js first
+    const apiScript = document.createElement('script');
+    apiScript.src = './jupyter-api.js';
+    apiScript.onload = function() {
+        // Then load logtalk_widgets.js
+        const widgetsScript = document.createElement('script');
+        widgetsScript.src = './logtalk_widgets.js';
+        document.head.appendChild(widgetsScript);
+    };
+    document.head.appendChild(apiScript);
+    console.log('Logtalk widget loader injected');
+})();
+
 
 define(["codemirror/lib/codemirror"], function(CodeMirror) {
   "use strict";

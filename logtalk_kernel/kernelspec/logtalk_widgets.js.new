@@ -1,0 +1,218 @@
+/**
+ * Logtalk Jupyter Kernel Widget Support
+ * JavaScript communication layer for HTML/JavaScript widgets
+ */
+
+// Global widget state management with direct kernel reference
+window.LogtalkWidgets = {
+    widgets: new Map(),
+    
+    // Register a widget
+    registerWidget: function(widgetId, type, initialValue) {
+        this.widgets.set(widgetId, {
+            type: type,
+            value: initialValue,
+            element: document.getElementById(widgetId)
+        });
+    },
+    
+    // Update widget value and notify kernel
+    updateWidget: async function(widgetId, value) {
+        const widget = this.widgets.get(widgetId);
+        if (!widget) return;
+        
+        // Update local state
+        widget.value = value;
+        
+        // Send update to kernel
+        await this.sendWidgetUpdate(widgetId, value);
+
+        // Update DOM element
+        const element = widget.element;
+        if (element) {
+            switch (widget.type) {
+                case 'text_input':
+                case 'number_input':
+                case 'dropdown':
+                    element.value = value;
+                    break;
+                case 'slider':
+                    element.value = value;
+                    const valueDisplay = document.getElementById(widgetId + '_value');
+                    if (valueDisplay) valueDisplay.textContent = value;
+                    break;
+                case 'checkbox':
+                    element.checked = (value === true || value === 'true');
+                    break;
+            }
+        }
+    },
+    
+    // Send widget update to kernel using the message queue
+    sendWidgetUpdate: async function(widgetId, value) {
+        if (!window.JUPYTER_KERNEL || typeof window.JUPYTER_KERNEL.do_execute !== 'function') {
+            console.error('❌ No kernel available or do_execute not available');
+            return;
+        }
+
+        const escapedValue = typeof value === 'string' ? 
+            `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'` : 
+            typeof value === 'boolean' ? (value ? 'true' : 'false') : 
+            String(value);
+
+        const code = `jupyter_widget_handling::set_widget_value('${widgetId}', ${escapedValue}).`;
+        console.log('📤 Sending widget update:', code);
+
+        try {
+            await window.JUPYTER_MESSAGE_QUEUE.add(code, {
+                silent: true,
+                store_history: false
+            });
+            console.log('✅ Widget update sent successfully');
+        } catch (error) {
+            console.error('❌ Failed to send widget update:', error);
+        }
+    },
+    
+    // Get widget value
+    getWidgetValue: function(widgetId) {
+        return this.widgets.has(widgetId) ? this.widgets.get(widgetId).value : null;
+    },
+    
+    // Set widget value from kernel
+    setWidgetValue: function(widgetId, value) {
+        const widget = this.widgets.get(widgetId);
+        if (widget) {
+            widget.value = value;
+            // Update DOM
+            const element = widget.element;
+            if (element) {
+                if (widget.type === 'checkbox') {
+                    element.checked = (value === true || value === 'true');
+                } else {
+                    element.value = value;
+                }
+                // For sliders, update display value
+                if (widget.type === 'slider') {
+                    const valueDisplay = document.getElementById(widgetId + '_value');
+                    if (valueDisplay) valueDisplay.textContent = value;
+                }
+            }
+        }
+    }
+};
+
+// Wait for kernel initialization
+(function initKernelWatcher() {
+    function checkKernelAndQueue() {
+        if (window.JUPYTER_KERNEL && window.JUPYTER_MESSAGE_QUEUE) {
+            console.log('✅ Kernel and message queue are ready:', {
+                kernel: {
+                    name: window.JUPYTER_KERNEL.name,
+                    id: window.JUPYTER_KERNEL.id,
+                    session_id: window.JUPYTER_KERNEL.session_id,
+                    do_execute: typeof window.JUPYTER_KERNEL.do_execute === 'function'
+                },
+                queue: {
+                    available: true,
+                    queueLength: window.JUPYTER_MESSAGE_QUEUE.queue.length,
+                    processing: window.JUPYTER_MESSAGE_QUEUE.processing,
+                    activePromises: window.JUPYTER_MESSAGE_QUEUE.promises.size
+                }
+            });
+            return true;
+        }
+        return false;
+    }
+
+    // Check immediately
+    if (!checkKernelAndQueue()) {
+        // If not ready, check again when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                if (!checkKernelAndQueue()) {
+                    console.error('❌ Kernel or message queue not available after DOM ready');
+                }
+            }, { once: true });
+        } else {
+            console.error('❌ Kernel or message queue not available and DOM already loaded');
+        }
+    }
+})();
+
+// Define and inject CSS styles only if not already present
+(function injectWidgetStyles() {
+    if (!document.getElementById('logtalk-widget-styles')) {
+        const widgetStyles = `
+        <style id="logtalk-widget-styles">
+        .logtalk-widget {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            background-color: #fafafa;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .logtalk-widget label {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 5px;
+            display: inline-block;
+        }
+
+        .logtalk-widget input[type="text"],
+        .logtalk-widget input[type="number"],
+        .logtalk-widget select {
+            width: 200px;
+            padding: 6px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .logtalk-widget input[type="text"]:focus,
+        .logtalk-widget input[type="number"]:focus,
+        .logtalk-widget select:focus {
+            outline: none;
+            border-color: #007cba;
+            box-shadow: 0 0 0 2px rgba(0, 124, 186, 0.2);
+        }
+
+        .logtalk-widget input[type="range"] {
+            width: 200px;
+            margin: 5px 0;
+        }
+
+        .logtalk-widget input[type="checkbox"] {
+            margin-right: 8px;
+            transform: scale(1.2);
+        }
+
+        .logtalk-widget button {
+            background-color: #007cba;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .logtalk-widget button:hover {
+            background-color: #005a87;
+        }
+
+        .logtalk-widget button:active {
+            background-color: #004a73;
+        }
+        </style>
+        `;
+
+        if (document.head) {
+            document.head.insertAdjacentHTML('beforeend', widgetStyles);
+        }
+    }
+})();
