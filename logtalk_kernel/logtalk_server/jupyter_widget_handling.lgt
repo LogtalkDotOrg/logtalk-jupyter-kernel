@@ -213,8 +213,9 @@
 	% Common update handler for all widgets
 	create_update_handler(WidgetId, Value, Handler) :-
 		atomic_list_concat([
-			'window.updateWidgetValue(\'',
-			WidgetId, '\', ', Value, ')'
+			'IPython.notebook.kernel.execute(\'',
+			'jupyter_widget_handling::set_widget_value(', WidgetId, ', ', Value, ').\', ',
+			'undefined, { silent: true, store_history: false })'
 		], Handler).
 
 	% Generate simple text input HTML
