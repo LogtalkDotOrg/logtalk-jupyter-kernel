@@ -76,7 +76,7 @@ Simply start Jupyter notebook (e.g. by typing `jupyter notebook` in a shell) and
 
 ### Running using VSCode
 
-Simply open an existing notebook. Ensure that the [Logtalk plug-in for VSCode](https://github.com/LogtalkDotOrg/logtalk-for-vscode) for syntax highlighting in code cells.
+Simply open an existing notebook. Ensure that the [Logtalk plug-in for VSCode](https://github.com/LogtalkDotOrg/logtalk-for-vscode) is also installed for syntax highlighting in code cells.
 
 ### Configuration
 
