@@ -51,6 +51,8 @@ from IPython.utils.tokenutil import line_at_cursor
 from os import remove
 from signal import signal, SIGINT
 
+from threading import Thread
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
 path = os.path.dirname(__file__)  # pylint: disable=invalid-name
 
@@ -1158,3 +1160,31 @@ class LogtalkKernelBaseImplementation:
                 'evalue': str(e),
                 'traceback': []
             }
+
+class CallbackHandler(BaseHTTPRequestHandler):
+    def do_OPTIONS(self):
+        self.send_response(204)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.end_headers()
+
+    def do_POST(self):
+        content_length = int(self.headers['Content-Length'])
+        post_data = self.rfile.read(content_length)
+        data = json.loads(post_data.decode('utf-8'))
+        
+        # Process your callback here
+        result = {"status": "ok", "received": data}
+        
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.end_headers()
+        self.wfile.write(json.dumps(result).encode())
+
+# Start server in background thread
+server = HTTPServer(('localhost', 8998), CallbackHandler)
+Thread(target=server.serve_forever, daemon=True).start()

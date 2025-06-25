@@ -213,9 +213,19 @@
 	% Common update handler for all widgets
 	create_update_handler(WidgetId, Value, Handler) :-
 		atomic_list_concat([
-			'IPython.notebook.kernel.execute(\'',
-			'jupyter_widget_handling::set_widget_value(', WidgetId, ', ', Value, ').\', ',
-			'undefined, { silent: true, store_history: false })'
+			% '<script>',
+			% '(function() {',
+			% '   function widgetCallback() {',
+			'		fetch(\'http://localhost:8998\', {',
+    		'			method: \'POST\',',
+    		'			headers: {\'Content-Type\': \'application/json\'},',
+    		'			body: JSON.stringify({action: \'text_input\', widgetId: \'', WidgetId, '\', value: ', Value, '})',
+			'		})',
+			'		.then(response => response.json())',
+			'		.then(data => console.log(\'Response:\', data))'
+			%'}'
+			% '})();',
+			% '</script>'
 		], Handler).
 
 	% Generate simple text input HTML
