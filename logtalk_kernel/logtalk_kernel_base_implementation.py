@@ -1116,3 +1116,18 @@ class LogtalkKernelBaseImplementation:
     def handle_set_prolog_backend(self, prolog_backend):
         """The user requested to change the active Prolog backend, which needs to be handled by the kernel."""
         return self.kernel.change_prolog_backend(prolog_backend)
+
+
+    def handle_comm_open(self, comm_id, target_name, data):
+    # Handle widget initialization
+        pass
+
+
+    def handle_comm_msg(self, comm_id, data):
+    # Handle widget state updates
+        pass
+
+
+    def handle_comm_close(self, comm_id, data):
+    # Handle widget cleanup
+        pass

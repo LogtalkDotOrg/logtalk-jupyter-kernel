@@ -45,7 +45,8 @@ dependencies = [
   "graphviz",
   "beautifulsoup4",
   "matplotlib",
-  "ipywidgets"
+  "ipywidgets",
+  "comm"
 ]
 
 [project.urls]
