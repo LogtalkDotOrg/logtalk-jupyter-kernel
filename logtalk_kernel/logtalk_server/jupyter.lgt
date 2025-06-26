@@ -28,9 +28,9 @@
 :- object(jupyter).
 
 	:- info([
-		version is 0:17:0,
+		version is 0:18:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-05-01,
+		date is 2025-06-26,
 		comment is 'This object provides special predicates which can be used in call requests by the client. Some of these predicates need to be the only goal of a query. Otherwise, they cannot be determined as special predicates and do not work as expected.'
 	]).
 
@@ -181,6 +181,18 @@
 		create_input_form/2,        % create_input_form(+FormId, +FieldSpecs)
 		create_input_form/3,        % create_input_form(+FormId, +FieldSpecs, +Options)
 		get_form_data/2             % get_form_data(+FormId, -Data)
+	]).
+
+	:- uses(jupyter_widget_handling, [
+		create_text_input/3,
+		create_number_input/6,
+		create_slider/6,
+		create_dropdown/3,
+		create_checkbox/3,
+		create_button/2,
+		get_widget_value/2,
+		widgets/0,
+		widgets/1
 	]).
 
 	:- uses(debugger, [leash/1, trace/0, notrace/0]).
@@ -594,35 +606,6 @@
 		!.
 	var_name([_NameVarPair|NameVarPairs], Var, Name) :-
 		var_name(NameVarPairs, Var, Name).
-
-	% Widget delegation methods
-	create_text_input(WidgetId, Label, DefaultValue) :-
-		jupyter_widget_handling::create_text_input(WidgetId, Label, DefaultValue).
-
-	create_number_input(WidgetId, Label, Min, Max, Step, DefaultValue) :-
-		jupyter_widget_handling::create_number_input(WidgetId, Label, Min, Max, Step, DefaultValue).
-
-	create_slider(WidgetId, Label, Min, Max, Step, DefaultValue) :-
-		jupyter_widget_handling::create_slider(WidgetId, Label, Min, Max, Step, DefaultValue).
-
-	create_dropdown(WidgetId, Label, Options) :-
-		jupyter_widget_handling::create_dropdown(WidgetId, Label, Options).
-
-	create_checkbox(WidgetId, Label, DefaultValue) :-
-		jupyter_widget_handling::create_checkbox(WidgetId, Label, DefaultValue).
-
-	create_button(WidgetId, Label) :-
-		jupyter_widget_handling::create_button(WidgetId, Label).
-
-	get_widget_value(WidgetId, Value) :-
-		jupyter_widget_handling::get_widget_value(WidgetId, Value).
-
-	% Widget debugging methods
-	widgets :-
-		jupyter_widget_handling::widgets.
-
-	widgets(Widgets) :-
-		jupyter_widget_handling::widgets(Widgets).
 
 	% Form delegation methods
 	create_input_form(FormId, FieldSpecs) :-

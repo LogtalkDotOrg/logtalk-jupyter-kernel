@@ -28,7 +28,7 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Paulo Moura',
-		date is 2025-01-27,
+		date is 2025-06-26,
 		comment is 'This object provides predicates for creating and managing HTML/JavaScript widgets in Logtalk notebooks.'
 	]).
 
