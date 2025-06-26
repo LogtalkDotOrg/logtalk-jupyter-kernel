@@ -287,14 +287,14 @@
 
 	% Create checkbox HTML
 	create_checkbox_html(WidgetId, Label, DefaultValue, HTML) :-
-		create_update_handler(WidgetId, checkbox, 'Boolean(this.checked)', Handler),
-		(DefaultValue -> Checked = 'checked' ; Checked = ''),
+		create_update_handler(WidgetId, checkbox, 'this.checked ? \'true\' : \'false\'', Handler),
+		(DefaultValue == true -> Checked = 'checked' ; Checked = ''),
 		atomic_list_concat([
 			'<div class="logtalk-input-group">',
 			'<input type="checkbox" id="', WidgetId, '" ',
 			'class="logtalk-widget-checkbox" ',
 			Checked, ' ',
-			'onclick="', Handler, '" ',
+			'onchange="', Handler, '" ',
 			'style="margin: 5px;"/>',
 			'<label class="logtalk-widget-label" for="', WidgetId, '">', Label, '</label>',
 			'</div>'
