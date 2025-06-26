@@ -34,7 +34,7 @@
 
 	:- public([
 		create_text_input/3,        % create_text_input(+WidgetId, +Label, +DefaultValue)
-		create_number_input/4,      % create_number_input(+WidgetId, +Label, +DefaultValue, +Options)
+		create_number_input/6,      % create_number_input(+WidgetId, +Label, +Min, +Max, +Step, +DefaultValue)
 		create_slider/6,            % create_slider(+WidgetId, +Label, +Min, +Max, +Step, +DefaultValue)
 		create_dropdown/3,          % create_dropdown(+WidgetId, +Label, +Options)
 		create_checkbox/3,          % create_checkbox(+WidgetId, +Label, +DefaultValue)
@@ -77,13 +77,13 @@
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
 	% Create number input widget
-	create_number_input(WidgetId, Label, DefaultValue, Options) :-
+	create_number_input(WidgetId, Label, Min, Max, Step, DefaultValue) :-
 		(	var(WidgetId) ->
 			generate_widget_id(WidgetId)
 		;	true
 		),
 		assertz(widget_state(WidgetId, number_input, DefaultValue)),
-		create_number_input_html(WidgetId, Label, DefaultValue, Options, HTML),
+		create_number_input_html(WidgetId, Label, Min, Max, Step, DefaultValue, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
 	% Create slider widget
@@ -237,16 +237,14 @@
 		], HTML).
 
 	% Generate number input HTML
-	create_number_input_html(WidgetId, Label, DefaultValue, Options, HTML) :-
-		create_update_handler(WidgetId, number, 'Number.isFinite(parseFloat(this.value)) ? parseFloat(this.value) : 0', Handler),
-		extract_number_options(Options, MinAttr, MaxAttr, StepAttr),
+	create_number_input_html(WidgetId, Label, Min, Max, Step, DefaultValue, HTML) :-
+		create_update_handler(WidgetId, number, 'this.value', Handler),
 		atomic_list_concat([
 			'<div class="logtalk-input-group">',
 			'<label class="logtalk-widget-label" for="', WidgetId, '">', Label, '</label><br>',
 			'<input type="number" id="', WidgetId, '" ',
 			'class="logtalk-widget-input" ',
-			'value="', DefaultValue, '" ',
-			MinAttr, ' ', MaxAttr, ' ', StepAttr, ' ',
+			'min="', Min, '" max="', Max, '" step="', Step, '" value="', DefaultValue, '" ',
 			'onchange="', Handler, '" ',
 			'style="margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;"/>',
 			'</div>'
@@ -315,20 +313,6 @@
 		], HTML).
 
 	% Helper predicates
-
-	% Extract number input options
-	extract_number_options([], '', '', '').
-	extract_number_options([min(Min)|Rest], MinAttr, MaxAttr, StepAttr) :-
-		atomic_list_concat(['min="', Min, '"'], MinAttr),
-		extract_number_options(Rest, _, MaxAttr, StepAttr).
-	extract_number_options([max(Max)|Rest], MinAttr, MaxAttr, StepAttr) :-
-		atomic_list_concat(['max="', Max, '"'], MaxAttr),
-		extract_number_options(Rest, MinAttr, _, StepAttr).
-	extract_number_options([step(Step)|Rest], MinAttr, MaxAttr, StepAttr) :-
-		atomic_list_concat(['step="', Step, '"'], StepAttr),
-		extract_number_options(Rest, MinAttr, MaxAttr, _).
-	extract_number_options([_|Rest], MinAttr, MaxAttr, StepAttr) :-
-		extract_number_options(Rest, MinAttr, MaxAttr, StepAttr).
 
 	% Create option elements for dropdown
 	create_option_elements([], '').
