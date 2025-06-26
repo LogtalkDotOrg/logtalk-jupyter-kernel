@@ -73,7 +73,10 @@ from traitlets.config.loader import ConfigFileNotFound, PyFileConfigLoader
 #import logtalk_kernel.swi_kernel_implementation
 #import logtalk_kernel.sicstus_kernel_implementation
 
-from logtalk_kernel.logtalk_kernel_base_implementation import LogtalkKernelBaseImplementation
+from logtalk_kernel.logtalk_kernel_base_implementation import CallbackHandler, LogtalkKernelBaseImplementation
+
+from threading import Thread
+from http.server import HTTPServer
 
 # Constants
 DEFAULT_ERROR_PREFIX = "!     "
@@ -94,6 +97,8 @@ class LogtalkKernel(Kernel):
         'codemirror_mode': 'logtalk',
     }
     banner = kernel_name
+
+    active_kernel_implementation = None
 
     # Define default configuration options
 
@@ -537,6 +542,11 @@ class LogtalkKernel(Kernel):
 
         # Add the Prolog backend specific implementation class to the dictionary of active implementations
         self.active_kernel_implementations[self.backend] = self.active_kernel_implementation
+
+        # Start server in background thread
+        server = HTTPServer(('localhost', 8998), CallbackHandler)
+        CallbackHandler.kernel_implementation = self.active_kernel_implementation
+        Thread(target=server.serve_forever, daemon=True).start()
 
 
     def change_prolog_backend(self, prolog_backend):

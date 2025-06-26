@@ -211,26 +211,20 @@
 		], HTML).
 
 	% Common update handler for all widgets
-	create_update_handler(WidgetId, Value, Handler) :-
+	create_update_handler(WidgetId, Type, Value, Handler) :-
 		atomic_list_concat([
-			% '<script>',
-			% '(function() {',
-			% '   function widgetCallback() {',
-			'		fetch(\'http://localhost:8998\', {',
-    		'			method: \'POST\',',
-    		'			headers: {\'Content-Type\': \'application/json\'},',
-    		'			body: JSON.stringify({action: \'text_input\', widgetId: \'', WidgetId, '\', value: ', Value, '})',
-			'		})',
-			'		.then(response => response.json())',
-			'		.then(data => console.log(\'Response:\', data))'
-			%'}'
-			% '})();',
-			% '</script>'
+			'fetch(\'http://127.0.0.1:8998\', {',
+    		'	method: \'POST\',',
+    		'	headers: {\'Content-Type\': \'application/json\'},',
+    		'	body: JSON.stringify({type: \'', Type, '\', id: \'', WidgetId, '\', value: ', Value, '})',
+			'})',
+			'.then(response => response.json())',
+			'.then(data => console.log(\'Response:\', data))'
 		], Handler).
 
 	% Generate simple text input HTML
 	create_text_input_html(WidgetId, Label, DefaultValue, HTML) :-
-		create_update_handler(WidgetId, 'String(this.value)', Handler),
+		create_update_handler(WidgetId, text, 'String(this.value)', Handler),
 		atomic_list_concat([
 			'<div class="logtalk-input-group">',
 			'<label class="logtalk-widget-label" for="', WidgetId, '">', Label, '</label><br>',
@@ -244,7 +238,7 @@
 
 	% Generate number input HTML
 	create_number_input_html(WidgetId, Label, DefaultValue, Options, HTML) :-
-		create_update_handler(WidgetId, 'Number.isFinite(parseFloat(this.value)) ? parseFloat(this.value) : 0', Handler),
+		create_update_handler(WidgetId, number, 'Number.isFinite(parseFloat(this.value)) ? parseFloat(this.value) : 0', Handler),
 		extract_number_options(Options, MinAttr, MaxAttr, StepAttr),
 		atomic_list_concat([
 			'<div class="logtalk-input-group">',
@@ -256,12 +250,11 @@
 			'onchange="', Handler, '" ',
 			'style="margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;"/>',
 			'</div>'
-		], Contents),
-		create_widget_container(WidgetId, Contents, HTML).
+		], HTML).
 
 	% Create slider HTML
 	create_slider_html(WidgetId, Label, Min, Max, DefaultValue, HTML) :-
-		create_update_handler(WidgetId, 'parseFloat(this.value)', Handler),
+		create_update_handler(WidgetId, slider, 'parseInt(this.value)', Handler),
 		atomic_list_concat([
 			'<div class="logtalk-input-group">',
 			'<label class="logtalk-widget-label" for="', WidgetId, '">',
@@ -274,12 +267,11 @@
 			'onchange="', Handler, '" ',
 			'style="margin: 5px; width: 200px;"/>',
 			'</div>'
-		], Contents),
-		create_widget_container(WidgetId, Contents, HTML).
+		], HTML).
 
 	% Create dropdown HTML
 	create_dropdown_html(WidgetId, Label, Options, HTML) :-
-		create_update_handler(WidgetId, 'String(this.value)', Handler),
+		create_update_handler(WidgetId, dropdown, 'String(this.value)', Handler),
 		create_option_elements(Options, OptionElements),
 		atomic_list_concat([
 			'<div class="logtalk-input-group">',
@@ -291,28 +283,26 @@
 			OptionElements,
 			'</select>',
 			'</div>'
-		], Contents),
-		create_widget_container(WidgetId, Contents, HTML).
+		], HTML).
 
 	% Create checkbox HTML
 	create_checkbox_html(WidgetId, Label, DefaultValue, HTML) :-
-		create_update_handler(WidgetId, 'Boolean(this.checked)', Handler),
+		create_update_handler(WidgetId, checkbox, 'Boolean(this.checked)', Handler),
 		(DefaultValue -> Checked = 'checked' ; Checked = ''),
 		atomic_list_concat([
 			'<div class="logtalk-input-group">',
 			'<input type="checkbox" id="', WidgetId, '" ',
 			'class="logtalk-widget-checkbox" ',
 			Checked, ' ',
-			'onchange="', Handler, '" ',
+			'onclick="', Handler, '" ',
 			'style="margin: 5px;"/>',
 			'<label class="logtalk-widget-label" for="', WidgetId, '">', Label, '</label>',
 			'</div>'
-		], Contents),
-		create_widget_container(WidgetId, Contents, HTML).
+		], HTML).
 
 	% Create button HTML
 	create_button_html(WidgetId, Label, HTML) :-
-		create_update_handler(WidgetId, '\'clicked\'', Handler),
+		create_update_handler(WidgetId, button, '\'clicked\'', Handler),
 		atomic_list_concat([
 			'<div class="logtalk-input-group">',
 			'<button id="', WidgetId, '" ',
@@ -322,8 +312,7 @@
 			Label,
 			'</button>',
 			'</div>'
-		], Contents),
-		create_widget_container(WidgetId, Contents, HTML).
+		], HTML).
 
 	% Helper predicates
 

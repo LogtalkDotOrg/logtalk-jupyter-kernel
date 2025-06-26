@@ -51,8 +51,7 @@ from IPython.utils.tokenutil import line_at_cursor
 from os import remove
 from signal import signal, SIGINT
 
-from threading import Thread
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import BaseHTTPRequestHandler
 
 path = os.path.dirname(__file__)  # pylint: disable=invalid-name
 
@@ -1162,6 +1161,7 @@ class LogtalkKernelBaseImplementation:
             }
 
 class CallbackHandler(BaseHTTPRequestHandler):
+    kernel_implementation = None
     def do_OPTIONS(self):
         self.send_response(204)
         self.send_header('Access-Control-Allow-Origin', '*')
@@ -1175,7 +1175,15 @@ class CallbackHandler(BaseHTTPRequestHandler):
         data = json.loads(post_data.decode('utf-8'))
         
         # Process your callback here
-        result = {"status": "ok", "received": data}
+        if data['type'] == 'text':
+            code = 'jupyter_widget_handling::set_widget_value(\'' + data['id'] + '\', \'' + data['value'] + '\').'
+        else:
+            code = 'jupyter_widget_handling::set_widget_value(\'' + data['id'] + '\', ' + data['value'] + ').'
+        try:
+            self.kernel_implementation.do_execute(code, False, False, {}, False)
+            result = {"status": "ok", "received": code}
+        except Exception as e:
+            result = {"status": "error", "error": str(e)}
         
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
@@ -1185,6 +1193,3 @@ class CallbackHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(result).encode())
 
-# Start server in background thread
-server = HTTPServer(('localhost', 8998), CallbackHandler)
-Thread(target=server.serve_forever, daemon=True).start()
