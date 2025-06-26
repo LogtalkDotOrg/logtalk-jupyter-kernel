@@ -169,7 +169,7 @@
 		% Widget support
 		create_text_input/3,        % create_text_input(+WidgetId, +Label, +DefaultValue)
 		create_number_input/4,      % create_number_input(+WidgetId, +Label, +DefaultValue, +Options)
-		create_slider/5,            % create_slider(+WidgetId, +Label, +Min, +Max, +DefaultValue)
+		create_slider/6,            % create_slider(+WidgetId, +Label, +Min, +Max, +Step, +DefaultValue)
 		create_dropdown/3,          % create_dropdown(+WidgetId, +Label, +Options)
 		create_checkbox/3,          % create_checkbox(+WidgetId, +Label, +DefaultValue)
 		create_button/2,            % create_button(+WidgetId, +Label)
@@ -602,8 +602,8 @@
 	create_number_input(WidgetId, Label, DefaultValue, Options) :-
 		jupyter_widget_handling::create_number_input(WidgetId, Label, DefaultValue, Options).
 
-	create_slider(WidgetId, Label, Min, Max, DefaultValue) :-
-		jupyter_widget_handling::create_slider(WidgetId, Label, Min, Max, DefaultValue).
+	create_slider(WidgetId, Label, Min, Max, Step, DefaultValue) :-
+		jupyter_widget_handling::create_slider(WidgetId, Label, Min, Max, Step, DefaultValue).
 
 	create_dropdown(WidgetId, Label, Options) :-
 		jupyter_widget_handling::create_dropdown(WidgetId, Label, Options).

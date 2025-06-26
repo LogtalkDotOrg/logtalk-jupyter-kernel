@@ -35,7 +35,7 @@
 	:- public([
 		create_text_input/3,        % create_text_input(+WidgetId, +Label, +DefaultValue)
 		create_number_input/4,      % create_number_input(+WidgetId, +Label, +DefaultValue, +Options)
-		create_slider/5,            % create_slider(+WidgetId, +Label, +Min, +Max, +DefaultValue)
+		create_slider/6,            % create_slider(+WidgetId, +Label, +Min, +Max, +Step, +DefaultValue)
 		create_dropdown/3,          % create_dropdown(+WidgetId, +Label, +Options)
 		create_checkbox/3,          % create_checkbox(+WidgetId, +Label, +DefaultValue)
 		create_button/2,            % create_button(+WidgetId, +Label)
@@ -87,13 +87,13 @@
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
 	% Create slider widget
-	create_slider(WidgetId, Label, Min, Max, DefaultValue) :-
+	create_slider(WidgetId, Label, Min, Max, Step, DefaultValue) :-
 		(	var(WidgetId) ->
 			generate_widget_id(WidgetId)
 		;	true
 		),
 		assertz(widget_state(WidgetId, slider, DefaultValue)),
-		create_slider_html(WidgetId, Label, Min, Max, DefaultValue, HTML),
+		create_slider_html(WidgetId, Label, Min, Max, Step, DefaultValue, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
 	% Create dropdown widget
@@ -253,8 +253,8 @@
 		], HTML).
 
 	% Create slider HTML
-	create_slider_html(WidgetId, Label, Min, Max, DefaultValue, HTML) :-
-		create_update_handler(WidgetId, slider, 'parseInt(this.value)', Handler),
+	create_slider_html(WidgetId, Label, Min, Max, Step, DefaultValue, HTML) :-
+		create_update_handler(WidgetId, slider, 'this.value', Handler),
 		atomic_list_concat([
 			'<div class="logtalk-input-group">',
 			'<label class="logtalk-widget-label" for="', WidgetId, '">',
@@ -262,7 +262,7 @@
 			'</label><br>',
 			'<input type="range" id="', WidgetId, '" ',
 			'class="logtalk-widget-slider" ',
-			'min="', Min, '" max="', Max, '" value="', DefaultValue, '" ',
+			'min="', Min, '" max="', Max, '" step="', Step, '" value="', DefaultValue, '" ',
 			'oninput="document.getElementById(\'', WidgetId, '_value\').textContent = this.value" ',
 			'onchange="', Handler, '" ',
 			'style="margin: 5px; width: 200px;"/>',
