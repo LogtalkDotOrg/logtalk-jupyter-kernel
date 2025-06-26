@@ -77,6 +77,9 @@ from logtalk_kernel.logtalk_kernel_base_implementation import CallbackHandler, L
 
 from threading import Thread
 from http.server import HTTPServer
+import socket
+import socketserver
+from contextlib import closing
 
 # Constants
 DEFAULT_ERROR_PREFIX = "!     "
@@ -544,9 +547,10 @@ class LogtalkKernel(Kernel):
         self.active_kernel_implementations[self.backend] = self.active_kernel_implementation
 
         # Start server in background thread
-        server = HTTPServer(('localhost', 8998), CallbackHandler)
-        CallbackHandler.kernel_implementation = self.active_kernel_implementation
-        Thread(target=server.serve_forever, daemon=True).start()
+        port = self.start_webserver_threaded('127.0.0.1', 8900, 8999)
+        if port is not None:
+            do_execute_code = f"jupyter_widget_handling::set_webserver_port({port})."
+            self.active_kernel_implementation.do_execute(do_execute_code, False, True, None, False)
 
 
     def change_prolog_backend(self, prolog_backend):
@@ -591,6 +595,44 @@ class LogtalkKernel(Kernel):
         # Interrupting the kernel interrupts the running Logtalk processes, so all of them need to be restarted
         for backend, kernel_implementation in self.active_kernel_implementations.items():
             kernel_implementation.kill_logtalk_server()
+
+
+    def start_webserver_threaded(self, host, start_port, end_port):
+        """Start a web server in a separate thread."""
+        
+        port = self.find_available_port(host, start_port, end_port)
+        
+        if port is None:
+            print(f"No available ports found in range {start_port}-{end_port}")
+            return None
+        
+        try:
+            server = HTTPServer((host, port), CallbackHandler)
+            CallbackHandler.kernel_implementation = self.active_kernel_implementation
+            Thread(target=server.serve_forever, daemon=True).start()
+            
+            self.logger.debug(f"Widget callback server started at http://{host}:{port}")
+            return port
+            
+        except Exception as e:
+            print(f"Error starting widget callback server: {e}")
+            return None
+
+
+    def is_port_available(self, host, port):
+        """Check if a port is available on the given host."""
+        with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
+            sock.settimeout(1)
+            result = sock.connect_ex((host, port))
+            return result != 0
+
+
+    def find_available_port(self, host, start_port, end_port):
+        """Find the first available port in the given range."""
+        for port in range(start_port, end_port + 1):
+            if self.is_port_available(host, port):
+                return port
+        return None
 
 
     ############################################################################

@@ -33,6 +33,7 @@
 	]).
 
 	:- public([
+		set_webserver_port/1,       % set_webserver_port(+Port)
 		create_text_input/3,        % create_text_input(+WidgetId, +Label, +DefaultValue)
 		create_number_input/6,      % create_number_input(+WidgetId, +Label, +Min, +Max, +Step, +DefaultValue)
 		create_slider/6,            % create_slider(+WidgetId, +Label, +Min, +Max, +Step, +DefaultValue)
@@ -51,6 +52,9 @@
 	:- uses(jupyter_logging, [log/1, log/2]).
 	:- uses(jupyter_term_handling, [assert_success_response/4]).
 
+	:- private(webserver_port_/1).
+	:- dynamic(webserver_port_/1).
+
 	% Dynamic predicate to store widget state
 	:- private(widget_state/3).  % widget_state(WidgetId, Type, Value)
 	:- dynamic(widget_state/3).  % widget_state(WidgetId, Type, Value)
@@ -58,6 +62,10 @@
 	% Widget counter for generating unique IDs
 	:- dynamic(widget_counter/1).
 	widget_counter(0).
+
+	set_webserver_port(Port) :-
+		retractall(webserver_port_(_)),
+		assertz(webserver_port_(Port)).
 
 	% Generate unique widget ID
 	generate_widget_id(WidgetId) :-
@@ -164,56 +172,11 @@
 
 	% HTML generation predicates
 
-	% Base widget container HTML with direct event handling
-	create_widget_container(WidgetId, Contents, HTML) :-
-		atomic_list_concat([
-			'<div class="logtalk-widget-wrapper">',
-			'<div class="logtalk-widget" id="container_', WidgetId, '">',
-			Contents,
-			'</div>',
-			'<script>',
-			'(function() {',
-			'    function setupWidget() {',
-			'        const container = document.getElementById("container_', WidgetId, '");',
-			'        if (!container) return;',
-			'        const widget = container.querySelector("input, select, button");',
-			'        if (!widget) return;',
-			'        ',
-			'        function sendUpdate(value) {',
-%			'            if (!window.JUPYTER_KERNEL) return;',
-			'            const code = `jupyter_widget_handling::set_widget_value(\'', WidgetId, '\', ${value}).`;',
-			'            window.JUPYTER_KERNEL.do_execute(code, { silent: true, store_history: false });',
-			'        }',
-			'        ',
-			'        if (widget.type === "checkbox") {',
-			'            widget.addEventListener("change", () => sendUpdate(widget.checked));',
-			'        } else if (widget.type === "button") {',
-			'            widget.addEventListener("click", () => sendUpdate("\'clicked\'"));',
-			'        } else if (widget.type === "range") {',
-			'            widget.addEventListener("input", () => {',
-			'                const display = document.getElementById("', WidgetId, '_value");',
-			'                if (display) display.textContent = widget.value;',
-			'            });',
-			'            widget.addEventListener("change", () => sendUpdate(widget.value));',
-			'        } else {',
-			'            widget.addEventListener("change", () => sendUpdate(`\'${widget.value}\'`));',
-			'        }',
-			'    }',
-			'    ',
-			'    if (document.readyState === "loading") {',
-			'        document.addEventListener("DOMContentLoaded", setupWidget);',
-			'    } else {',
-			'        setupWidget();',
-			'    }',
-			'})();',
-			'</script>',
-			'</div>'
-		], HTML).
-
 	% Common update handler for all widgets
 	create_update_handler(WidgetId, Type, Value, Handler) :-
+		webserver_port_(Port),
 		atomic_list_concat([
-			'fetch(\'http://127.0.0.1:8998\', {',
+			'fetch(\'http://127.0.0.1:', Port, '\', {',
     		'	method: \'POST\',',
     		'	headers: {\'Content-Type\': \'application/json\'},',
     		'	body: JSON.stringify({type: \'', Type, '\', id: \'', WidgetId, '\', value: ', Value, '})',
