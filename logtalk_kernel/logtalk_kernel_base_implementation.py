@@ -247,12 +247,22 @@ class LogtalkKernelBaseImplementation:
                 self.send_response_display_data(error_prefix + 'Something went wrong\n' + error_prefix + 'The Logtalk server needs to be restarted\n', self.error_ansi_escape_codes)
                 return {'status': 'error', 'ename' : 'exception', 'evalue' : '', 'traceback' : ''}
         else:
-            reply_object = {
-                'status': 'ok',
-                'execution_count': self.kernel.execution_count,
-                'payload': [],
-                'user_expressions': {},
-            }
+            response_dict = self.server_request(self.kernel.execution_count, 'call', {'code':code})
+            if 'result' in response_dict:
+               reply_object = {
+                    'status': 'ok',
+                    'execution_count': self.kernel.execution_count,
+                    'payload': [],
+                    'user_expressions': {},
+                }
+            else:
+                # 'error' in response_dict:
+                reply_object = {
+                    'status' : 'error',
+                    'ename' : 'error',
+                    'evalue' : '',
+                    'traceback' : [],
+                }
 
         return reply_object
 
@@ -1139,27 +1149,6 @@ class LogtalkKernelBaseImplementation:
             return True  # Failure
 
 
-    def handle_execute_request(self, stream, ident, msg):
-        """Handle code execution requests from widgets."""
-        try:
-            code = msg['content']['code']
-            silent = msg['content'].get('silent', False)
-            store_history = msg['content'].get('store_history', True)
-            user_expressions = msg['content'].get('user_expressions', {})
-            allow_stdin = msg['content'].get('allow_stdin', False)
-
-            result = self.do_execute(code, silent, store_history, user_expressions, allow_stdin)
-            
-            return result
-        except Exception as e:
-            self.logger.error(f"Error executing code: {str(e)}")
-            return {
-                'status': 'error',
-                'ename': type(e).__name__,
-                'evalue': str(e),
-                'traceback': []
-            }
-
 class CallbackHandler(BaseHTTPRequestHandler):
     kernel_implementation = None
     def do_OPTIONS(self):
@@ -1180,7 +1169,7 @@ class CallbackHandler(BaseHTTPRequestHandler):
         else:
             code = 'jupyter_widget_handling::set_widget_value(\'' + data['id'] + '\', ' + data['value'] + ').'
         try:
-            self.kernel_implementation.do_execute(code, False, False, {}, False)
+            self.kernel_implementation.do_execute(code, True, False, {}, False)
             result = {"status": "ok", "received": code}
         except Exception as e:
             result = {"status": "error", "error": str(e)}
@@ -1192,4 +1181,3 @@ class CallbackHandler(BaseHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
         self.end_headers()
         self.wfile.write(json.dumps(result).encode())
-
