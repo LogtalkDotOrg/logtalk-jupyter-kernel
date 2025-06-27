@@ -67,6 +67,13 @@
         argnames is ['WidgetId', 'Label', 'Min', 'Max', 'Step', 'DefaultValue']
     ]).
 
+	:- public(create_date_input/3).
+	:- mode(create_date_input(+atom, +atom, +date), one).
+    :- info(create_date_input/3, [
+        comment is 'Create a date input widget.',
+        argnames is ['WidgetId', 'Label', 'DefaultValue']
+    ]).
+
     :- public(create_dropdown/3).
     :- info(create_dropdown/3, [
         comment is 'Create a dropdown widget.',
@@ -207,6 +214,15 @@
 		create_slider_html(WidgetId, Label, Min, Max, Step, DefaultValue, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
+	create_date_input(WidgetId, Label, DefaultValue) :-
+		(	var(WidgetId) ->
+			generate_widget_id(WidgetId)
+		;	true
+		),
+		assertz(widget_state_(WidgetId, date_input, DefaultValue)),
+		create_date_input_html(WidgetId, Label, DefaultValue, HTML),
+		assert_success_response(widget, [], '', [widget_html-HTML]).
+
 	% Create dropdown widget
 	create_dropdown(WidgetId, Label, Options) :-
 		(	var(WidgetId) ->
@@ -342,6 +358,20 @@
 			'oninput="document.getElementById(\'', WidgetId, '_value\').textContent = this.value" ',
 			'onchange="', Handler, '" ',
 			'style="margin: 5px; width: 200px;"/>',
+			'</div>'
+		], HTML).
+
+	% Create date input HTML
+	create_date_input_html(WidgetId, Label, DefaultValue, HTML) :-
+		create_update_handler(WidgetId, date, 'String(this.value)', Handler),
+		atomic_list_concat([
+			'<div class="logtalk-input-group">',
+			'<label class="logtalk-widget-label" for="', WidgetId, '">', Label, '</label><br>',
+			'<input type="date" id="', WidgetId, '" ',
+			'class="logtalk-widget-input" ',
+			'value="', DefaultValue, '" ',
+			'onchange="', Handler, '" ',
+			'style="margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;"/>',
 			'</div>'
 		], HTML).
 
