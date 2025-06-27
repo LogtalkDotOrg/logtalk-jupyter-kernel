@@ -74,6 +74,13 @@
         argnames is ['WidgetId', 'Label', 'DefaultValue']
     ]).
 
+	:- public(create_time_input/3).
+	:- mode(create_time_input(+atom, +atom, +date), one).
+    :- info(create_time_input/3, [
+        comment is 'Create a time input widget.',
+        argnames is ['WidgetId', 'Label', 'DefaultValue']
+    ]).
+
     :- public(create_dropdown/3).
     :- info(create_dropdown/3, [
         comment is 'Create a dropdown widget.',
@@ -214,6 +221,7 @@
 		create_slider_html(WidgetId, Label, Min, Max, Step, DefaultValue, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
+	% Create date input widget
 	create_date_input(WidgetId, Label, DefaultValue) :-
 		(	var(WidgetId) ->
 			generate_widget_id(WidgetId)
@@ -221,6 +229,16 @@
 		),
 		assertz(widget_state_(WidgetId, date_input, DefaultValue)),
 		create_date_input_html(WidgetId, Label, DefaultValue, HTML),
+		assert_success_response(widget, [], '', [widget_html-HTML]).
+
+	% Create time input widget
+	create_time_input(WidgetId, Label, DefaultValue) :-
+		(	var(WidgetId) ->
+			generate_widget_id(WidgetId)
+		;	true
+		),
+		assertz(widget_state_(WidgetId, time_input, DefaultValue)),
+		create_time_input_html(WidgetId, Label, DefaultValue, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
 	% Create dropdown widget
@@ -368,6 +386,20 @@
 			'<div class="logtalk-input-group">',
 			'<label class="logtalk-widget-label" for="', WidgetId, '">', Label, '</label><br>',
 			'<input type="date" id="', WidgetId, '" ',
+			'class="logtalk-widget-input" ',
+			'value="', DefaultValue, '" ',
+			'onchange="', Handler, '" ',
+			'style="margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;"/>',
+			'</div>'
+		], HTML).
+
+	% Create time input HTML
+	create_time_input_html(WidgetId, Label, DefaultValue, HTML) :-
+		create_update_handler(WidgetId, time, 'String(this.value)', Handler),
+		atomic_list_concat([
+			'<div class="logtalk-input-group">',
+			'<label class="logtalk-widget-label" for="', WidgetId, '">', Label, '</label><br>',
+			'<input type="time" id="', WidgetId, '" ',
 			'class="logtalk-widget-input" ',
 			'value="', DefaultValue, '" ',
 			'onchange="', Handler, '" ',
