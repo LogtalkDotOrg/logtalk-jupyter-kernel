@@ -52,9 +52,9 @@
 :- object(jupyter_term_handling).
 
 	:- info([
-		version is 0:9:0,
+		version is 0:10:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-05-01,
+		date is 2025-06-27,
 		comment is 'This object provides predicates to handle terms received from the client, compute their results and assert them with term_response/1.'
 	]).
 
@@ -74,6 +74,20 @@
 	:- info(term_response/1, [
 		comment is 'JSON term response table.',
 		argnames is ['JsonResponse']
+	]).
+
+	:- public(assert_success_response/4).
+	:- mode(assert_success_response(+atom, +list(pair), +atom, +list(pair)), one).
+	:- info(assert_success_response/4, [
+		comment is 'Asserts a success response.',
+		argnames is ['Type', 'Bindings', 'Output', 'AdditionalData']
+	]).
+	
+	:- public(assert_error_response/4).
+	:- mode(assert_error_response(+atom, +compound, +atom, +list(pair)), one).
+	:- info(assert_error_response/4, [
+		comment is 'Asserts an error response.',
+		argnames is ['ErrorCode', 'ErrorMessageData', 'Output', 'AdditionalData']
 	]).
 
 	:- public(findall_results_and_var_names/4).
@@ -1361,7 +1375,6 @@ handle_update_completion_data.
 	% For each term which is processed and produces a result, this result is asserted.
 	% This way, all results can be sent to the client when all terms of a request have been handled.
 
-	:- public(assert_success_response/4).
 	% assert_success_response(+Type, +Bindings, +Output, +AdditionalData)
 	%
 	% Type is the type of the term read from the client.
@@ -1380,7 +1393,7 @@ handle_update_completion_data.
 
 	% assert_error_response(+ErrorCode, +ErrorMessageData, +Output, +AdditionalData)
 	%
-	% ErrorCode is one of the error codes defined by error_object_code/3 (e.g. exception).
+	% ErrorCode is one of the error codes defined by error_object_code/3 (e.g. exception; see the jupyter_jsonrpc object).
 	% ErrorMessageData is a term of the form message_data(Kind, Term) so that the actual error message can be retrieved with print_message(Kind, jupyter, Term)
 	% Output is the output of the term which was executed.
 	% AdditionalData is a list containing Key=Value pairs providing additional data for the client.

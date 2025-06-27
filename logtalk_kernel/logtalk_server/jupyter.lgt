@@ -167,16 +167,19 @@
 		print_transition_graph/4,   % print_transition_graph(+PredSpec, +FromIndex, +ToIndex, +LabelIndex)
 %		update_completion_data/0
 		% Widget support
-		create_text_input/3,        % create_text_input(+WidgetId, +Label, +DefaultValue)
-		create_number_input/6,      % create_number_input(+WidgetId, +Label, +Min, +Max, +Step, +DefaultValue)
-		create_slider/6,            % create_slider(+WidgetId, +Label, +Min, +Max, +Step, +DefaultValue)
-		create_dropdown/3,          % create_dropdown(+WidgetId, +Label, +Options)
-		create_checkbox/3,          % create_checkbox(+WidgetId, +Label, +DefaultValue)
-		create_button/2,            % create_button(+WidgetId, +Label)
-		get_widget_value/2,         % get_widget_value(+WidgetId, -Value)
+		create_text_input/3,
+		create_password_input/2,
+		create_number_input/6,
+		create_slider/6,
+		create_dropdown/3,
+		create_checkbox/3,
+		create_button/2,
+		get_widget_value/2,
+		set_widget_value/2,
 		% Widget debugging
-		widgets/0,                  % widgets
-		widgets/1,                  % widgets(-Widgets)
+		widgets/0,
+		widgets/1,
+		widget/1,
 		% Form support
 		create_input_form/2,        % create_input_form(+FormId, +FieldSpecs)
 		create_input_form/3,        % create_input_form(+FormId, +FieldSpecs, +Options)
@@ -185,14 +188,17 @@
 
 	:- uses(jupyter_widget_handling, [
 		create_text_input/3,
+		create_password_input/2,
 		create_number_input/6,
 		create_slider/6,
 		create_dropdown/3,
 		create_checkbox/3,
 		create_button/2,
 		get_widget_value/2,
+		set_widget_value/2,
 		widgets/0,
-		widgets/1
+		widgets/1,
+		widget/1
 	]).
 
 	:- uses(debugger, [leash/1, trace/0, notrace/0]).

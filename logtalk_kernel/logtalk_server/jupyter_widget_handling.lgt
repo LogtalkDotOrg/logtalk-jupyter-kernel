@@ -28,14 +28,14 @@
 	:- info([
 		version is 0:1:0,
 		author is 'Paulo Moura',
-		date is 2025-06-26,
+		date is 2025-06-27,
 		comment is 'This object provides predicates for creating and managing HTML/JavaScript widgets in Logtalk notebooks.'
 	]).
 
     :- public(set_webserver_port/1).
 	:- mode(set_webserver_port(+positive_integer), one).
     :- info(set_webserver_port/1, [
-        comment is 'Set the widget callback webserver port.',
+        comment is 'Set the widget callback webserver port. Called automatically by the kernel.',
         argnames is ['Port']
     ]).
 
@@ -44,6 +44,13 @@
     :- info(create_text_input/3, [
         comment is 'Create a text input widget.',
         argnames is ['WidgetId', 'Label', 'DefaultValue']
+    ]).
+
+    :- public(create_password_input/2).
+	:- mode(create_password_input(+atom, +atom), one).
+    :- info(create_password_input/2, [
+        comment is 'Create a password input widget.',
+        argnames is ['WidgetId', 'Label']
     ]).
 
     :- public(create_number_input/6).
@@ -127,22 +134,27 @@
         argnames is ['Widgets']
     ]).
 
-	:- uses(jupyter_logging, [log/1, log/2]).
-	:- uses(jupyter_term_handling, [assert_success_response/4]).
-
 	:- private(webserver_port_/1).
 	:- dynamic(webserver_port_/1).
+	:- mode(webserver_port_(?positive_integer), zero_or_one).
     :- info(webserver_port_/1, [
         comment is 'Widget callback webserver port.',
         argnames is ['Port']
     ]).
-	% Dynamic predicate to store widget state
-	:- private(widget_state/3).  % widget_state(WidgetId, Type, Value)
-	:- dynamic(widget_state/3).  % widget_state(WidgetId, Type, Value)
+
+	:- private(widget_state_/3).
+	:- dynamic(widget_state_/3).
+	:- mode(widget_state_(?atom, ?atom, ?nonvar), zero_or_more).
+	:- info(widget_state_/3, [
+		comment is 'Table of widgets state.',
+		argnames is ['WidgetId', 'Type', 'Value']
+	]).
 
 	% Widget counter for generating unique IDs
 	:- dynamic(widget_counter/1).
 	widget_counter(0).
+
+	:- uses(jupyter_term_handling, [assert_success_response/4]).
 
 	set_webserver_port(Port) :-
 		retractall(webserver_port_(_)),
@@ -161,8 +173,18 @@
 			generate_widget_id(WidgetId)
 		;	true
 		),
-		assertz(widget_state(WidgetId, text_input, DefaultValue)),
+		assertz(widget_state_(WidgetId, text_input, DefaultValue)),
 		create_text_input_html(WidgetId, Label, DefaultValue, HTML),
+		assert_success_response(widget, [], '', [widget_html-HTML]).
+
+	% Create password input widget
+	create_password_input(WidgetId, Label) :-
+		(	var(WidgetId) ->
+			generate_widget_id(WidgetId)
+		;	true
+		),
+		assertz(widget_state_(WidgetId, password_input, '')),
+		create_password_input_html(WidgetId, Label, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
 	% Create number input widget
@@ -171,7 +193,7 @@
 			generate_widget_id(WidgetId)
 		;	true
 		),
-		assertz(widget_state(WidgetId, number_input, DefaultValue)),
+		assertz(widget_state_(WidgetId, number_input, DefaultValue)),
 		create_number_input_html(WidgetId, Label, Min, Max, Step, DefaultValue, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
@@ -181,7 +203,7 @@
 			generate_widget_id(WidgetId)
 		;	true
 		),
-		assertz(widget_state(WidgetId, slider, DefaultValue)),
+		assertz(widget_state_(WidgetId, slider, DefaultValue)),
 		create_slider_html(WidgetId, Label, Min, Max, Step, DefaultValue, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
@@ -192,7 +214,7 @@
 		;	true
 		),
 		Options = [FirstOption|_],
-		assertz(widget_state(WidgetId, dropdown, FirstOption)),
+		assertz(widget_state_(WidgetId, dropdown, FirstOption)),
 		create_dropdown_html(WidgetId, Label, Options, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
@@ -202,7 +224,7 @@
 			generate_widget_id(WidgetId)
 		;	true
 		),
-		assertz(widget_state(WidgetId, checkbox, DefaultValue)),
+		assertz(widget_state_(WidgetId, checkbox, DefaultValue)),
 		create_checkbox_html(WidgetId, Label, DefaultValue, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
@@ -212,35 +234,35 @@
 			generate_widget_id(WidgetId)
 		;	true
 		),
-		assertz(widget_state(WidgetId, button, clicked)),
+		assertz(widget_state_(WidgetId, button, clicked)),
 		create_button_html(WidgetId, Label, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
 	% Get widget value
 	get_widget_value(WidgetId, Value) :-
-		widget_state(WidgetId, _, Value).
+		widget_state_(WidgetId, _, Value).
 
 	% Set widget value
 	set_widget_value(WidgetId, Value) :-
-		retract(widget_state(WidgetId, Type, _)),
-		asserta(widget_state(WidgetId, Type, Value)).
+		retract(widget_state_(WidgetId, Type, _)),
+		asserta(widget_state_(WidgetId, Type, Value)).
 
 	% Remove widget
 	remove_widget(WidgetId) :-
-		retractall(widget_state(WidgetId, _, _)).
+		retractall(widget_state_(WidgetId, _, _)).
 
 	% Remove all widgets
 	remove_all_widgets :-
-		retractall(widget_state(_, _, _)).
+		retractall(widget_state_(_, _, _)).
 
 	% Check if widget exists
 	widget(WidgetId) :-
-		widget_state(WidgetId, _, _).
+		widget_state_(WidgetId, _, _).
 
 	% Pprint all widgets
 	widgets :-
 		write('=== Widget Debug Information ==='), nl,
-		(	widget_state(WidgetId, Type, Value),
+		(	widget_state_(WidgetId, Type, Value),
 			format('Widget ~w: Type=~w, Value=~w~n', [WidgetId, Type, Value]),
 			fail
 		;	true
@@ -249,7 +271,7 @@
 
 	% List all widgets
 	widgets(Widgets) :-
-		findall(widget(WidgetId, Type, Value), widget_state(WidgetId, Type, Value), Widgets).
+		findall(widget(WidgetId, Type, Value), widget_state_(WidgetId, Type, Value), Widgets).
 
 	% HTML generation predicates
 
@@ -275,6 +297,18 @@
 			'<input type="text" id="', WidgetId, '" ',
 			'class="logtalk-widget-input" ',
 			'value="', DefaultValue, '" ',
+			'onchange="', Handler, '" ',
+			'style="margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;"/>',
+			'</div>'
+		], HTML).
+
+	create_password_input_html(WidgetId, Label, HTML) :-
+		create_update_handler(WidgetId, password, 'String(this.value)', Handler),
+		atomic_list_concat([
+			'<div class="logtalk-input-group">',
+			'<label class="logtalk-widget-label" for="', WidgetId, '">', Label, '</label><br>',
+			'<input type="password" id="', WidgetId, '" ',
+			'class="logtalk-widget-input" ',
 			'onchange="', Handler, '" ',
 			'style="margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;"/>',
 			'</div>'
