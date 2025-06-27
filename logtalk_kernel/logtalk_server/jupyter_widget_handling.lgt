@@ -32,29 +32,110 @@
 		comment is 'This object provides predicates for creating and managing HTML/JavaScript widgets in Logtalk notebooks.'
 	]).
 
-	:- public([
-		set_webserver_port/1,       % set_webserver_port(+Port)
-		create_text_input/3,        % create_text_input(+WidgetId, +Label, +DefaultValue)
-		create_number_input/6,      % create_number_input(+WidgetId, +Label, +Min, +Max, +Step, +DefaultValue)
-		create_slider/6,            % create_slider(+WidgetId, +Label, +Min, +Max, +Step, +DefaultValue)
-		create_dropdown/3,          % create_dropdown(+WidgetId, +Label, +Options)
-		create_checkbox/3,          % create_checkbox(+WidgetId, +Label, +DefaultValue)
-		create_button/2,            % create_button(+WidgetId, +Label)
-		get_widget_value/2,         % get_widget_value(+WidgetId, -Value)
-		set_widget_value/2,         % set_widget_value(+WidgetId, +Value)
-		remove_widget/1,            % remove_widget(+WidgetId)
-		clear_all_widgets/0,        % clear_all_widgets
-		widget/1,                   % widget(?WidgetId)
-		widgets/0,                  % widgets
-		widgets/1                   % widgets(-Widgets)
-	]).
+    :- public(set_webserver_port/1).
+	:- mode(set_webserver_port(+positive_integer), one).
+    :- info(set_webserver_port/1, [
+        comment is 'Set the widget callback webserver port.',
+        argnames is ['Port']
+    ]).
+
+    :- public(create_text_input/3).
+	:- mode(create_text_input(+atom, +atom, +atom), one).
+    :- info(create_text_input/3, [
+        comment is 'Create a text input widget.',
+        argnames is ['WidgetId', 'Label', 'DefaultValue']
+    ]).
+
+    :- public(create_number_input/6).
+	:- mode(create_number_input(+atom, +atom, +number, +number, +number, +number), one).
+    :- info(create_number_input/6, [
+        comment is 'Create a number input widget.',
+        argnames is ['WidgetId', 'Label', 'Min', 'Max', 'Step', 'DefaultValue']
+    ]).
+
+    :- public(create_slider/6).
+	:- mode(create_slider(+atom, +atom, +number, +number, +number, +number), one).
+    :- info(create_slider/6, [
+        comment is 'Create a slider widget.',
+        argnames is ['WidgetId', 'Label', 'Min', 'Max', 'Step', 'DefaultValue']
+    ]).
+
+    :- public(create_dropdown/3).
+    :- info(create_dropdown/3, [
+        comment is 'Create a dropdown widget.',
+        argnames is ['WidgetId', 'Label', 'Options']
+    ]).
+
+    :- public(create_checkbox/3).
+	:- mode(create_checkbox(+atom, +atom, +boolean), one).
+    :- info(create_checkbox/3, [
+        comment is 'Create a checkbox widget.',
+        argnames is ['WidgetId', 'Label', 'Checked']
+    ]).
+
+    :- public(create_button/2).
+	:- mode(create_button(+atom, +atom), one).
+    :- info(create_button/2, [
+        comment is 'Create a button widget.',
+        argnames is ['WidgetId', 'Label']
+    ]).
+
+    :- public(get_widget_value/2).
+	:- mode(get_widget_value(+atom, ?nonvar), zero_or_one).
+    :- info(get_widget_value/2, [
+        comment is 'Get the value of a widget.',
+        argnames is ['WidgetId', 'Value']
+    ]).
+
+    :- public(set_widget_value/2).
+	:- mode(set_widget_value(+atom, +nonvar), one).
+    :- info(set_widget_value/2, [
+        comment is 'Set the value of a widget.',
+        argnames is ['WidgetId', 'Value']
+    ]).
+
+    :- public(remove_widget/1).
+	:- mode(remove_widget(+atom), one).
+    :- info(remove_widget/1, [
+        comment is 'Remove a widget. Succeeds also when the widget does not exist.',
+        argnames is ['WidgetId']
+    ]).
+
+    :- public(remove_all_widgets/0).
+	:- mode(remove_all_widgets, one).
+    :- info(remove_all_widgets/0, [
+        comment is 'Clear all widgets.'
+    ]).
+
+    :- public(widget/1).
+	:- mode(widget(-atom), zero_or_more).
+    :- info(widget/1, [
+        comment is 'Enumerates, by backtracking, all existing widgets.',
+        argnames is ['WidgetId']
+    ]).
+
+    :- public(widgets/0).
+	:- mode(widgets, one).
+    :- info(widgets/0, [
+        comment is 'Pretty-print all widgets.'
+    ]).
+
+    :- public(widgets/1).
+	:- mode(widgets(-list(atom)), one).
+    :- info(widgets/1, [
+        comment is 'Returns a list of all the widgets.',
+        argnames is ['Widgets']
+    ]).
 
 	:- uses(jupyter_logging, [log/1, log/2]).
 	:- uses(jupyter_term_handling, [assert_success_response/4]).
 
 	:- private(webserver_port_/1).
 	:- dynamic(webserver_port_/1).
-
+    :- info(webserver_port_/1, [
+        comment is 'Widget callback webserver port.',
+        argnames is ['Port']
+    ]).
 	% Dynamic predicate to store widget state
 	:- private(widget_state/3).  % widget_state(WidgetId, Type, Value)
 	:- dynamic(widget_state/3).  % widget_state(WidgetId, Type, Value)
@@ -148,8 +229,8 @@
 	remove_widget(WidgetId) :-
 		retractall(widget_state(WidgetId, _, _)).
 
-	% Clear all widgets
-	clear_all_widgets :-
+	% Remove all widgets
+	remove_all_widgets :-
 		retractall(widget_state(_, _, _)).
 
 	% Check if widget exists
