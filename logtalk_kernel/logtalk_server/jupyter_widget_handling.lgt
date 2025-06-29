@@ -81,6 +81,13 @@
         argnames is ['WidgetId', 'Label', 'DefaultValue']
     ]).
 
+    :- public(create_file_input/2).
+	:- mode(create_file_input(+atom, +atom), one).
+    :- info(create_file_input/2, [
+        comment is 'Create a file input widget.',
+        argnames is ['WidgetId', 'Label']
+    ]).
+
     :- public(create_dropdown/3).
     :- info(create_dropdown/3, [
         comment is 'Create a dropdown widget.',
@@ -239,6 +246,16 @@
 		),
 		assertz(widget_state_(WidgetId, time_input, DefaultValue)),
 		create_time_input_html(WidgetId, Label, DefaultValue, HTML),
+		assert_success_response(widget, [], '', [widget_html-HTML]).
+
+	% Create file input widget
+	create_file_input(WidgetId, Label) :-
+		(	var(WidgetId) ->
+			generate_widget_id(WidgetId)
+		;	true
+		),
+		assertz(widget_state_(WidgetId, file_input, '')),
+		create_file_input_html(WidgetId, Label, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
 	% Create dropdown widget
@@ -402,6 +419,19 @@
 			'<input type="time" id="', WidgetId, '" ',
 			'class="logtalk-widget-input" ',
 			'value="', DefaultValue, '" ',
+			'onchange="', Handler, '" ',
+			'style="margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;"/>',
+			'</div>'
+		], HTML).
+
+	% Create file input HTML
+	create_file_input_html(WidgetId, Label, HTML) :-
+		create_update_handler(WidgetId, file, 'String(this.files[0].name)', Handler),
+		atomic_list_concat([
+			'<div class="logtalk-input-group">',
+			'<label class="logtalk-widget-label" for="', WidgetId, '">', Label, '</label><br>',
+			'<input type="file" id="', WidgetId, '" ',
+			'class="logtalk-widget-input" ',
 			'onchange="', Handler, '" ',
 			'style="margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;"/>',
 			'</div>'
