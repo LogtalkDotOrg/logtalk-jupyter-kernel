@@ -75,10 +75,17 @@
     ]).
 
 	:- public(create_time_input/3).
-	:- mode(create_time_input(+atom, +atom, +date), one).
+	:- mode(create_time_input(+atom, +atom, +time), one).
     :- info(create_time_input/3, [
         comment is 'Create a time input widget.',
         argnames is ['WidgetId', 'Label', 'DefaultValue']
+    ]).
+
+	:- public(create_url_input/4).
+	:- mode(create_url_input(+atom, +atom, +atom, +atom), one).
+    :- info(create_url_input/4, [
+        comment is 'Create a time input widget.',
+        argnames is ['WidgetId', 'Label', 'DefaultValue', 'Pattern']
     ]).
 
     :- public(create_file_input/2).
@@ -248,6 +255,16 @@
 		create_time_input_html(WidgetId, Label, DefaultValue, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
+	% Create URL input widget
+	create_url_input(WidgetId, Label, DefaultValue, Pattern) :-
+		(	var(WidgetId) ->
+			generate_widget_id(WidgetId)
+		;	true
+		),
+		assertz(widget_state_(WidgetId, url_input, DefaultValue)),
+		create_url_input_html(WidgetId, Label, DefaultValue, Pattern, HTML),
+		assert_success_response(widget, [], '', [widget_html-HTML]).
+
 	% Create file input widget
 	create_file_input(WidgetId, Label) :-
 		(	var(WidgetId) ->
@@ -306,11 +323,11 @@
 	remove_all_widgets :-
 		retractall(widget_state_(_, _, _)).
 
-	% Check if widget exists
+	% Enumerate all widgets or check if a widget exists
 	widget(WidgetId) :-
 		widget_state_(WidgetId, _, _).
 
-	% Pprint all widgets
+	% Print all widgets
 	widgets :-
 		write('=== Widget Debug Information ==='), nl,
 		(	widget_state_(WidgetId, Type, Value),
@@ -320,7 +337,7 @@
 		),
 		write('=== End Widget Debug ==='), nl.
 
-	% List all widgets
+	% List of all widgets
 	widgets(Widgets) :-
 		findall(widget(WidgetId, Type, Value), widget_state_(WidgetId, Type, Value), Widgets).
 
@@ -420,6 +437,21 @@
 			'class="logtalk-widget-input" ',
 			'value="', DefaultValue, '" ',
 			'onchange="', Handler, '" ',
+			'style="margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;"/>',
+			'</div>'
+		], HTML).
+
+	% Create URL input HTML
+	create_url_input_html(WidgetId, Label, DefaultValue, Pattern, HTML) :-
+		create_update_handler(WidgetId, url, 'String(this.value)', Handler),
+		atomic_list_concat([
+			'<div class="logtalk-input-group">',
+			'<label class="logtalk-widget-label" for="', WidgetId, '">', Label, '</label><br>',
+			'<input type="url" id="', WidgetId, '" ',
+			'class="logtalk-widget-input" ',
+			'value="', DefaultValue, '" ',
+			'pattern="', Pattern, '" ',
+			'onblur="', Handler, '" ',
 			'style="margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;"/>',
 			'</div>'
 		], HTML).
