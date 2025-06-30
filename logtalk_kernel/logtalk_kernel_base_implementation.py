@@ -50,11 +50,15 @@ from IPython.utils.tokenutil import line_at_cursor
 from os import remove
 from signal import signal, SIGINT
 
+from http.server import BaseHTTPRequestHandler
 
-path = os.path.dirname(__file__)
+path = os.path.dirname(__file__)  # pylint: disable=invalid-name
 
 
 class LogtalkKernelBaseImplementation:
+    """
+    Base implementation of the Logtalk Jupyter kernel
+    """
 
     error_ansi_escape_codes =  "\x1b[1;31m" # red and bold
 
@@ -79,7 +83,6 @@ class LogtalkKernelBaseImplementation:
         self.configure_token_splitters()
         #self.retrieve_predicate_information()
 
-
     def start_logtalk_server(self):
         """Tries to (re)start the Logtalk server process with the configured arguments."""
         # Check if the Logtalk server is to be started with the default program arguments
@@ -89,7 +92,7 @@ class LogtalkKernelBaseImplementation:
             # Use the default
             program_arguments = self.kernel.default_program_arguments[self.backend]
             # The third element of the list is the path to the Logtalk source code relative to the directory this file is located in
-            # In order for it to be found, the path needs to be extended by the location of this file
+            # In order for it to be found, the path needs to be extended to the location of this file
             program_arguments[3] = program_arguments[3].replace("logtalk_server/loader.lgt", os.path.join(path, os.path.join("logtalk_server", "loader.lgt")))
             program_arguments[3] = program_arguments[3].replace("\\", "\\\\")
 
@@ -105,6 +108,7 @@ class LogtalkKernelBaseImplementation:
             extended_program_arguments = ["pwsh.exe", "-ExecutionPolicy", "Unrestricted", "-Command"] + program_arguments
         else:
             extended_program_arguments = program_arguments
+        
         self.logtalk_proc = subprocess.Popen(
             extended_program_arguments,
             stdout=subprocess.PIPE,
@@ -173,7 +177,7 @@ class LogtalkKernelBaseImplementation:
 
 
     ############################################################################
-    # Overriden kernel methods
+    # Overridden kernel methods
     ############################################################################
 
 
@@ -220,12 +224,22 @@ class LogtalkKernelBaseImplementation:
                 self.send_response_display_data(error_prefix + 'Something went wrong\n' + error_prefix + 'The Logtalk server needs to be restarted\n', self.error_ansi_escape_codes)
                 return {'status': 'error', 'ename' : 'exception', 'evalue' : '', 'traceback' : ''}
         else:
-            reply_object = {
-                'status': 'ok',
-                'execution_count': self.kernel.execution_count,
-                'payload': [],
-                'user_expressions': {},
-            }
+            response_dict = self.server_request(self.kernel.execution_count, 'call', {'code':code})
+            if 'result' in response_dict:
+               reply_object = {
+                    'status': 'ok',
+                    'execution_count': self.kernel.execution_count,
+                    'payload': [],
+                    'user_expressions': {},
+                }
+            else:
+                # 'error' in response_dict:
+                reply_object = {
+                    'status' : 'error',
+                    'ename' : 'error',
+                    'evalue' : '',
+                    'traceback' : [],
+                }
 
         return reply_object
 
@@ -333,6 +347,9 @@ class LogtalkKernelBaseImplementation:
 
         # Read the JSON-RCP Response object (http://www.jsonrpc.org/specification#response_object)
         response_string = self.logtalk_proc.stdout.readline()
+        # Write response_string to a file for debugging
+        # with open("logtalk_kernel_response_debug.txt", "a", encoding="utf-8") as debug_file:
+        #     debug_file.write(response_string + "\n")
         if log_response:
             self.logger.debug('response: ' + response_string)
 
@@ -568,12 +585,28 @@ class LogtalkKernelBaseImplementation:
 
     def send_response_display_data(self, text, ansi_escape_codes=""):
         """Sends a response to the frontend containing plain text."""
-
         display_data = {
             'data': {
                 'text/plain': ansi_escape_codes + text
             },
-            'metadata': {}}
+            'metadata': {}
+        }   
+        self.kernel.send_response(self.kernel.iopub_socket, 'display_data', display_data)
+
+    def send_widget_html(self, html_content):
+        """Send widget HTML content to the frontend."""
+        # Ensure html_content is properly escaped and handled as a string
+        if isinstance(html_content, dict) and 'widget_html' in html_content:
+            html_content = str(html_content['widget_html'])
+        else:
+            html_content = str(html_content)
+            
+        display_data = {
+            'data': {
+                'text/html': html_content
+            },
+            'metadata': {}
+        }
         self.kernel.send_response(self.kernel.iopub_socket, 'display_data', display_data)
 
 
@@ -611,6 +644,9 @@ class LogtalkKernelBaseImplementation:
         if 'set_prolog_backend' in dict:
             if self.handle_set_prolog_backend(dict['set_prolog_backend']):
                 failure_keys.append(['set_prolog_backend'])
+        if 'widget_html' in dict:
+            if self.handle_widget_html(dict['widget_html']):
+                failure_keys.append(['widget_html'])
 
         return failure_keys
 
@@ -785,7 +821,7 @@ class LogtalkKernelBaseImplementation:
 
         Example
         ------
-          {'type':'pie', 'title':'Pie Graph', 'x':[35, 20, 30, 40, 50, 30], 'labels':['Apple','Bananna','Grapes','Orange','PineApple','Dragon Fruit']}
+          {'type':'pie', 'title':'Pie Graph', 'x':[35, 20, 30, 40, 50, 30], 'labels':['Apple','Banana','Grapes','Orange','PineApple','Dragon Fruit']}
         """
         try:
             fig, ax = plt.subplots()
@@ -1063,3 +1099,64 @@ class LogtalkKernelBaseImplementation:
     def handle_set_prolog_backend(self, prolog_backend):
         """The user requested to change the active Prolog backend, which needs to be handled by the kernel."""
         return self.kernel.change_prolog_backend(prolog_backend)
+
+
+    def handle_widget_html(self, html_content):
+        """Handle widget HTML content from Logtalk server."""
+        try:
+            # Ensure we have valid HTML content
+            if isinstance(html_content, dict) and 'widget_html' in html_content:
+                html = html_content['widget_html']
+            else:
+                html = str(html_content)
+
+            # Send the widget HTML to the frontend
+            self.kernel.send_response(
+                self.kernel.iopub_socket,
+                'display_data',
+                {
+                    'data': {
+                        'text/html': html_content
+                    },
+                    'metadata': {}
+                }
+            )
+            return False  # Success
+        except Exception as e:
+            self.logger.error(f"Error handling widget HTML: {e}", exc_info=True)
+            return True  # Failure
+
+
+class CallbackHandler(BaseHTTPRequestHandler):
+    kernel_implementation = None
+    def do_OPTIONS(self):
+        self.send_response(204)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.end_headers()
+
+    def do_POST(self):
+        content_length = int(self.headers['Content-Length'])
+        post_data = self.rfile.read(content_length)
+        data = json.loads(post_data.decode('utf-8'))
+        
+        # Process your callback here
+        if data['type'] == 'number' or data['type'] == 'slider':
+            code = 'jupyter_widgets::set_widget_value(\'' + data['id'] + '\', ' + data['value'] + ').'
+        else:
+            data['value'] = data['value'].replace("'", "\\'")
+            code = 'jupyter_widgets::set_widget_value(\'' + data['id'] + '\', \'' + data['value'] + '\').'
+        try:
+            self.kernel_implementation.do_execute(code, True, False, {}, False)
+            result = {"status": "ok", "received": code}
+        except Exception as e:
+            result = {"status": "error", "error": str(e)}
+        
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.end_headers()
+        self.wfile.write(json.dumps(result).encode())

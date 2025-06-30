@@ -52,9 +52,9 @@
 :- object(jupyter_term_handling).
 
 	:- info([
-		version is 0:9:0,
+		version is 0:10:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-05-01,
+		date is 2025-06-27,
 		comment is 'This object provides predicates to handle terms received from the client, compute their results and assert them with term_response/1.'
 	]).
 
@@ -74,6 +74,20 @@
 	:- info(term_response/1, [
 		comment is 'JSON term response table.',
 		argnames is ['JsonResponse']
+	]).
+
+	:- public(assert_success_response/4).
+	:- mode(assert_success_response(+atom, +list(pair), +atom, +list(pair)), one).
+	:- info(assert_success_response/4, [
+		comment is 'Asserts a success response.',
+		argnames is ['Type', 'Bindings', 'Output', 'AdditionalData']
+	]).
+	
+	:- public(assert_error_response/4).
+	:- mode(assert_error_response(+atom, +compound, +atom, +list(pair)), one).
+	:- info(assert_error_response/4, [
+		comment is 'Asserts an error response.',
+		argnames is ['ErrorCode', 'ErrorMessageData', 'Output', 'AdditionalData']
 	]).
 
 	:- public(findall_results_and_var_names/4).
@@ -293,7 +307,7 @@
 	%  It is needed for retry/0 queries.
 	% Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the goal Goal.
 	% LoopCont is one of continue and cut.
-	%  If LoopCont = cut, the recurse loop (jupyter_request_handling::loop/3) will exit right away without making retrys of a term possible.
+	%  If LoopCont = cut, the recurse loop (jupyter_request_handling::loop/3) will exit right away without making retries of a term possible.
 	% Cont will be processed by jupyter_request_handling::loop/3.
 	handle_query(Goal, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont) :-
 		% In order to send the goal to the client, it has to be converted to an atom
@@ -415,7 +429,7 @@
 	% same_var(+BindingsWithoutSingletons, +Var)
 	%
 	% BindingsWithoutSingletons is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the term currently being handled.
-	% Fails if BindingsWithoutSingletons does not contain any elenent VarName=Var1 where Var1 and Var are identical (==).
+	% Fails if BindingsWithoutSingletons does not contain any element VarName=Var1 where Var1 and Var are identical (==).
 	same_var([], _Var) :- fail.
 	same_var([_VarName=Var1|_BindingsWithoutSingletons], Var2) :-
 		Var1 == Var2, !.
@@ -797,7 +811,7 @@ handle_print_sld_tree(Goal, Bindings) :-
 		sld_tree_node_atoms(CleanSldData, 'A', [], Nodes),
 		% Compute edges content
 		% The first element corresponds to a call from the toplevel
-		% SldDataWithoutToplevelCalls contains all elements from CleanSldData which do not correspond to teplevel calls with the same ParentId
+		% SldDataWithoutToplevelCalls contains all elements from CleanSldData which do not correspond to toplevel calls with the same ParentId
 		CleanSldData = [_Goal-_CurrentId-ToplevelId|_],
 		delete_all_occurrences(CleanSldData, _G-_Id-ToplevelId, SldDataWithoutToplevelCalls),
 		sld_tree_edge_atoms(SldDataWithoutToplevelCalls, Edges),
@@ -1366,7 +1380,7 @@ handle_update_completion_data.
 
 	% assert_error_response(+ErrorCode, +ErrorMessageData, +Output, +AdditionalData)
 	%
-	% ErrorCode is one of the error codes defined by error_object_code/3 (e.g. exception).
+	% ErrorCode is one of the error codes defined by error_object_code/3 (e.g. exception; see the jupyter_jsonrpc object).
 	% ErrorMessageData is a term of the form message_data(Kind, Term) so that the actual error message can be retrieved with print_message(Kind, jupyter, Term)
 	% Output is the output of the term which was executed.
 	% AdditionalData is a list containing Key=Value pairs providing additional data for the client.

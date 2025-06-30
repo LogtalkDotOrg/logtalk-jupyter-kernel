@@ -53,7 +53,7 @@ If no such path is defined, the path itself or the defined class is invalid, a d
 In case of SWI- and SICStus Prolog, the files 'swi_kernel_implementation.py' and 'sicstus_kernel_implementation.py' are used, which can be found in the current directory.
 Otherwise, the base implementation from the file 'logtalk_kernel_base_implementation.py' is loaded.
 
-The Logtalk Jupyter kernel is implemented in a way that basically all functionality except the loading of the configuration can easily be overriden.
+The Logtalk Jupyter kernel is implemented in a way that basically all functionality except the loading of the configuration can easily be overridden.
 This is especially useful for extending the kernel for further Prolog backends.
 """
 
@@ -73,7 +73,13 @@ from traitlets.config.loader import ConfigFileNotFound, PyFileConfigLoader
 #import logtalk_kernel.swi_kernel_implementation
 #import logtalk_kernel.sicstus_kernel_implementation
 
-from logtalk_kernel.logtalk_kernel_base_implementation import LogtalkKernelBaseImplementation
+from logtalk_kernel.logtalk_kernel_base_implementation import CallbackHandler, LogtalkKernelBaseImplementation
+
+from threading import Thread
+from http.server import HTTPServer
+import socket
+import socketserver
+from contextlib import closing
 
 # Constants
 DEFAULT_ERROR_PREFIX = "!     "
@@ -94,6 +100,8 @@ class LogtalkKernel(Kernel):
         'codemirror_mode': 'logtalk',
     }
     banner = kernel_name
+
+    active_kernel_implementation = None
 
     # Define default configuration options
 
@@ -538,6 +546,12 @@ class LogtalkKernel(Kernel):
         # Add the Prolog backend specific implementation class to the dictionary of active implementations
         self.active_kernel_implementations[self.backend] = self.active_kernel_implementation
 
+        # Start server in background thread
+        port = self.start_webserver_threaded('127.0.0.1', 8900, 8999)
+        if port is not None:
+            do_execute_code = f"jupyter_widgets::set_webserver_port({port})."
+            self.active_kernel_implementation.do_execute(do_execute_code, False, True, None, False)
+
 
     def change_prolog_backend(self, prolog_backend):
         """
@@ -583,8 +597,46 @@ class LogtalkKernel(Kernel):
             kernel_implementation.kill_logtalk_server()
 
 
+    def start_webserver_threaded(self, host, start_port, end_port):
+        """Start a web server in a separate thread."""
+        
+        port = self.find_available_port(host, start_port, end_port)
+        
+        if port is None:
+            print(f"No available ports found in range {start_port}-{end_port}")
+            return None
+        
+        try:
+            server = HTTPServer((host, port), CallbackHandler)
+            CallbackHandler.kernel_implementation = self.active_kernel_implementation
+            Thread(target=server.serve_forever, daemon=True).start()
+            
+            self.logger.debug(f"Widget callback server started at http://{host}:{port}")
+            return port
+            
+        except Exception as e:
+            print(f"Error starting widget callback server: {e}")
+            return None
+
+
+    def is_port_available(self, host, port):
+        """Check if a port is available on the given host."""
+        with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
+            sock.settimeout(1)
+            result = sock.connect_ex((host, port))
+            return result != 0
+
+
+    def find_available_port(self, host, start_port, end_port):
+        """Find the first available port in the given range."""
+        for port in range(start_port, end_port + 1):
+            if self.is_port_available(host, port):
+                return port
+        return None
+
+
     ############################################################################
-    # Overriden kernel methods
+    # Overridden kernel methods
     ############################################################################
 
 

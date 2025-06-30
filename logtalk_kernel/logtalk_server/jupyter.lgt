@@ -28,9 +28,9 @@
 :- object(jupyter).
 
 	:- info([
-		version is 0:17:0,
+		version is 0:18:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-05-01,
+		date is 2025-06-30,
 		comment is 'This object provides special predicates which can be used in call requests by the client. Some of these predicates need to be the only goal of a query. Otherwise, they cannot be determined as special predicates and do not work as expected.'
 	]).
 
@@ -164,7 +164,7 @@
 		%halt/0,
 		predicate_docs/1,
 		%print_sld_tree/1,          % print_sld_tree(+Goal)
-		print_transition_graph/4  % print_transition_graph(+PredSpec, +FromIndex, +ToIndex, +LabelIndex)
+		print_transition_graph/4    % print_transition_graph(+PredSpec, +FromIndex, +ToIndex, +LabelIndex)
 %		update_completion_data/0
 	]).
 
@@ -191,7 +191,7 @@
 		format('~w ~w.~w.~w~n', [BackendName, BackendMajor, BackendMinor, BackendPatch]),
 		version.
 
-	version(0, 31, 0, beta).
+	version(0, 32, 0, beta).
 
 	backend(b,       'B-Prolog').
 	backend(ciao,    'Ciao Prolog').
