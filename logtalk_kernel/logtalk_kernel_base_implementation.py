@@ -43,7 +43,6 @@ import subprocess
 import csv
 import io
 import matplotlib.pyplot as plt
-import re
 
 from graphviz import render
 from IPython.core.completer import CompletionSplitter
