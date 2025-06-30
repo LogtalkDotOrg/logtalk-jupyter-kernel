@@ -53,7 +53,7 @@ If no such path is defined, the path itself or the defined class is invalid, a d
 In case of SWI- and SICStus Prolog, the files 'swi_kernel_implementation.py' and 'sicstus_kernel_implementation.py' are used, which can be found in the current directory.
 Otherwise, the base implementation from the file 'logtalk_kernel_base_implementation.py' is loaded.
 
-The Logtalk Jupyter kernel is implemented in a way that basically all functionality except the loading of the configuration can easily be overriden.
+The Logtalk Jupyter kernel is implemented in a way that basically all functionality except the loading of the configuration can easily be overridden.
 This is especially useful for extending the kernel for further Prolog backends.
 """
 
@@ -636,7 +636,7 @@ class LogtalkKernel(Kernel):
 
 
     ############################################################################
-    # Overriden kernel methods
+    # Overridden kernel methods
     ############################################################################
 
 

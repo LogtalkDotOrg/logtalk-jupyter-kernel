@@ -178,7 +178,7 @@ class LogtalkKernelBaseImplementation:
 
 
     ############################################################################
-    # Overriden kernel methods
+    # Overridden kernel methods
     ############################################################################
 
 
@@ -819,7 +819,7 @@ class LogtalkKernelBaseImplementation:
 
         Example
         ------
-          {'type':'pie', 'title':'Pie Graph', 'x':[35, 20, 30, 40, 50, 30], 'labels':['Apple','Bananna','Grapes','Orange','PineApple','Dragon Fruit']}
+          {'type':'pie', 'title':'Pie Graph', 'x':[35, 20, 30, 40, 50, 30], 'labels':['Apple','Banana','Grapes','Orange','PineApple','Dragon Fruit']}
         """
         try:
             fig, ax = plt.subplots()

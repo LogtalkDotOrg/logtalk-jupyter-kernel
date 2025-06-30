@@ -307,7 +307,7 @@
 	%  It is needed for retry/0 queries.
 	% Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the goal Goal.
 	% LoopCont is one of continue and cut.
-	%  If LoopCont = cut, the recurse loop (jupyter_request_handling::loop/3) will exit right away without making retrys of a term possible.
+	%  If LoopCont = cut, the recurse loop (jupyter_request_handling::loop/3) will exit right away without making retries of a term possible.
 	% Cont will be processed by jupyter_request_handling::loop/3.
 	handle_query(Goal, CallRequestId, Stack, Bindings, OriginalTermData, LoopCont, Cont) :-
 		% In order to send the goal to the client, it has to be converted to an atom
@@ -429,7 +429,7 @@
 	% same_var(+BindingsWithoutSingletons, +Var)
 	%
 	% BindingsWithoutSingletons is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the term currently being handled.
-	% Fails if BindingsWithoutSingletons does not contain any elenent VarName=Var1 where Var1 and Var are identical (==).
+	% Fails if BindingsWithoutSingletons does not contain any element VarName=Var1 where Var1 and Var are identical (==).
 	same_var([], _Var) :- fail.
 	same_var([_VarName=Var1|_BindingsWithoutSingletons], Var2) :-
 		Var1 == Var2, !.
@@ -811,7 +811,7 @@ handle_print_sld_tree(Goal, Bindings) :-
 		sld_tree_node_atoms(CleanSldData, 'A', [], Nodes),
 		% Compute edges content
 		% The first element corresponds to a call from the toplevel
-		% SldDataWithoutToplevelCalls contains all elements from CleanSldData which do not correspond to teplevel calls with the same ParentId
+		% SldDataWithoutToplevelCalls contains all elements from CleanSldData which do not correspond to toplevel calls with the same ParentId
 		CleanSldData = [_Goal-_CurrentId-ToplevelId|_],
 		delete_all_occurrences(CleanSldData, _G-_Id-ToplevelId, SldDataWithoutToplevelCalls),
 		sld_tree_edge_atoms(SldDataWithoutToplevelCalls, Edges),
