@@ -19,10 +19,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-% This object provides predicates for creating and managing HTML/JavaScript widgets
-% in Logtalk Jupyter notebooks.
-
-
 :- object(jupyter_widget_handling).
 
 	:- info([
@@ -98,7 +94,7 @@
     :- public(create_dropdown/3).
     :- info(create_dropdown/3, [
         comment is 'Create a dropdown widget.',
-        argnames is ['WidgetId', 'Label', 'Options']
+        argnames is ['WidgetId', 'Label', 'MenuOptions']
     ]).
 
     :- public(create_checkbox/3).
@@ -178,135 +174,70 @@
 		argnames is ['WidgetId', 'Type', 'Value']
 	]).
 
-	% Widget counter for generating unique IDs
-	:- dynamic(widget_counter/1).
-	widget_counter(0).
-
 	:- uses(jupyter_term_handling, [assert_success_response/4]).
+	:- uses(format, [format/2]).
+	:- uses(user, [atomic_list_concat/2]).
 
 	set_webserver_port(Port) :-
 		retractall(webserver_port_(_)),
 		assertz(webserver_port_(Port)).
 
-	% Generate unique widget ID
-	generate_widget_id(WidgetId) :-
-		retract(widget_counter(N)),
-		N1 is N + 1,
-		assertz(widget_counter(N1)),
-		atomic_list_concat(['widget_', N1], WidgetId).
-
-	% Create text input widget
 	create_text_input(WidgetId, Label, DefaultValue) :-
-		(	var(WidgetId) ->
-			generate_widget_id(WidgetId)
-		;	true
-		),
 		assertz(widget_state_(WidgetId, text_input, DefaultValue)),
 		create_text_input_html(WidgetId, Label, DefaultValue, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
-	% Create password input widget
 	create_password_input(WidgetId, Label) :-
-		(	var(WidgetId) ->
-			generate_widget_id(WidgetId)
-		;	true
-		),
 		assertz(widget_state_(WidgetId, password_input, '')),
 		create_password_input_html(WidgetId, Label, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
-	% Create number input widget
 	create_number_input(WidgetId, Label, Min, Max, Step, DefaultValue) :-
-		(	var(WidgetId) ->
-			generate_widget_id(WidgetId)
-		;	true
-		),
 		assertz(widget_state_(WidgetId, number_input, DefaultValue)),
 		create_number_input_html(WidgetId, Label, Min, Max, Step, DefaultValue, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
-	% Create slider widget
 	create_slider(WidgetId, Label, Min, Max, Step, DefaultValue) :-
-		(	var(WidgetId) ->
-			generate_widget_id(WidgetId)
-		;	true
-		),
 		assertz(widget_state_(WidgetId, slider, DefaultValue)),
 		create_slider_html(WidgetId, Label, Min, Max, Step, DefaultValue, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
-	% Create date input widget
 	create_date_input(WidgetId, Label, DefaultValue) :-
-		(	var(WidgetId) ->
-			generate_widget_id(WidgetId)
-		;	true
-		),
 		assertz(widget_state_(WidgetId, date_input, DefaultValue)),
 		create_date_input_html(WidgetId, Label, DefaultValue, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
-	% Create time input widget
 	create_time_input(WidgetId, Label, DefaultValue) :-
-		(	var(WidgetId) ->
-			generate_widget_id(WidgetId)
-		;	true
-		),
 		assertz(widget_state_(WidgetId, time_input, DefaultValue)),
 		create_time_input_html(WidgetId, Label, DefaultValue, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
-	% Create URL input widget
 	create_url_input(WidgetId, Label, DefaultValue, Pattern) :-
-		(	var(WidgetId) ->
-			generate_widget_id(WidgetId)
-		;	true
-		),
 		assertz(widget_state_(WidgetId, url_input, DefaultValue)),
 		create_url_input_html(WidgetId, Label, DefaultValue, Pattern, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
-	% Create file input widget
 	create_file_input(WidgetId, Label) :-
-		(	var(WidgetId) ->
-			generate_widget_id(WidgetId)
-		;	true
-		),
 		assertz(widget_state_(WidgetId, file_input, '')),
 		create_file_input_html(WidgetId, Label, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
-	% Create dropdown widget
-	create_dropdown(WidgetId, Label, Options) :-
-		(	var(WidgetId) ->
-			generate_widget_id(WidgetId)
-		;	true
-		),
-		Options = [FirstOption|_],
-		assertz(widget_state_(WidgetId, dropdown, FirstOption)),
-		create_dropdown_html(WidgetId, Label, Options, HTML),
+	create_dropdown(WidgetId, Label, MenuOptions) :-
+		MenuOptions = [FirstMenuOption|_],
+		assertz(widget_state_(WidgetId, dropdown, FirstMenuOption)),
+		create_dropdown_html(WidgetId, Label, MenuOptions, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
-	% Create checkbox widget
 	create_checkbox(WidgetId, Label, DefaultValue) :-
-		(	var(WidgetId) ->
-			generate_widget_id(WidgetId)
-		;	true
-		),
 		assertz(widget_state_(WidgetId, checkbox, DefaultValue)),
 		create_checkbox_html(WidgetId, Label, DefaultValue, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
-	% Create button widget
 	create_button(WidgetId, Label) :-
-		(	var(WidgetId) ->
-			generate_widget_id(WidgetId)
-		;	true
-		),
 		assertz(widget_state_(WidgetId, button, clicked)),
 		create_button_html(WidgetId, Label, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
-	% Get widget value
 	get_widget_value(WidgetId, Value) :-
 		widget_state_(WidgetId, _, Value).
 
@@ -343,7 +274,6 @@
 
 	% HTML generation predicates
 
-	% Common update handler for all widgets
 	create_update_handler(WidgetId, Type, Value, Handler) :-
 		webserver_port_(Port),
 		atomic_list_concat([
@@ -352,11 +282,10 @@
     		'	headers: {\'Content-Type\': \'application/json\'},',
     		'	body: JSON.stringify({type: \'', Type, '\', id: \'', WidgetId, '\', value: ', Value, '})',
 			'})',
-			'.then(response => response.json())',
-			'.then(data => console.log(\'Response:\', data))'
+			'.then(response => response.json())'
+			%'.then(data => console.log(\'Response:\', data))'
 		], Handler).
 
-	% Generate simple text input HTML
 	create_text_input_html(WidgetId, Label, DefaultValue, HTML) :-
 		create_update_handler(WidgetId, text, 'String(this.value)', Handler),
 		atomic_list_concat([
@@ -382,7 +311,6 @@
 			'</div>'
 		], HTML).
 
-	% Generate number input HTML
 	create_number_input_html(WidgetId, Label, Min, Max, Step, DefaultValue, HTML) :-
 		create_update_handler(WidgetId, number, 'this.value', Handler),
 		atomic_list_concat([
@@ -396,7 +324,6 @@
 			'</div>'
 		], HTML).
 
-	% Create slider HTML
 	create_slider_html(WidgetId, Label, Min, Max, Step, DefaultValue, HTML) :-
 		create_update_handler(WidgetId, slider, 'this.value', Handler),
 		atomic_list_concat([
@@ -413,7 +340,6 @@
 			'</div>'
 		], HTML).
 
-	% Create date input HTML
 	create_date_input_html(WidgetId, Label, DefaultValue, HTML) :-
 		create_update_handler(WidgetId, date, 'String(this.value)', Handler),
 		atomic_list_concat([
@@ -427,7 +353,6 @@
 			'</div>'
 		], HTML).
 
-	% Create time input HTML
 	create_time_input_html(WidgetId, Label, DefaultValue, HTML) :-
 		create_update_handler(WidgetId, time, 'String(this.value)', Handler),
 		atomic_list_concat([
@@ -441,7 +366,6 @@
 			'</div>'
 		], HTML).
 
-	% Create URL input HTML
 	create_url_input_html(WidgetId, Label, DefaultValue, Pattern, HTML) :-
 		create_update_handler(WidgetId, url, 'String(this.value)', Handler),
 		atomic_list_concat([
@@ -456,7 +380,6 @@
 			'</div>'
 		], HTML).
 
-	% Create file input HTML
 	create_file_input_html(WidgetId, Label, HTML) :-
 		create_update_handler(WidgetId, file, 'String(this.files[0].name)', Handler),
 		atomic_list_concat([
@@ -469,10 +392,9 @@
 			'</div>'
 		], HTML).
 
-	% Create dropdown HTML
-	create_dropdown_html(WidgetId, Label, Options, HTML) :-
+	create_dropdown_html(WidgetId, Label, MenuOptions, HTML) :-
 		create_update_handler(WidgetId, dropdown, 'String(this.value)', Handler),
-		create_option_elements(Options, OptionElements),
+		create_menu_option_elements(MenuOptions, MenuOptionElements),
 		atomic_list_concat([
 			'<div class="logtalk-input-group">',
 			'<label class="logtalk-widget-label" for="', WidgetId, '">', Label, '</label><br>',
@@ -480,12 +402,11 @@
 			'class="logtalk-widget-select" ',
 			'onchange="', Handler, '" ',
 			'style="margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;">',
-			OptionElements,
+			MenuOptionElements,
 			'</select>',
 			'</div>'
 		], HTML).
 
-	% Create checkbox HTML
 	create_checkbox_html(WidgetId, Label, DefaultValue, HTML) :-
 		create_update_handler(WidgetId, checkbox, 'this.checked ? \'true\' : \'false\'', Handler),
 		(DefaultValue == true -> Checked = 'checked' ; Checked = ''),
@@ -500,7 +421,6 @@
 			'</div>'
 		], HTML).
 
-	% Create button HTML
 	create_button_html(WidgetId, Label, HTML) :-
 		create_update_handler(WidgetId, button, '\'clicked\'', Handler),
 		atomic_list_concat([
@@ -514,13 +434,12 @@
 			'</div>'
 		], HTML).
 
-	% Helper predicates
+	% auxiliary predicates
 
-	% Create option elements for dropdown
-	create_option_elements([], '').
-	create_option_elements([Option|Rest], OptionElements) :-
+	create_menu_option_elements([], '').
+	create_menu_option_elements([Option|Rest], OptionElements) :-
 		atomic_list_concat(['<option value="', Option, '">', Option, '</option>'], OptionElement),
-		create_option_elements(Rest, RestElements),
+		create_menu_option_elements(Rest, RestElements),
 		atomic_list_concat([OptionElement, RestElements], OptionElements).
 
 :- end_object.
