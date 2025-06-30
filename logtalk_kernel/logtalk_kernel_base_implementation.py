@@ -581,16 +581,14 @@ class LogtalkKernelBaseImplementation:
         }
 
 
-    def send_response_display_data(self, text, ansi_escape_codes="", data=None):
-        """Sends a response to the frontend containing plain text and optional additional data."""
-        display_data = {'data': {}, 'metadata': {}}
-        
-        if text:
-            display_data['data']['text/plain'] = ansi_escape_codes + text
-            
-        if data:
-            display_data['data'].update(data)
-            
+    def send_response_display_data(self, text, ansi_escape_codes=""):
+        """Sends a response to the frontend containing plain text."""
+        display_data = {
+            'data': {
+                'text/plain': ansi_escape_codes + text
+            },
+            'metadata': {}
+        }   
         self.kernel.send_response(self.kernel.iopub_socket, 'display_data', display_data)
 
     def send_widget_html(self, html_content):
