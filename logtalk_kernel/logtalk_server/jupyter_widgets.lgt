@@ -19,12 +19,12 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-:- object(jupyter_widget_handling).
+:- object(jupyter_widgets).
 
 	:- info([
 		version is 0:1:0,
 		author is 'Paulo Moura',
-		date is 2025-06-27,
+		date is 2025-06-30,
 		comment is 'This object provides predicates for creating and managing HTML/JavaScript widgets in Logtalk notebooks.'
 	]).
 

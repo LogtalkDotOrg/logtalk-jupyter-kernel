@@ -164,49 +164,8 @@
 		%halt/0,
 		predicate_docs/1,
 		%print_sld_tree/1,          % print_sld_tree(+Goal)
-		print_transition_graph/4,   % print_transition_graph(+PredSpec, +FromIndex, +ToIndex, +LabelIndex)
+		print_transition_graph/4    % print_transition_graph(+PredSpec, +FromIndex, +ToIndex, +LabelIndex)
 %		update_completion_data/0
-		% Widget support
-		create_text_input/3,
-		create_password_input/2,
-		create_number_input/6,
-		create_slider/6,
-		create_date_input/3,
-		create_time_input/3,
-		create_email_input/4,
-		create_url_input/4,
-		create_file_input/2,
-		create_color_input/3,
-		create_dropdown/3,
-		create_checkbox/3,
-		create_button/2,
-		get_widget_value/2,
-		set_widget_value/2,
-		% Widget debugging
-		widgets/0,
-		widgets/1,
-		widget/1
-	]).
-
-	:- uses(jupyter_widget_handling, [
-		create_text_input/3,
-		create_password_input/2,
-		create_number_input/6,
-		create_slider/6,
-		create_date_input/3,
-		create_time_input/3,
-		create_email_input/4,
-		create_url_input/4,
-		create_file_input/2,
-		create_color_input/3,
-		create_dropdown/3,
-		create_checkbox/3,
-		create_button/2,
-		get_widget_value/2,
-		set_widget_value/2,
-		widgets/0,
-		widgets/1,
-		widget/1
 	]).
 
 	:- uses(debugger, [leash/1, trace/0, notrace/0]).

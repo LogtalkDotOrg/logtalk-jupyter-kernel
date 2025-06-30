@@ -549,7 +549,7 @@ class LogtalkKernel(Kernel):
         # Start server in background thread
         port = self.start_webserver_threaded('127.0.0.1', 8900, 8999)
         if port is not None:
-            do_execute_code = f"jupyter_widget_handling::set_webserver_port({port})."
+            do_execute_code = f"jupyter_widgets::set_webserver_port({port})."
             self.active_kernel_implementation.do_execute(do_execute_code, False, True, None, False)
 
 

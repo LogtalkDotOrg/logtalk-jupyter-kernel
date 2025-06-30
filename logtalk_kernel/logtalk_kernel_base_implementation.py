@@ -1144,10 +1144,10 @@ class CallbackHandler(BaseHTTPRequestHandler):
         
         # Process your callback here
         if data['type'] == 'number' or data['type'] == 'slider':
-            code = 'jupyter_widget_handling::set_widget_value(\'' + data['id'] + '\', ' + data['value'] + ').'
+            code = 'jupyter_widgets::set_widget_value(\'' + data['id'] + '\', ' + data['value'] + ').'
         else:
             data['value'] = data['value'].replace("'", "\\'")
-            code = 'jupyter_widget_handling::set_widget_value(\'' + data['id'] + '\', \'' + data['value'] + '\').'
+            code = 'jupyter_widgets::set_widget_value(\'' + data['id'] + '\', \'' + data['value'] + '\').'
         try:
             self.kernel_implementation.do_execute(code, True, False, {}, False)
             result = {"status": "ok", "received": code}
