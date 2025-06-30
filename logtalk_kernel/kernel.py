@@ -382,6 +382,9 @@ class LogtalkKernel(Kernel):
     # On kernel shutdown or interruption, all implementations are shutdown/interrupted.
     active_kernel_implementations = {}
 
+    # Store references to callback webservers for proper shutdown
+    webservers = []
+
 
     def __init__(self, **kwargs):
         """Initialize the kernel with logging and configuration."""
@@ -610,7 +613,8 @@ class LogtalkKernel(Kernel):
             server = HTTPServer((host, port), CallbackHandler)
             CallbackHandler.kernel_implementation = self.active_kernel_implementation
             Thread(target=server.serve_forever, daemon=True).start()
-            
+            # Store the server instance for later shutdown
+            self.webservers.append(server)
             self.logger.debug(f"Widget callback server started at http://{host}:{port}")
             return port
             
@@ -641,6 +645,14 @@ class LogtalkKernel(Kernel):
 
 
     def do_shutdown(self, restart):
+        # Shutdown all callback webservers first
+        for server in getattr(self, 'webservers', []):
+            try:
+                server.shutdown()
+                server.server_close()
+            except Exception as e:
+                self.logger.debug(f"Exception shutting down webserver: {e}")
+        self.webservers.clear()
         # Shutdown all active Logtalk servers so that no processes are kept running
         for kernel_implementation in self.active_kernel_implementations.values():
             kernel_implementation.do_shutdown(restart)
