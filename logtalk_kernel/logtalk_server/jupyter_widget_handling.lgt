@@ -98,6 +98,13 @@
         argnames is ['WidgetId', 'Label']
     ]).
 
+    :- public(create_color_input/3).
+	:- mode(create_color_input(+atom, +atom, +boolean), one).
+    :- info(create_color_input/3, [
+        comment is 'Create a color input widget.',
+        argnames is ['WidgetId', 'Label', 'DefaultValue']
+    ]).
+
     :- public(create_dropdown/3).
     :- info(create_dropdown/3, [
         comment is 'Create a dropdown widget.',
@@ -232,6 +239,11 @@
 	create_file_input(WidgetId, Label) :-
 		assertz(widget_state_(WidgetId, file_input, '')),
 		create_file_input_html(WidgetId, Label, HTML),
+		assert_success_response(widget, [], '', [widget_html-HTML]).
+
+	create_color_input(WidgetId, Label, DefaultValue) :-
+		assertz(widget_state_(WidgetId, color_input, DefaultValue)),
+		create_color_input_html(WidgetId, Label, DefaultValue, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
 	create_dropdown(WidgetId, Label, MenuOptions) :-
@@ -413,6 +425,19 @@
 			'<label class="logtalk-widget-label" for="', WidgetId, '">', Label, '</label><br>',
 			'<input type="file" id="', WidgetId, '" ',
 			'class="logtalk-widget-input" ',
+			'onchange="', Handler, '" ',
+			'style="margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;"/>',
+			'</div>'
+		], HTML).
+
+	create_color_input_html(WidgetId, Label, DefaultValue, HTML) :-
+		create_update_handler(WidgetId, color, 'String(this.value)', Handler),
+		atomic_list_concat([
+			'<div class="logtalk-input-group">',
+			'<label class="logtalk-widget-label" for="', WidgetId, '">', Label, '</label><br>',
+			'<input type="color" id="', WidgetId, '" ',
+			'class="logtalk-widget-input" ',
+			'value="', DefaultValue, '" ',
 			'onchange="', Handler, '" ',
 			'style="margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;"/>',
 			'</div>'
