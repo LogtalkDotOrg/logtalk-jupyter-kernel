@@ -190,74 +190,102 @@
 
 	:- uses(jupyter_term_handling, [assert_success_response/4]).
 	:- uses(format, [format/2]).
+	:- uses(type, [check/2]).
 	:- uses(user, [atomic_list_concat/2]).
+
+	:- multifile(type::type/1).
+	type::type(widget_id).
+
+	:- multifile(type::check/2).
+	type::check(widget_id, Term) :-
+		(	var(Term) ->
+			throw(instantiation_error)
+		;	\+ atom(Term) ->
+			throw(type_error(atom, Term))
+		;	widget_state_(Term, _, _) ->
+			throw(permission_error(create, widget_id, Term))
+		;	true
+		).
 
 	set_webserver_port(Port) :-
 		retractall(webserver_port_(_)),
 		assertz(webserver_port_(Port)).
 
 	create_text_input(WidgetId, Label, DefaultValue) :-
+		check(widget_id, WidgetId),
 		assertz(widget_state_(WidgetId, text_input, DefaultValue)),
 		create_text_input_html(WidgetId, Label, DefaultValue, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
 	create_password_input(WidgetId, Label) :-
+		check(widget_id, WidgetId),
 		assertz(widget_state_(WidgetId, password_input, '')),
 		create_password_input_html(WidgetId, Label, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
 	create_number_input(WidgetId, Label, Min, Max, Step, DefaultValue) :-
+		check(widget_id, WidgetId),
 		assertz(widget_state_(WidgetId, number_input, DefaultValue)),
 		create_number_input_html(WidgetId, Label, Min, Max, Step, DefaultValue, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
 	create_slider(WidgetId, Label, Min, Max, Step, DefaultValue) :-
+		check(widget_id, WidgetId),
 		assertz(widget_state_(WidgetId, slider, DefaultValue)),
 		create_slider_html(WidgetId, Label, Min, Max, Step, DefaultValue, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
 	create_date_input(WidgetId, Label, DefaultValue) :-
+		check(widget_id, WidgetId),
 		assertz(widget_state_(WidgetId, date_input, DefaultValue)),
 		create_date_input_html(WidgetId, Label, DefaultValue, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
 	create_time_input(WidgetId, Label, DefaultValue) :-
+		check(widget_id, WidgetId),
 		assertz(widget_state_(WidgetId, time_input, DefaultValue)),
 		create_time_input_html(WidgetId, Label, DefaultValue, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
 	create_email_input(WidgetId, Label, DefaultValue, Pattern) :-
+		check(widget_id, WidgetId),
 		assertz(widget_state_(WidgetId, email_input, DefaultValue)),
 		create_email_input_html(WidgetId, Label, DefaultValue, Pattern, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
 	create_url_input(WidgetId, Label, DefaultValue, Pattern) :-
+		check(widget_id, WidgetId),
 		assertz(widget_state_(WidgetId, url_input, DefaultValue)),
 		create_url_input_html(WidgetId, Label, DefaultValue, Pattern, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
 	create_file_input(WidgetId, Label) :-
+		check(widget_id, WidgetId),
 		assertz(widget_state_(WidgetId, file_input, '')),
 		create_file_input_html(WidgetId, Label, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
 	create_color_input(WidgetId, Label, DefaultValue) :-
+		check(widget_id, WidgetId),
 		assertz(widget_state_(WidgetId, color_input, DefaultValue)),
 		create_color_input_html(WidgetId, Label, DefaultValue, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
 	create_dropdown(WidgetId, Label, MenuOptions) :-
+		check(widget_id, WidgetId),
 		MenuOptions = [FirstMenuOption|_],
 		assertz(widget_state_(WidgetId, dropdown, FirstMenuOption)),
 		create_dropdown_html(WidgetId, Label, MenuOptions, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
 	create_checkbox(WidgetId, Label, DefaultValue) :-
+		check(widget_id, WidgetId),
 		assertz(widget_state_(WidgetId, checkbox, DefaultValue)),
 		create_checkbox_html(WidgetId, Label, DefaultValue, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
 	create_button(WidgetId, Label) :-
+		check(widget_id, WidgetId),
 		assertz(widget_state_(WidgetId, button, false)),
 		create_button_html(WidgetId, Label, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
