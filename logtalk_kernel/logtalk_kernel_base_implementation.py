@@ -348,6 +348,9 @@ class LogtalkKernelBaseImplementation:
 
         # Read the JSON-RCP Response object (http://www.jsonrpc.org/specification#response_object)
         response_string = self.logtalk_proc.stdout.readline()
+        # Write response_string to a file for debugging
+        # with open("logtalk_kernel_response_debug.txt", "a", encoding="utf-8") as debug_file:
+        #     debug_file.write(response_string + "\n")
         if log_response:
             self.logger.debug('response: ' + response_string)
 

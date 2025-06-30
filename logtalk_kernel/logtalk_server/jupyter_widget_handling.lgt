@@ -302,9 +302,9 @@
 		webserver_port_(Port),
 		atomic_list_concat([
 			'fetch(\'http://127.0.0.1:', Port, '\', {',
-    		'	method: \'POST\',',
-    		'	headers: {\'Content-Type\': \'application/json\'},',
-    		'	body: JSON.stringify({type: \'', Type, '\', id: \'', WidgetId, '\', value: ', Value, '})',
+    		'  method: \'POST\',',
+    		'  headers: {\'Content-Type\': \'application/json\'},',
+    		'  body: JSON.stringify({type: \'', Type, '\', id: \'', WidgetId, '\', value: ', Value, '})',
 			'})',
 			'.then(response => response.json())'
 			%'.then(data => console.log(\'Response:\', data))'
