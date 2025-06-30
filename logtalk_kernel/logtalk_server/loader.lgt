@@ -45,12 +45,11 @@
 		jupyter_preferences,
 		jupyter_variable_bindings,
 		jupyter_query_handling,
-		jupyter_form_handling,
-		jupyter_widget_handling,
 		jupyter,
 		jupyter_jsonrpc,
 		jupyter_request_handling,
 		jupyter_term_handling,
+		jupyter_widget_handling,
 		jupyter_server
 	], [
 		optimize(on)

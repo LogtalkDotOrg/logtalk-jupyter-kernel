@@ -621,14 +621,4 @@
 	var_name([_NameVarPair|NameVarPairs], Var, Name) :-
 		var_name(NameVarPairs, Var, Name).
 
-	% Form delegation methods
-	create_input_form(FormId, FieldSpecs) :-
-		jupyter_form_handling::create_input_form(FormId, FieldSpecs).
-
-	create_input_form(FormId, FieldSpecs, Options) :-
-		jupyter_form_handling::create_input_form(FormId, FieldSpecs, Options).
-
-	get_form_data(FormId, Data) :-
-		jupyter_form_handling::get_form_data(FormId, Data).
-
 :- end_object.
