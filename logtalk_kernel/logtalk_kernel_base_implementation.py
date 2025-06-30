@@ -1167,6 +1167,7 @@ class CallbackHandler(BaseHTTPRequestHandler):
         if data['type'] == 'number' or data['type'] == 'slider':
             code = 'jupyter_widget_handling::set_widget_value(\'' + data['id'] + '\', ' + data['value'] + ').'
         else:
+            data['value'] = data['value'].replace("'", "\\'")
             code = 'jupyter_widget_handling::set_widget_value(\'' + data['id'] + '\', \'' + data['value'] + '\').'
         try:
             self.kernel_implementation.do_execute(code, True, False, {}, False)
