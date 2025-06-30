@@ -258,7 +258,7 @@
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
 	create_button(WidgetId, Label) :-
-		assertz(widget_state_(WidgetId, button, clicked)),
+		assertz(widget_state_(WidgetId, button, false)),
 		create_button_html(WidgetId, Label, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
@@ -473,7 +473,7 @@
 		], HTML).
 
 	create_button_html(WidgetId, Label, HTML) :-
-		create_update_handler(WidgetId, button, '\'clicked\'', Handler),
+		create_update_handler(WidgetId, button, '\'true\'', Handler),
 		atomic_list_concat([
 			'<div class="logtalk-input-group">',
 			'<button id="', WidgetId, '" ',
