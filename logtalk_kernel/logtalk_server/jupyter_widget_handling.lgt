@@ -77,10 +77,17 @@
         argnames is ['WidgetId', 'Label', 'DefaultValue']
     ]).
 
+	:- public(create_email_input/4).
+	:- mode(create_email_input(+atom, +atom, +atom, +atom), one).
+    :- info(create_email_input/4, [
+        comment is 'Create an email input widget.',
+        argnames is ['WidgetId', 'Label', 'DefaultValue', 'Pattern']
+    ]).
+
 	:- public(create_url_input/4).
 	:- mode(create_url_input(+atom, +atom, +atom, +atom), one).
     :- info(create_url_input/4, [
-        comment is 'Create a time input widget.',
+        comment is 'Create a URL input widget.',
         argnames is ['WidgetId', 'Label', 'DefaultValue', 'Pattern']
     ]).
 
@@ -210,6 +217,11 @@
 	create_time_input(WidgetId, Label, DefaultValue) :-
 		assertz(widget_state_(WidgetId, time_input, DefaultValue)),
 		create_time_input_html(WidgetId, Label, DefaultValue, HTML),
+		assert_success_response(widget, [], '', [widget_html-HTML]).
+
+	create_email_input(WidgetId, Label, DefaultValue, Pattern) :-
+		assertz(widget_state_(WidgetId, email_input, DefaultValue)),
+		create_email_input_html(WidgetId, Label, DefaultValue, Pattern, HTML),
 		assert_success_response(widget, [], '', [widget_html-HTML]).
 
 	create_url_input(WidgetId, Label, DefaultValue, Pattern) :-
@@ -362,6 +374,20 @@
 			'class="logtalk-widget-input" ',
 			'value="', DefaultValue, '" ',
 			'onchange="', Handler, '" ',
+			'style="margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;"/>',
+			'</div>'
+		], HTML).
+
+	create_email_input_html(WidgetId, Label, DefaultValue, Pattern, HTML) :-
+		create_update_handler(WidgetId, url, 'String(this.value)', Handler),
+		atomic_list_concat([
+			'<div class="logtalk-input-group">',
+			'<label class="logtalk-widget-label" for="', WidgetId, '">', Label, '</label><br>',
+			'<input type="email" id="', WidgetId, '" ',
+			'class="logtalk-widget-input" ',
+			'value="', DefaultValue, '" ',
+			'pattern="', Pattern, '" ',
+			'onblur="', Handler, '" ',
 			'style="margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;"/>',
 			'</div>'
 		], HTML).

@@ -1164,10 +1164,10 @@ class CallbackHandler(BaseHTTPRequestHandler):
         data = json.loads(post_data.decode('utf-8'))
         
         # Process your callback here
-        if data['type'] == 'text' or data['type'] == 'url' or data['type'] == 'date' or data['type'] == 'time' or data['type'] == 'file':
-            code = 'jupyter_widget_handling::set_widget_value(\'' + data['id'] + '\', \'' + data['value'] + '\').'
-        else:
+        if data['type'] == 'number' or data['type'] == 'slider':
             code = 'jupyter_widget_handling::set_widget_value(\'' + data['id'] + '\', ' + data['value'] + ').'
+        else:
+            code = 'jupyter_widget_handling::set_widget_value(\'' + data['id'] + '\', \'' + data['value'] + '\').'
         try:
             self.kernel_implementation.do_execute(code, True, False, {}, False)
             result = {"status": "ok", "received": code}
