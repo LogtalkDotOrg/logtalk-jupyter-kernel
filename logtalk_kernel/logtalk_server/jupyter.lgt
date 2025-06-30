@@ -185,11 +185,7 @@
 		% Widget debugging
 		widgets/0,
 		widgets/1,
-		widget/1,
-		% Form support
-		create_input_form/2,        % create_input_form(+FormId, +FieldSpecs)
-		create_input_form/3,        % create_input_form(+FormId, +FieldSpecs, +Options)
-		get_form_data/2             % get_form_data(+FormId, -Data)
+		widget/1
 	]).
 
 	:- uses(jupyter_widget_handling, [
