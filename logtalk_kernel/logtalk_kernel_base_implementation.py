@@ -84,9 +84,6 @@ class LogtalkKernelBaseImplementation:
         self.configure_token_splitters()
         #self.retrieve_predicate_information()
 
-        # Send kernel info to frontend
-        self.send_kernel_info_js()
-
     def start_logtalk_server(self):
         """Tries to (re)start the Logtalk server process with the configured arguments."""
         # Check if the Logtalk server is to be started with the default program arguments
@@ -163,25 +160,6 @@ class LogtalkKernelBaseImplementation:
         # For the inspection additionally use ':' as a delimiter for splitting as most of the predicate names the tokens are compared to are not module name expanded
         self.inspection_splitter = CompletionSplitter()
         self.inspection_splitter.delims = splitter_delims + ':'
-
-
-    def send_kernel_info_js(self):
-        """Send JavaScript to the frontend to set kernel name and reference."""
-        kernel_name = getattr(self.kernel, 'kernel_name', 'logtalk')
-        js_code = f"""
-        <script>
-           window.LOGTALK_KERNEL_NAME = "{kernel_name}";
-            window.JUPYTER_KERNEL = window.JUPYTER_KERNEL || {{}};
-           window.JUPYTER_KERNEL.kernel_name = "{kernel_name}";
-        </script>
-        """
-        display_data = {
-            'data': {
-                'text/html': js_code
-            },
-            'metadata': {}
-        }
-        self.kernel.send_response(self.kernel.iopub_socket, 'display_data', display_data)
 
 
     def retrieve_predicate_information(self):
