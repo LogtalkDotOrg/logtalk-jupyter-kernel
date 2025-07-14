@@ -23,7 +23,6 @@ requires-python = ">=3.7"
 classifiers = [
   "Development Status :: 4 - Beta",
   "Framework :: Jupyter",
-  "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
   "Intended Audience :: Developers",
   "Intended Audience :: Education",
