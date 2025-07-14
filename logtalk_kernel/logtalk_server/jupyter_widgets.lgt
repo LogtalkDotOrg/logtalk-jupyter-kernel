@@ -22,24 +22,24 @@
 :- object(jupyter_widgets).
 
 	:- info([
-		version is 0:2:0,
+		version is 0:3:0,
 		author is 'Paulo Moura',
 		date is 2025-07-14,
 		comment is 'This object provides predicates for creating and managing HTML/JavaScript widgets in Logtalk notebooks.'
 	]).
 
-	:- public(webserver_port/1).
-	:- mode(webserver_port(+positive_integer), zero_or_one).
-	:- info(webserver_port/1, [
-		comment is 'Widget callback webserver port. Only available after being set automatically by the kernel.',
-		argnames is ['Port']
+	:- public(webserver/2).
+	:- mode(webserver(?atom, ?positive_integer), zero_or_one).
+	:- info(webserver/2, [
+		comment is 'Widget callback webserver IP address and port. Only available after being set automatically by the kernel.',
+		argnames is ['IP', 'Port']
 	]).
 
-	:- public(set_webserver_port/1).
-	:- mode(set_webserver_port(+positive_integer), one).
-	:- info(set_webserver_port/1, [
-		comment is 'Set the widget callback webserver port. Called automatically by the kernel.',
-		argnames is ['Port']
+	:- public(set_webserver/2).
+	:- mode(set_webserver(+atom, +positive_integer), one).
+	:- info(set_webserver/2, [
+		comment is 'Set the widget callback webserver IP address and port. Called automatically by the kernel.',
+		argnames is ['IP', 'Port']
 	]).
 
 	:- public(create_text_input/3).
@@ -179,12 +179,12 @@
 		argnames is ['Widgets']
 	]).
 
-	:- private(webserver_port_/1).
-	:- dynamic(webserver_port_/1).
-	:- mode(webserver_port_(?positive_integer), zero_or_one).
-	:- info(webserver_port_/1, [
-		comment is 'Widget callback webserver port.',
-		argnames is ['Port']
+	:- private(webserver_/2).
+	:- dynamic(webserver_/2).
+	:- mode(webserver_(?atom, ?positive_integer), zero_or_one).
+	:- info(webserver_/2, [
+		comment is 'Widget callback webserver IP address and port.',
+		argnames is ['IP', 'Port']
 	]).
 
 	:- private(widget_state_/3).
@@ -214,12 +214,12 @@
 		;	true
 		).
 
-	webserver_port(Port) :-
-		webserver_port_(Port).
+	webserver(IP, Port) :-
+		webserver_(IP, Port).
 
-	set_webserver_port(Port) :-
-		retractall(webserver_port_(_)),
-		assertz(webserver_port_(Port)).
+	set_webserver(IP, Port) :-
+		retractall(webserver_(_, _)),
+		assertz(webserver_(IP, Port)).
 
 	create_text_input(WidgetId, Label, DefaultValue) :-
 		check(widget_id, WidgetId),
@@ -337,9 +337,9 @@
 	% HTML generation predicates
 
 	create_update_handler(WidgetId, Type, Value, Handler) :-
-		webserver_port_(Port),
+		webserver_(IP, Port),
 		atomic_list_concat([
-			'fetch(\'http://127.0.0.1:', Port, '\', {',
+			'fetch(\'http://', IP, ':', Port, '\', {',
 			'  method: \'POST\',',
 			'  headers: {\'Content-Type\': \'application/json\'},',
 			'  body: JSON.stringify({type: \'', Type, '\', id: \'', WidgetId, '\', value: ', Value, '})',

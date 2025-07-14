@@ -27,7 +27,8 @@
 """Logtalk Jupyter Kernel Configuration.
 
 This module contains default configuration settings for the Logtalk Jupyter
-kernel, including backend-specific settings and logging options.
+kernel, including backend-specific settings, logging options, and widget
+callback webserver configuration.
 """
 
 import platform
@@ -44,6 +45,15 @@ c = get_config()
 c.LogtalkKernel.jupyter_logging = False
 # If set to True, a log file is created by the Logtalk server
 c.LogtalkKernel.server_logging = False
+
+# Widget callback webserver configuration
+# These settings are optional and maintain backward compatibility with older config files.
+# If not specified, the kernel will use the default values shown below.
+# IP address for the widget callback webserver (default: 127.0.0.1)
+c.LogtalkKernel.webserver_ip = '127.0.0.1'
+# Port range for the widget callback webserver (default: 8900-8999)
+c.LogtalkKernel.webserver_port_start = 8900
+c.LogtalkKernel.webserver_port_end = 8999
 
 # The Prolog backend integration script with which the server is started.
 if platform.system() == "Windows":

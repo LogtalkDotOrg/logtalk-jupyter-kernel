@@ -28,7 +28,7 @@
 :- object(jupyter).
 
 	:- info([
-		version is 0:19:0,
+		version is 0:20:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
 		date is 2025-07-14,
 		comment is 'This object provides special predicates which can be used in call requests by the client. Some of these predicates need to be the only goal of a query. Otherwise, they cannot be determined as special predicates and do not work as expected.'
@@ -191,7 +191,7 @@
 		format('~w ~w.~w.~w~n', [BackendName, BackendMajor, BackendMinor, BackendPatch]),
 		version.
 
-	version(0, 33, 0, beta).
+	version(0, 34, 0, beta).
 
 	backend(b,       'B-Prolog').
 	backend(ciao,    'Ciao Prolog').

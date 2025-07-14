@@ -67,7 +67,7 @@ import sys
 from inspect import getmembers, isclass
 from ipykernel.kernelbase import Kernel
 from jupyter_core.paths import jupyter_config_path
-from traitlets import Bool, Dict, Unicode
+from traitlets import Bool, Dict, Unicode, Int
 from traitlets.config.loader import ConfigFileNotFound, PyFileConfigLoader
 
 #import logtalk_kernel.swi_kernel_implementation
@@ -110,6 +110,14 @@ class LogtalkKernel(Kernel):
 
     # If set to True, a log file is created by the Logtalk server.
     server_logging = Bool(False).tag(config=True)
+
+    # Widget callback webserver configuration
+    # IP address for the widget callback webserver
+    webserver_ip = Unicode('127.0.0.1').tag(config=True)
+
+    # Port range for the widget callback webserver
+    webserver_port_start = Int(8900).tag(config=True)
+    webserver_port_end = Int(8999).tag(config=True)
 
     # The Prolog backend integration script with which the server is started.
     # It is required that the backend_data dictionary contains an item with the script name.
@@ -550,9 +558,15 @@ class LogtalkKernel(Kernel):
         self.active_kernel_implementations[self.backend] = self.active_kernel_implementation
 
         # Start server in background thread
-        port = self.start_webserver_threaded('127.0.0.1', 8900, 8999)
+        # Use getattr with defaults for backward compatibility with old config files
+        # that don't have the new webserver configuration options
+        webserver_ip = getattr(self, 'webserver_ip', '127.0.0.1')
+        webserver_port_start = getattr(self, 'webserver_port_start', 8900)
+        webserver_port_end = getattr(self, 'webserver_port_end', 8999)
+
+        port = self.start_webserver_threaded(webserver_ip, webserver_port_start, webserver_port_end)
         if port is not None:
-            do_execute_code = f"jupyter_widgets::set_webserver_port({port})."
+            do_execute_code = f"jupyter_widgets::set_webserver('{webserver_ip}', {port})."
             self.active_kernel_implementation.do_execute(do_execute_code, False, True, None, False)
 
 
