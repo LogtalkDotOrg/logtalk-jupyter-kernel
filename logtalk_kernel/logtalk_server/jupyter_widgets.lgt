@@ -22,10 +22,17 @@
 :- object(jupyter_widgets).
 
 	:- info([
-		version is 0:1:0,
+		version is 0:2:0,
 		author is 'Paulo Moura',
-		date is 2025-06-30,
+		date is 2025-07-14,
 		comment is 'This object provides predicates for creating and managing HTML/JavaScript widgets in Logtalk notebooks.'
+	]).
+
+	:- public(webserver_port/1).
+	:- mode(webserver_port(+positive_integer), zero_or_one).
+	:- info(webserver_port/1, [
+		comment is 'Widget callback webserver port. Only available after being set automatically by the kernel.',
+		argnames is ['Port']
 	]).
 
 	:- public(set_webserver_port/1).
@@ -206,6 +213,9 @@
 			throw(permission_error(create, widget_id, Term))
 		;	true
 		).
+
+	webserver_port(Port) :-
+		webserver_port_(Port).
 
 	set_webserver_port(Port) :-
 		retractall(webserver_port_(_)),

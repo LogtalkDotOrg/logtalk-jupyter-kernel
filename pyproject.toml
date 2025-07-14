@@ -6,7 +6,7 @@ requires = [
 
 [project]
 name = "logtalk-jupyter-kernel"
-version = "0.32.0"
+version = "0.33.0"
 authors = [
   { name = "Paulo Moura", email = "pmoura@logtalk.org" },
   { name = "Anne Brecklinghaus" },
@@ -18,7 +18,7 @@ maintainers = [
 ]
 description = "Hercutalk - A Jupyter Kernel for Logtalk"
 readme = "README.md"
-license = { file="LICENSE" }
+license = "MIT"
 requires-python = ">=3.7"
 classifiers = [
   "Development Status :: 4 - Beta",
