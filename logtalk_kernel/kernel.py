@@ -566,7 +566,8 @@ class LogtalkKernel(Kernel):
 
         port = self.start_webserver_threaded(webserver_ip, webserver_port_start, webserver_port_end)
         if port is not None:
-            do_execute_code = f"jupyter_widgets::set_webserver('{webserver_ip}', {port})."
+            # Set webserver for input systems (widgets and forms inherit from jupyter_inputs)
+            do_execute_code = f"jupyter_inputs::set_webserver('{webserver_ip}', {port})."
             self.active_kernel_implementation.do_execute(do_execute_code, False, True, None, False)
 
 

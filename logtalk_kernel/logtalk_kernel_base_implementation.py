@@ -593,22 +593,6 @@ class LogtalkKernelBaseImplementation:
         }   
         self.kernel.send_response(self.kernel.iopub_socket, 'display_data', display_data)
 
-    def send_widget_html(self, html_content):
-        """Send widget HTML content to the frontend."""
-        # Ensure html_content is properly escaped and handled as a string
-        if isinstance(html_content, dict) and 'widget_html' in html_content:
-            html_content = str(html_content['widget_html'])
-        else:
-            html_content = str(html_content)
-            
-        display_data = {
-            'data': {
-                'text/html': html_content
-            },
-            'metadata': {}
-        }
-        self.kernel.send_response(self.kernel.iopub_socket, 'display_data', display_data)
-
 
     ############################################################################
     # Handling of additional data
@@ -644,10 +628,10 @@ class LogtalkKernelBaseImplementation:
         if 'set_prolog_backend' in dict:
             if self.handle_set_prolog_backend(dict['set_prolog_backend']):
                 failure_keys.append(['set_prolog_backend'])
-        if 'widget_html' in dict:
-            if self.handle_widget_html(dict['widget_html']):
-                failure_keys.append(['widget_html'])
-
+        if 'input_html' in dict:
+            if self.handle_input_html(dict['input_html']):
+                failure_keys.append(['input_html'])
+ 
         return failure_keys
 
 
@@ -1101,16 +1085,24 @@ class LogtalkKernelBaseImplementation:
         return self.kernel.change_prolog_backend(prolog_backend)
 
 
-    def handle_widget_html(self, html_content):
-        """Handle widget HTML content from Logtalk server."""
+    def handle_input_html(self, html_content):
+        """Handle input HTML content (widgets and forms) from Logtalk server."""
         try:
             # Ensure we have valid HTML content
-            if isinstance(html_content, dict) and 'widget_html' in html_content:
-                html = html_content['widget_html']
+            if isinstance(html_content, dict):
+                # Handle different possible keys for backward compatibility
+                if 'input_html' in html_content:
+                    html_content = str(html_content['input_html'])
+                elif 'widget_html' in html_content:
+                    html_content = str(html_content['widget_html'])
+                elif 'form_html' in html_content:
+                    html_content = str(html_content['form_html'])
+                else:
+                    html_content = str(html_content)
             else:
-                html = str(html_content)
+                html_content = str(html_content)
 
-            # Send the widget HTML to the frontend
+            # Send the input HTML to the frontend
             self.kernel.send_response(
                 self.kernel.iopub_socket,
                 'display_data',
@@ -1123,8 +1115,16 @@ class LogtalkKernelBaseImplementation:
             )
             return False  # Success
         except Exception as e:
-            self.logger.error(f"Error handling widget HTML: {e}", exc_info=True)
+            self.logger.error(f"Error handling input HTML: {e}", exc_info=True)
             return True  # Failure
+
+    def handle_widget_html(self, html_content):
+        """Handle widget HTML content from Logtalk server. (Deprecated - use handle_input_html)"""
+        return self.handle_input_html(html_content)
+
+    def handle_form_html(self, html_content):
+        """Handle form HTML content from Logtalk server. (Deprecated - use handle_input_html)"""
+        return self.handle_input_html(html_content)
 
 
 class CallbackHandler(BaseHTTPRequestHandler):
@@ -1140,19 +1140,38 @@ class CallbackHandler(BaseHTTPRequestHandler):
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
         data = json.loads(post_data.decode('utf-8'))
-        
-        # Process your callback here
-        if data['type'] == 'number' or data['type'] == 'slider':
-            code = 'jupyter_widgets::set_widget_value(\'' + data['id'] + '\', ' + data['value'] + ').'
+
+        # Process callback based on type
+        if data['type'] == 'form':
+            # Handle form submission
+            form_id = data['id']
+            form_data = data['value']
+
+            # Convert form data to Logtalk list format
+            data_pairs = []
+            for key, value in form_data.items():
+                if isinstance(value, str):
+                    escaped_value = value.replace("'", "\\'")
+                    data_pairs.append(f"'{key}'-'{escaped_value}'")
+                else:
+                    data_pairs.append(f"'{key}'-{value}")
+
+            data_list = '[' + ', '.join(data_pairs) + ']'
+            code = f"jupyter_forms::set_form_data('{form_id}', {data_list})."
         else:
-            data['value'] = data['value'].replace("'", "\\'")
-            code = 'jupyter_widgets::set_widget_value(\'' + data['id'] + '\', \'' + data['value'] + '\').'
+            # Handle widget update
+            if data['type'] == 'number' or data['type'] == 'slider':
+                code = 'jupyter_widgets::set_widget_value(\'' + data['id'] + '\', ' + data['value'] + ').'
+            else:
+                data['value'] = data['value'].replace("'", "\\'")
+                code = 'jupyter_widgets::set_widget_value(\'' + data['id'] + '\', \'' + data['value'] + '\').'
+
         try:
             self.kernel_implementation.do_execute(code, True, False, {}, False)
             result = {"status": "ok", "received": code}
         except Exception as e:
             result = {"status": "error", "error": str(e)}
-        
+
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
         self.send_header('Access-Control-Allow-Origin', '*')

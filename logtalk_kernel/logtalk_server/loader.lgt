@@ -49,7 +49,9 @@
 		jupyter_jsonrpc,
 		jupyter_request_handling,
 		jupyter_term_handling,
+		jupyter_inputs,
 		jupyter_widgets,
+		jupyter_forms,
 		jupyter_server
 	], [
 		optimize(on)

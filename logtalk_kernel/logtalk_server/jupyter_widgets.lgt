@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  This file is part of Logtalk <https://logtalk.org/>
-%  SPDX-FileCopyrightText: 1998-2025 Paulo Moura <pmoura@logtalk.org>
+%  SPDX-FileCopyrightText: 2025 Paulo Moura <pmoura@logtalk.org>
 %  SPDX-License-Identifier: Apache-2.0
 %
 %  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,144 +19,132 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-:- object(jupyter_widgets).
+:- object(jupyter_widgets,
+	extends(jupyter_inputs)).
 
 	:- info([
 		version is 0:3:0,
 		author is 'Paulo Moura',
 		date is 2025-07-14,
-		comment is 'This object provides predicates for creating and managing HTML/JavaScript widgets in Logtalk notebooks.'
-	]).
-
-	:- public(webserver/2).
-	:- mode(webserver(?atom, ?positive_integer), zero_or_one).
-	:- info(webserver/2, [
-		comment is 'Widget callback webserver IP address and port. Only available after being set automatically by the kernel.',
-		argnames is ['IP', 'Port']
-	]).
-
-	:- public(set_webserver/2).
-	:- mode(set_webserver(+atom, +positive_integer), one).
-	:- info(set_webserver/2, [
-		comment is 'Set the widget callback webserver IP address and port. Called automatically by the kernel.',
-		argnames is ['IP', 'Port']
+		comment is 'Predicates for creating and managing HTML/JavaScript widgets in Logtalk notebooks.'
 	]).
 
 	:- public(create_text_input/3).
 	:- mode(create_text_input(+atom, +atom, +atom), one).
 	:- info(create_text_input/3, [
-		comment is 'Create a text input widget.',
+		comment is 'Creates a text input widget.',
 		argnames is ['WidgetId', 'Label', 'DefaultValue']
 	]).
 
 	:- public(create_password_input/2).
 	:- mode(create_password_input(+atom, +atom), one).
 	:- info(create_password_input/2, [
-		comment is 'Create a password input widget.',
+		comment is 'Creates a password input widget.',
 		argnames is ['WidgetId', 'Label']
 	]).
 
 	:- public(create_number_input/6).
 	:- mode(create_number_input(+atom, +atom, +number, +number, +number, +number), one).
 	:- info(create_number_input/6, [
-		comment is 'Create a number input widget.',
+		comment is 'Creates a number input widget.',
 		argnames is ['WidgetId', 'Label', 'Min', 'Max', 'Step', 'DefaultValue']
 	]).
 
 	:- public(create_slider/6).
 	:- mode(create_slider(+atom, +atom, +number, +number, +number, +number), one).
 	:- info(create_slider/6, [
-		comment is 'Create a slider widget.',
+		comment is 'Creates a slider widget.',
 		argnames is ['WidgetId', 'Label', 'Min', 'Max', 'Step', 'DefaultValue']
 	]).
 
 	:- public(create_date_input/3).
 	:- mode(create_date_input(+atom, +atom, +date), one).
 	:- info(create_date_input/3, [
-		comment is 'Create a date input widget.',
+		comment is 'Creates a date input widget.',
 		argnames is ['WidgetId', 'Label', 'DefaultValue']
 	]).
 
 	:- public(create_time_input/3).
 	:- mode(create_time_input(+atom, +atom, +time), one).
 	:- info(create_time_input/3, [
-		comment is 'Create a time input widget.',
+		comment is 'Creates a time input widget.',
 		argnames is ['WidgetId', 'Label', 'DefaultValue']
 	]).
 
 	:- public(create_email_input/4).
 	:- mode(create_email_input(+atom, +atom, +atom, +atom), one).
 	:- info(create_email_input/4, [
-		comment is 'Create an email input widget.',
+		comment is 'Creates an email input widget.',
 		argnames is ['WidgetId', 'Label', 'DefaultValue', 'Pattern']
 	]).
 
 	:- public(create_url_input/4).
 	:- mode(create_url_input(+atom, +atom, +atom, +atom), one).
 	:- info(create_url_input/4, [
-		comment is 'Create a URL input widget.',
+		comment is 'Creates a URL input widget.',
 		argnames is ['WidgetId', 'Label', 'DefaultValue', 'Pattern']
 	]).
 
 	:- public(create_file_input/2).
 	:- mode(create_file_input(+atom, +atom), one).
 	:- info(create_file_input/2, [
-		comment is 'Create a file input widget.',
+		comment is 'Creates a file input widget.',
 		argnames is ['WidgetId', 'Label']
 	]).
 
 	:- public(create_color_input/3).
 	:- mode(create_color_input(+atom, +atom, +boolean), one).
 	:- info(create_color_input/3, [
-		comment is 'Create a color input widget.',
+		comment is 'Creates a color input widget.',
 		argnames is ['WidgetId', 'Label', 'DefaultValue']
 	]).
 
 	:- public(create_dropdown/3).
+	:- mode(create_dropdown(+atom, +atom, +list), one).
 	:- info(create_dropdown/3, [
-		comment is 'Create a dropdown widget.',
+		comment is 'Creates a dropdown widget.',
 		argnames is ['WidgetId', 'Label', 'MenuOptions']
 	]).
 
 	:- public(create_checkbox/3).
 	:- mode(create_checkbox(+atom, +atom, +boolean), one).
 	:- info(create_checkbox/3, [
-		comment is 'Create a checkbox widget.',
+		comment is 'Creates a checkbox widget.',
 		argnames is ['WidgetId', 'Label', 'Checked']
 	]).
 
 	:- public(create_button/2).
 	:- mode(create_button(+atom, +atom), one).
 	:- info(create_button/2, [
-		comment is 'Create a button widget.',
+		comment is 'Creates a button widget.',
 		argnames is ['WidgetId', 'Label']
 	]).
 
 	:- public(get_widget_value/2).
 	:- mode(get_widget_value(+atom, ?nonvar), zero_or_one).
 	:- info(get_widget_value/2, [
-		comment is 'Get the value of a widget.',
+		comment is 'Gets the value of a widget.',
 		argnames is ['WidgetId', 'Value']
 	]).
 
 	:- public(set_widget_value/2).
 	:- mode(set_widget_value(+atom, +nonvar), one).
 	:- info(set_widget_value/2, [
-		comment is 'Set the value of a widget.',
+		comment is 'Sets the value of a widget.',
 		argnames is ['WidgetId', 'Value']
 	]).
 
 	:- public(remove_widget/1).
 	:- mode(remove_widget(+atom), one).
 	:- info(remove_widget/1, [
-		comment is 'Remove a widget. Succeeds also when the widget does not exist.',
+		comment is 'Removes a widget. Succeeds also when the widget does not exist.',
 		argnames is ['WidgetId']
 	]).
 
 	:- public(remove_all_widgets/0).
 	:- mode(remove_all_widgets, one).
 	:- info(remove_all_widgets/0, [
-		comment is 'Clear all widgets.'
+		comment is 'Removes all widgets.'
 	]).
 
 	:- public(widget/1).
@@ -177,14 +165,6 @@
 	:- info(widgets/1, [
 		comment is 'Returns a list of all the widgets.',
 		argnames is ['Widgets']
-	]).
-
-	:- private(webserver_/2).
-	:- dynamic(webserver_/2).
-	:- mode(webserver_(?atom, ?positive_integer), zero_or_one).
-	:- info(webserver_/2, [
-		comment is 'Widget callback webserver IP address and port.',
-		argnames is ['IP', 'Port']
 	]).
 
 	:- private(widget_state_/3).
@@ -214,111 +194,100 @@
 		;	true
 		).
 
-	webserver(IP, Port) :-
-		webserver_(IP, Port).
-
-	set_webserver(IP, Port) :-
-		retractall(webserver_(_, _)),
-		assertz(webserver_(IP, Port)).
-
 	create_text_input(WidgetId, Label, DefaultValue) :-
 		check(widget_id, WidgetId),
 		assertz(widget_state_(WidgetId, text_input, DefaultValue)),
 		create_text_input_html(WidgetId, Label, DefaultValue, HTML),
-		assert_success_response(widget, [], '', [widget_html-HTML]).
+		assert_success_response(widget, [], '', [input_html-HTML]).
 
 	create_password_input(WidgetId, Label) :-
 		check(widget_id, WidgetId),
 		assertz(widget_state_(WidgetId, password_input, '')),
 		create_password_input_html(WidgetId, Label, HTML),
-		assert_success_response(widget, [], '', [widget_html-HTML]).
+		assert_success_response(widget, [], '', [input_html-HTML]).
 
 	create_number_input(WidgetId, Label, Min, Max, Step, DefaultValue) :-
 		check(widget_id, WidgetId),
 		assertz(widget_state_(WidgetId, number_input, DefaultValue)),
 		create_number_input_html(WidgetId, Label, Min, Max, Step, DefaultValue, HTML),
-		assert_success_response(widget, [], '', [widget_html-HTML]).
+		assert_success_response(widget, [], '', [input_html-HTML]).
 
 	create_slider(WidgetId, Label, Min, Max, Step, DefaultValue) :-
 		check(widget_id, WidgetId),
 		assertz(widget_state_(WidgetId, slider, DefaultValue)),
 		create_slider_html(WidgetId, Label, Min, Max, Step, DefaultValue, HTML),
-		assert_success_response(widget, [], '', [widget_html-HTML]).
+		assert_success_response(widget, [], '', [input_html-HTML]).
 
 	create_date_input(WidgetId, Label, DefaultValue) :-
 		check(widget_id, WidgetId),
 		assertz(widget_state_(WidgetId, date_input, DefaultValue)),
 		create_date_input_html(WidgetId, Label, DefaultValue, HTML),
-		assert_success_response(widget, [], '', [widget_html-HTML]).
+		assert_success_response(widget, [], '', [input_html-HTML]).
 
 	create_time_input(WidgetId, Label, DefaultValue) :-
 		check(widget_id, WidgetId),
 		assertz(widget_state_(WidgetId, time_input, DefaultValue)),
 		create_time_input_html(WidgetId, Label, DefaultValue, HTML),
-		assert_success_response(widget, [], '', [widget_html-HTML]).
+		assert_success_response(widget, [], '', [input_html-HTML]).
 
 	create_email_input(WidgetId, Label, DefaultValue, Pattern) :-
 		check(widget_id, WidgetId),
 		assertz(widget_state_(WidgetId, email_input, DefaultValue)),
 		create_email_input_html(WidgetId, Label, DefaultValue, Pattern, HTML),
-		assert_success_response(widget, [], '', [widget_html-HTML]).
+		assert_success_response(widget, [], '', [input_html-HTML]).
 
 	create_url_input(WidgetId, Label, DefaultValue, Pattern) :-
 		check(widget_id, WidgetId),
 		assertz(widget_state_(WidgetId, url_input, DefaultValue)),
 		create_url_input_html(WidgetId, Label, DefaultValue, Pattern, HTML),
-		assert_success_response(widget, [], '', [widget_html-HTML]).
+		assert_success_response(widget, [], '', [input_html-HTML]).
 
 	create_file_input(WidgetId, Label) :-
 		check(widget_id, WidgetId),
 		assertz(widget_state_(WidgetId, file_input, '')),
 		create_file_input_html(WidgetId, Label, HTML),
-		assert_success_response(widget, [], '', [widget_html-HTML]).
+		assert_success_response(widget, [], '', [input_html-HTML]).
 
 	create_color_input(WidgetId, Label, DefaultValue) :-
 		check(widget_id, WidgetId),
 		assertz(widget_state_(WidgetId, color_input, DefaultValue)),
 		create_color_input_html(WidgetId, Label, DefaultValue, HTML),
-		assert_success_response(widget, [], '', [widget_html-HTML]).
+		assert_success_response(widget, [], '', [input_html-HTML]).
 
 	create_dropdown(WidgetId, Label, MenuOptions) :-
 		check(widget_id, WidgetId),
 		MenuOptions = [FirstMenuOption|_],
 		assertz(widget_state_(WidgetId, dropdown, FirstMenuOption)),
 		create_dropdown_html(WidgetId, Label, MenuOptions, HTML),
-		assert_success_response(widget, [], '', [widget_html-HTML]).
+		assert_success_response(widget, [], '', [input_html-HTML]).
 
 	create_checkbox(WidgetId, Label, DefaultValue) :-
 		check(widget_id, WidgetId),
 		assertz(widget_state_(WidgetId, checkbox, DefaultValue)),
 		create_checkbox_html(WidgetId, Label, DefaultValue, HTML),
-		assert_success_response(widget, [], '', [widget_html-HTML]).
+		assert_success_response(widget, [], '', [input_html-HTML]).
 
 	create_button(WidgetId, Label) :-
 		check(widget_id, WidgetId),
 		assertz(widget_state_(WidgetId, button, false)),
 		create_button_html(WidgetId, Label, HTML),
-		assert_success_response(widget, [], '', [widget_html-HTML]).
+		assert_success_response(widget, [], '', [input_html-HTML]).
+
+	widget(WidgetId) :-
+		widget_state_(WidgetId, _, _).
 
 	get_widget_value(WidgetId, Value) :-
 		widget_state_(WidgetId, _, Value).
 
-	% Set widget value
 	set_widget_value(WidgetId, Value) :-
 		retract(widget_state_(WidgetId, Type, _)),
 		asserta(widget_state_(WidgetId, Type, Value)).
 
-	% Remove widget
 	remove_widget(WidgetId) :-
 		retractall(widget_state_(WidgetId, _, _)).
 
-	% Remove all widgets
 	remove_all_widgets :-
 		retractall(widget_state_(_, _, _)).
-
-	% Enumerate all widgets or check if a widget exists
-	widget(WidgetId) :-
-		widget_state_(WidgetId, _, _).
 
 	% Print all widgets
 	widgets :-
@@ -337,7 +306,7 @@
 	% HTML generation predicates
 
 	create_update_handler(WidgetId, Type, Value, Handler) :-
-		webserver_(IP, Port),
+		^^webserver(IP, Port),
 		atomic_list_concat([
 			'fetch(\'http://', IP, ':', Port, '\', {',
 			'  method: \'POST\',',
