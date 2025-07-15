@@ -39,8 +39,8 @@ The directory [notebooks](./notebooks) contains some example Juypter notebooks, 
 
 The kernel is provided as a Python package on the Python Package Index and can be installed with `pip`:
 
-	python3 -m pip install --upgrade logtalk-jupyter-kernel
-	python3 -m logtalk_kernel.install
+	$ python3 -m pip install --upgrade logtalk-jupyter-kernel
+	$ python3 -m logtalk_kernel.install
 
 There are the following options which can be seen when running `python3 -m logtalk_kernel.install --help`
 
@@ -50,8 +50,8 @@ There are the following options which can be seen when running `python3 -m logta
 
 ## Uninstall
 
-	python3 -m pip uninstall logtalk_kernel
-	jupyter kernelspec remove logtalk_kernel
+	$ python3 -m pip uninstall logtalk_kernel
+	$ jupyter kernelspec remove logtalk_kernel
 
 
 ## Running
@@ -85,13 +85,13 @@ The kernel can be configured by defining a Python config file named `logtalk_ker
 **Note:** If a config file exists in the current working directory, it overrides values from other configuration files.
 
 In general, the kernel can be configured to use a different Prolog backend (which is responsible for code execution) or kernel implementation. Furthermore, it can be configured to use another Prolog backend altogether which might not be supported by default. The following options can be configured:
+
 - `jupyter_logging`: If set to `True`, the logging level is set to DEBUG by the kernel so that **Python debugging messages** are logged.
   - Note that this way, logging debugging messages can only be enabled after reading a configuration file. Therefore, for instance, the user cannot be informed that no configuration file was loaded if none was defined at one of the expected locations.
   - In order to switch on debugging messages by default, the development installation described in the GitHub repository can be followed and the logging level set to `DEBUG` in the file `kernel.py` (which contains a corresponding comment).
   - However, note that this causes messages to be printed in the Jupyter console applications, which interferes with the other output.
-
 - `server_logging`: If set to `True`, a **Logtalk server log file** is created.
-  - The name of the file consists of the implementation ID preceded by `.logtalk_server_log_`.
+  - The name of the file consists of the Prolog backend identifier preceded by `.logtalk_server_log_`.
 - `backend`: The name of the **Prolog backend integration script** with which the server is started.
 - `backend_data`: The **Prolog backend-specific data** which is needed to run the server for code execution.
   - This is required to be a dictionary containing at least an entry for the configured `backend`.
@@ -104,6 +104,9 @@ In general, the kernel can be configured to use a different Prolog backend (whic
       - All supported Prolog backends can be used by configuring the string `"default"`.
   - Additionally, a `kernel_implementation_path` can be provided, which needs to be an **absolute path to a Python file**:
     - The corresponding module is required to define a subclass of `LogtalkKernelBaseImplementation` named `LogtalkKernelImplementation`. This can be used to override some of the kernel's basic behavior (see [Overriding the Kernel Implementation](#overriding-the-kernel-implementation)).
+- `webserver_ip`: The IP address for the widget callback webserver (default: `127.0.0.1`).
+- `webserver_port_start`: The start of the port range for the widget callback webserver (default: `8900`).
+- `webserver_port_end`: The end of the port range for the widget callback webserver (default: `8999`).
 
 If the given **`program_arguments` are invalid**, the kernel waits for a response from the server which it will never receive. In that state it is **not able to log any exception** and instead, nothing happens. To facilitate finding the cause of the error, before trying to start the Logtalk server, the arguments and the directory from which they are tried to be executed are logged.
 
@@ -145,7 +148,7 @@ We also must ensure that the virtual environment will be used when the notebook 
 
 ### Changing the Prolog backend in the fly
 
-In most cases, the following shortcuts can be used:
+In most cases, the following shortcut predicates can be used:
 
 - ECLiPSe: `eclipse`
 - GNU Prolog: `gnu`
@@ -173,7 +176,7 @@ The predicate argument is the name of the integration script used to run Logtalk
     - `jupyter_core`: 5.7.2
     - `jupyterlab`: 4.2.3
     - `notebook`: 7.2.1
-	- `jupytext`: 1.16.7
+    - `jupytext`: 1.16.7
 - Logtalk and one or more supported Prolog backends (see above)
 - Installing **Graphviz** with `python3 -m pip` may not suffice (notably, on Windows)
   - Also run the Graphviz [installer](https://graphviz.org/download/) and add its executables to the `PATH` (a reboot may be required afterwards)
@@ -182,10 +185,10 @@ The installation was tested with macOS 14.5, Ubuntu 20.0.4, and Windows 10.
 
 ### Install
 
-	python3 -m pip install --upgrade jupyterlab
-	git clone https://github.com/LogtalkDotOrg/logtalk-jupyter-kernel
-	cd logtalk-jupyter-kernel
-	make install
+	$ python3 -m pip install --upgrade jupyterlab
+	$ git clone https://github.com/LogtalkDotOrg/logtalk-jupyter-kernel
+	$ cd logtalk-jupyter-kernel
+	$ make install
 
 By default, `make install` uses `sys.prefix`. If it fails with a permission error, you can retry using either `sudo make install` or repeat its last step using `python3 -m logtalk_kernel.install --user` or `python3 -m logtalk_kernel.install --prefix PREFIX`.
 
@@ -193,8 +196,8 @@ On Ubuntu, if `make install` fails with an error, try to update `pip` to its lat
 
 ### Uninstall
 
-	cd logtalk-jupyter-kernel
-	make clean
+	$ cd logtalk-jupyter-kernel
+	$ make clean
 
 ### Local Changes
 
@@ -204,10 +207,12 @@ Adjustments of the Logtalk server code are loaded when the server is restarted. 
 
 ### Building and publishing
 
-Make sure that both the `pyproject.toml` file and the `jupyter` object (in the `logtalk_kernel/logtalk_server/jupyter.lgt` file) report the same kernel version. 
+Make sure that both the `pyproject.toml` file and the `jupyter` object (in the `logtalk_kernel/logtalk_server/jupyter.lgt` file) report the same kernel version.
 
-	python3 -m build .
-	twine upload dist/logtalk_jupyter_kernel-VERSION.tar.gz dist/logtalk_jupyter_kernel-VERSION-py3-none-any.whl
+	$ python3 -m build .
+	$ twine upload dist/logtalk_jupyter_kernel-VERSION.tar.gz dist/logtalk_jupyter_kernel-VERSION-py3-none-any.whl
+
+The second command above requires you to be logged in to the PyPI registry. For the Conda registry, an automatic build and pull request is triggered when a new version is published on PyPI.
 
 ### Debugging
 
