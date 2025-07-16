@@ -1093,10 +1093,6 @@ class LogtalkKernelBaseImplementation:
                 # Handle different possible keys for backward compatibility
                 if 'input_html' in html_content:
                     html_content = str(html_content['input_html'])
-                elif 'widget_html' in html_content:
-                    html_content = str(html_content['widget_html'])
-                elif 'form_html' in html_content:
-                    html_content = str(html_content['form_html'])
                 else:
                     html_content = str(html_content)
             else:
@@ -1117,14 +1113,6 @@ class LogtalkKernelBaseImplementation:
         except Exception as e:
             self.logger.error(f"Error handling input HTML: {e}", exc_info=True)
             return True  # Failure
-
-    def handle_widget_html(self, html_content):
-        """Handle widget HTML content from Logtalk server. (Deprecated - use handle_input_html)"""
-        return self.handle_input_html(html_content)
-
-    def handle_form_html(self, html_content):
-        """Handle form HTML content from Logtalk server. (Deprecated - use handle_input_html)"""
-        return self.handle_input_html(html_content)
 
 
 class CallbackHandler(BaseHTTPRequestHandler):
