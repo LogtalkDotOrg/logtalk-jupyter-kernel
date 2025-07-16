@@ -26,18 +26,33 @@
 		version is 0:1:0,
 		author is 'Paulo Moura',
 		date is 2025-07-15,
-		comment is 'Predicates for creating and managing HTML forms for data input in Logtalk notebooks.'
+		comment is 'Predicates for creating and managing HTML forms for data input in Logtalk notebooks.',
+		remarks is [
+			'Field specifications' - 'Each field specification is a compound term. Field names and labels should be atoms.',
+			'Text field' - '``text_field(Name, Label, DefaultValue)``.',
+			'Email field' - '``email_field(Name, Label, DefaultValue)``.',
+			'Password field' - '``password_field(Name, Label)``.',
+			'Number field' - '``number_field(Name, Label, DefaultValue)``.',
+			'Textarea field' - '``textarea_field(Name, Label, DefaultValue, Rows)``.',
+			'Select field' - '``select_field(Name, Label, Options, DefaultValue)``.',
+			'Checkbox field' - '``checkbox_field(Name, Label, DefaultValue)``.',
+			'Form options' - 'The form options are compound terms with a single atom argument.',
+			'Title option' - '``title(Title)``.',
+			'Submit button label option' - '``submit_label(Label)``.',
+			'Cancel button label option' - '``cancel_label(Label)``.',
+			'Style option' - '``style(Style)`` (not including the ``<style>`` and ``</style>`` tags).'
+		]
 	]).
 
 	:- public(create_input_form/2).
-	:- mode(create_input_form(+atom, +list), one).
+	:- mode(create_input_form(+atom, +list(compound)), one).
 	:- info(create_input_form/2, [
 		comment is 'Create an input form with default options.',
 		argnames is ['FormId', 'FieldSpecs']
 	]).
 
 	:- public(create_input_form/3).
-	:- mode(create_input_form(+atom, +list, +list), one).
+	:- mode(create_input_form(+atom, +list(compound), +list(compound)), one).
 	:- info(create_input_form/3, [
 		comment is 'Create an input form with specified options.',
 		argnames is ['FormId', 'FieldSpecs', 'Options']
@@ -51,14 +66,14 @@
 	]).
 
 	:- public(get_form_data/2).
-	:- mode(get_form_data(+atom, -list), zero_or_one).
+	:- mode(get_form_data(+atom, -list(pair(atom,ground))), zero_or_one).
 	:- info(get_form_data/2, [
 		comment is 'Get the data submitted for a form.',
 		argnames is ['FormId', 'Data']
 	]).
 
 	:- public(set_form_data/2).
-	:- mode(set_form_data(+atom, +list), one).
+	:- mode(set_form_data(+atom, +list(pair(atom,ground))), one).
 	:- info(set_form_data/2, [
 		comment is 'Sets the data for a form. Called by the callback server when form is submitted.',
 		argnames is ['FormId', 'FormData']
@@ -79,7 +94,7 @@
 
 	:- private(form_data_/2).
 	:- dynamic(form_data_/2).
-	:- mode(form_data_(?atom, -list), zero_or_more).
+	:- mode(form_data_(?atom, ?list(pair(atom,ground))), zero_or_more).
 	:- info(form_data_/2, [
 		comment is 'Table of forms data.',
 		argnames is ['FormId', 'Data']
@@ -148,77 +163,18 @@
 			'  }',
 			SubmitHandler,
 			'})();">', SubmitLabel, '</button>',
-			'<button type="button" class="clear-btn" onclick="document.getElementById(\'', FormId, '\').reset();">Clear</button>',
+			'<button type="button" class="clear-btn" onclick="document.getElementById(\'', FormId, '\').reset();">',CancelLabel,'</button>',
 			'</div>',
 			'</form>',
 			'</div>',
 			'<style>',
-			'.logtalk-form {',
-			'  max-width: 500px;',
-			'  margin: 20px 0;',
-			'  padding: 20px;',
-			'  border: 1px solid #ddd;',
-			'  border-radius: 8px;',
-			'  background-color: #f9f9f9;',
-			'  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;',
-			'}',
-			'.logtalk-form h3 {',
-			'  margin-top: 0;',
-			'  color: #333;',
-			'}',
-			'.form-field {',
-			'  margin-bottom: 15px;',
-			'}',
-			'.form-field label {',
-			'  display: block;',
-			'  margin-bottom: 5px;',
-			'  font-weight: 500;',
-			'  color: #555;',
-			'}',
-			'.form-field input, .form-field select, .form-field textarea {',
-			'  width: 100%;',
-			'  padding: 8px 12px;',
-			'  border: 1px solid #ccc;',
-			'  border-radius: 4px;',
-			'  font-size: 14px;',
-			'  box-sizing: border-box;',
-			'}',
-			'.form-field input:focus, .form-field select:focus, .form-field textarea:focus {',
-			'  outline: none;',
-			'  border-color: #007cba;',
-			'  box-shadow: 0 0 0 2px rgba(0, 124, 186, 0.2);',
-			'}',
-			'.form-buttons {',
-			'  margin-top: 20px;',
-			'  text-align: right;',
-			'}',
-			'.form-buttons button {',
-			'  margin-left: 10px;',
-			'  padding: 10px 20px;',
-			'  border: none;',
-			'  border-radius: 4px;',
-			'  cursor: pointer;',
-			'  font-size: 14px;',
-			'}',
-			'.submit-btn {',
-			'  background-color: #007cba;',
-			'  color: white;',
-			'}',
-			'.submit-btn:hover {',
-			'  background-color: #005a87;',
-			'}',
-			'.clear-btn {',
-			'  background-color: #6c757d;',
-			'  color: white;',
-			'}',
-			'.clear-btn:hover {',
-			'  background-color: #545b62;',
-			'}',
+			Style,
 			'</style>'
 		], HTML).
 
 	% Extract form options
-	extract_form_options([], 'Input Form', 'Submit', 'Cancel', '').
+	extract_form_options([], 'Input Form', 'Submit', 'Cancel', Style) :-
+		default_style(Style).
 	extract_form_options([title(Title)|Rest], Title, SubmitLabel, CancelLabel, Style) :-
 		extract_form_options(Rest, _, SubmitLabel, CancelLabel, Style).
 	extract_form_options([submit_label(Label)|Rest], Title, Label, CancelLabel, Style) :-
@@ -324,6 +280,69 @@
 			'  .then(response => response.json());'
 		], Handler).
 
-
+	default_style(Style) :-
+		atomic_list_concat([
+			'.logtalk-form {',
+			'  max-width: 500px;',
+			'  margin: 20px 0;',
+			'  padding: 20px;',
+			'  border: 1px solid #ddd;',
+			'  border-radius: 8px;',
+			'  background-color: #f9f9f9;',
+			'  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;',
+			'}',
+			'.logtalk-form h3 {',
+			'  margin-top: 0;',
+			'  color: #333;',
+			'}',
+			'.form-field {',
+			'  margin-bottom: 15px;',
+			'}',
+			'.form-field label {',
+			'  display: block;',
+			'  margin-bottom: 5px;',
+			'  font-weight: 500;',
+			'  color: #555;',
+			'}',
+			'.form-field input, .form-field select, .form-field textarea {',
+			'  width: 100%;',
+			'  padding: 8px 12px;',
+			'  border: 1px solid #ccc;',
+			'  border-radius: 4px;',
+			'  font-size: 14px;',
+			'  box-sizing: border-box;',
+			'}',
+			'.form-field input:focus, .form-field select:focus, .form-field textarea:focus {',
+			'  outline: none;',
+			'  border-color: #007cba;',
+			'  box-shadow: 0 0 0 2px rgba(0, 124, 186, 0.2);',
+			'}',
+			'.form-buttons {',
+			'  margin-top: 20px;',
+			'  text-align: right;',
+			'}',
+			'.form-buttons button {',
+			'  margin-left: 10px;',
+			'  padding: 10px 20px;',
+			'  border: none;',
+			'  border-radius: 4px;',
+			'  cursor: pointer;',
+			'  font-size: 14px;',
+			'}',
+			'.submit-btn {',
+			'  background-color: #007cba;',
+			'  color: white;',
+			'}',
+			'.submit-btn:hover {',
+			'  background-color: #005a87;',
+			'}',
+			'.clear-btn {',
+			'  background-color: #6c757d;',
+			'  color: white;',
+			'}',
+			'.clear-btn:hover {',
+			'  background-color: #545b62;',
+			'}'
+		], Style).
 
 :- end_object.
