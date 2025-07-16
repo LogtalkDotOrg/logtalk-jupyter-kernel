@@ -33,6 +33,7 @@ callback webserver configuration.
 
 import platform
 import os
+from traitlets.config import get_config
 
 # Constants
 DEFAULT_ERROR_PREFIX = "!     "
@@ -46,7 +47,7 @@ c.LogtalkKernel.jupyter_logging = False
 # If set to True, a log file is created by the Logtalk server
 c.LogtalkKernel.server_logging = False
 
-# Widget callback webserver configuration
+# Input widgets and forms callback webserver configuration
 # These settings are optional and maintain backward compatibility with older config files.
 # If not specified, the kernel will use the default values shown below.
 # IP address for the widget callback webserver (default: 127.0.0.1)
