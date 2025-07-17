@@ -23,9 +23,9 @@
 	extends(jupyter_inputs)).
 
 	:- info([
-		version is 0:3:0,
+		version is 0:4:0,
 		author is 'Paulo Moura',
-		date is 2025-07-14,
+		date is 2025-07-17,
 		comment is 'Predicates for creating and managing HTML/JavaScript widgets in Logtalk notebooks.'
 	]).
 
