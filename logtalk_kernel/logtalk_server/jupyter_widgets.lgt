@@ -120,6 +120,13 @@
 		argnames is ['WidgetId', 'Label']
 	]).
 
+	:- public(create_widget_input/3).
+	:- mode(create_widget_input(+atom, +atom, +list(pair(atom,ground))), one).
+	:- info(create_widget_input/3, [
+		comment is 'Creates a generic input widget with custom attributes.',
+		argnames is ['WidgetId', 'Label', 'Attributes']
+	]).
+
 	:- public(get_widget_value/2).
 	:- mode(get_widget_value(+atom, ?nonvar), zero_or_one).
 	:- info(get_widget_value/2, [
@@ -177,6 +184,7 @@
 
 	:- uses(jupyter_term_handling, [assert_success_response/4]).
 	:- uses(format, [format/2]).
+	:- uses(list, [member/2]).
 	:- uses(type, [check/2]).
 	:- uses(user, [atomic_list_concat/2]).
 
@@ -273,6 +281,22 @@
 		create_button_html(WidgetId, Label, HTML),
 		assert_success_response(widget, [], '', [input_html-HTML]).
 
+	create_widget_input(WidgetId, Label, Attributes) :-
+		check(widget_id, WidgetId),
+		% Extract the type attribute to determine the widget type and default value
+		(	member(type-Type, Attributes) ->
+			true
+		;	Type = text  % default to text input if no type specified
+		),
+		% Determine default value based on type
+		(	member(value-DefaultValue, Attributes) ->
+			true
+		;	input_type_default_value(Type, DefaultValue)
+		),
+		assertz(widget_state_(WidgetId, Type, DefaultValue)),
+		create_widget_input_html(WidgetId, Label, Attributes, HTML),
+		assert_success_response(widget, [], '', [input_html-HTML]).
+
 	widget(WidgetId) :-
 		widget_state_(WidgetId, _, _).
 
@@ -319,6 +343,7 @@
 
 	create_text_input_html(WidgetId, Label, DefaultValue, HTML) :-
 		create_update_handler(WidgetId, text, 'String(this.value)', Handler),
+		default_style(text, Style),
 		atomic_list_concat([
 			'<div class="logtalk-input-group">',
 			'<label class="logtalk-widget-label" for="', WidgetId, '">', Label, '</label><br>',
@@ -326,24 +351,26 @@
 			'class="logtalk-widget-input" ',
 			'value="', DefaultValue, '" ',
 			'onchange="', Handler, '" ',
-			'style="margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;"/>',
+			'style="', Style, '"/>',
 			'</div>'
 		], HTML).
 
 	create_password_input_html(WidgetId, Label, HTML) :-
 		create_update_handler(WidgetId, password, 'String(this.value)', Handler),
+		default_style(password, Style),
 		atomic_list_concat([
 			'<div class="logtalk-input-group">',
 			'<label class="logtalk-widget-label" for="', WidgetId, '">', Label, '</label><br>',
 			'<input type="password" id="', WidgetId, '" ',
 			'class="logtalk-widget-input" ',
 			'onchange="', Handler, '" ',
-			'style="margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;"/>',
+			'style="', Style, '"/>',
 			'</div>'
 		], HTML).
 
 	create_number_input_html(WidgetId, Label, Min, Max, Step, DefaultValue, HTML) :-
 		create_update_handler(WidgetId, number, 'this.value', Handler),
+		default_style(number, Style),
 		atomic_list_concat([
 			'<div class="logtalk-input-group">',
 			'<label class="logtalk-widget-label" for="', WidgetId, '">', Label, '</label><br>',
@@ -351,12 +378,13 @@
 			'class="logtalk-widget-input" ',
 			'min="', Min, '" max="', Max, '" step="', Step, '" value="', DefaultValue, '" ',
 			'onchange="', Handler, '" ',
-			'style="margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;"/>',
+			'style="', Style, '"/>',
 			'</div>'
 		], HTML).
 
 	create_slider_html(WidgetId, Label, Min, Max, Step, DefaultValue, HTML) :-
 		create_update_handler(WidgetId, slider, 'this.value', Handler),
+		default_style(slider, Style),
 		atomic_list_concat([
 			'<div class="logtalk-input-group">',
 			'<label class="logtalk-widget-label" for="', WidgetId, '">',
@@ -367,12 +395,13 @@
 			'min="', Min, '" max="', Max, '" step="', Step, '" value="', DefaultValue, '" ',
 			'oninput="document.getElementById(\'', WidgetId, '_value\').textContent = this.value" ',
 			'onchange="', Handler, '" ',
-			'style="margin: 5px; width: 200px;"/>',
+			'style="', Style, '"/>',
 			'</div>'
 		], HTML).
 
 	create_date_input_html(WidgetId, Label, DefaultValue, HTML) :-
 		create_update_handler(WidgetId, date, 'String(this.value)', Handler),
+		default_style(date, Style),
 		atomic_list_concat([
 			'<div class="logtalk-input-group">',
 			'<label class="logtalk-widget-label" for="', WidgetId, '">', Label, '</label><br>',
@@ -380,12 +409,13 @@
 			'class="logtalk-widget-input" ',
 			'value="', DefaultValue, '" ',
 			'onchange="', Handler, '" ',
-			'style="margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;"/>',
+			'style="', Style, '"/>',
 			'</div>'
 		], HTML).
 
 	create_time_input_html(WidgetId, Label, DefaultValue, HTML) :-
 		create_update_handler(WidgetId, time, 'String(this.value)', Handler),
+		default_style(time, Style),
 		atomic_list_concat([
 			'<div class="logtalk-input-group">',
 			'<label class="logtalk-widget-label" for="', WidgetId, '">', Label, '</label><br>',
@@ -393,12 +423,13 @@
 			'class="logtalk-widget-input" ',
 			'value="', DefaultValue, '" ',
 			'onchange="', Handler, '" ',
-			'style="margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;"/>',
+			'style="', Style, '"/>',
 			'</div>'
 		], HTML).
 
 	create_email_input_html(WidgetId, Label, DefaultValue, Pattern, HTML) :-
 		create_update_handler(WidgetId, url, 'String(this.value)', Handler),
+		default_style(email, Style),
 		atomic_list_concat([
 			'<div class="logtalk-input-group">',
 			'<label class="logtalk-widget-label" for="', WidgetId, '">', Label, '</label><br>',
@@ -407,12 +438,13 @@
 			'value="', DefaultValue, '" ',
 			'pattern="', Pattern, '" ',
 			'onblur="', Handler, '" ',
-			'style="margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;"/>',
+			'style="', Style, '"/>',
 			'</div>'
 		], HTML).
 
 	create_url_input_html(WidgetId, Label, DefaultValue, Pattern, HTML) :-
 		create_update_handler(WidgetId, url, 'String(this.value)', Handler),
+		default_style(url, Style),
 		atomic_list_concat([
 			'<div class="logtalk-input-group">',
 			'<label class="logtalk-widget-label" for="', WidgetId, '">', Label, '</label><br>',
@@ -421,24 +453,26 @@
 			'value="', DefaultValue, '" ',
 			'pattern="', Pattern, '" ',
 			'onblur="', Handler, '" ',
-			'style="margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;"/>',
+			'style="', Style, '"/>',
 			'</div>'
 		], HTML).
 
 	create_file_input_html(WidgetId, Label, HTML) :-
 		create_update_handler(WidgetId, file, 'String(this.files[0].name)', Handler),
+		default_style(file, Style),
 		atomic_list_concat([
 			'<div class="logtalk-input-group">',
 			'<label class="logtalk-widget-label" for="', WidgetId, '">', Label, '</label><br>',
 			'<input type="file" id="', WidgetId, '" ',
 			'class="logtalk-widget-input" ',
 			'onchange="', Handler, '" ',
-			'style="margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;"/>',
+			'style="', Style, '"/>',
 			'</div>'
 		], HTML).
 
 	create_color_input_html(WidgetId, Label, DefaultValue, HTML) :-
 		create_update_handler(WidgetId, color, 'String(this.value)', Handler),
+		default_style(color, Style),
 		atomic_list_concat([
 			'<div class="logtalk-input-group">',
 			'<label class="logtalk-widget-label" for="', WidgetId, '">', Label, '</label><br>',
@@ -446,20 +480,21 @@
 			'class="logtalk-widget-input" ',
 			'value="', DefaultValue, '" ',
 			'onchange="', Handler, '" ',
-			'style="margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;"/>',
+			'style="', Style, '"/>',
 			'</div>'
 		], HTML).
 
 	create_dropdown_html(WidgetId, Label, MenuOptions, HTML) :-
 		create_update_handler(WidgetId, dropdown, 'String(this.value)', Handler),
 		create_menu_option_elements(MenuOptions, MenuOptionElements),
+		default_style(dropdown, Style),
 		atomic_list_concat([
 			'<div class="logtalk-input-group">',
 			'<label class="logtalk-widget-label" for="', WidgetId, '">', Label, '</label><br>',
 			'<select id="', WidgetId, '" ',
 			'class="logtalk-widget-select" ',
 			'onchange="', Handler, '" ',
-			'style="margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;">',
+			'style="', Style, '">',
 			MenuOptionElements,
 			'</select>',
 			'</div>'
@@ -468,36 +503,149 @@
 	create_checkbox_html(WidgetId, Label, DefaultValue, HTML) :-
 		create_update_handler(WidgetId, checkbox, 'this.checked ? \'true\' : \'false\'', Handler),
 		(DefaultValue == true -> Checked = 'checked' ; Checked = ''),
+		default_style(checkbox, Style),
 		atomic_list_concat([
 			'<div class="logtalk-input-group">',
 			'<input type="checkbox" id="', WidgetId, '" ',
 			'class="logtalk-widget-checkbox" ',
 			Checked, ' ',
 			'onchange="', Handler, '" ',
-			'style="margin: 5px;"/>',
+			'style="', Style, '"/>',
 			'<label class="logtalk-widget-label" for="', WidgetId, '">', Label, '</label>',
 			'</div>'
 		], HTML).
 
 	create_button_html(WidgetId, Label, HTML) :-
 		create_update_handler(WidgetId, button, '\'true\'', Handler),
+		default_style(button, Style),
 		atomic_list_concat([
 			'<div class="logtalk-input-group">',
 			'<button id="', WidgetId, '" ',
 			'class="logtalk-widget-button" ',
 			'onclick="', Handler, '" ',
-			'style="margin: 5px; padding: 8px 16px; background-color: #007cba; color: white; border: none; border-radius: 3px; cursor: pointer;">',
+			'style="', Style, '">',
 			Label,
 			'</button>',
 			'</div>'
 		], HTML).
 
+	create_widget_input_html(WidgetId, Label, Attributes, HTML) :-
+		% Extract the type attribute to determine the value expression
+		(	member(type-Type, Attributes) ->
+			true
+		;	Type = text  % default to text input if no type specified
+		),
+		input_type_value_expression(Type, ValueExpression),
+		create_update_handler(WidgetId, Type, ValueExpression, Handler),
+		% Build the input attributes string
+		create_input_attributes_string(Attributes, AttributesString),
+		% Determine the event handler based on input type
+		(	Type = checkbox ->
+			EventHandler = 'onchange'
+		;	Type = button ->
+			EventHandler = 'onclick'
+		;	member(Type, [email, url]) ->
+			EventHandler = 'onblur'
+		;	EventHandler = 'onchange'
+		),
+		% Use provided style or default style for the widget type
+		(	member(style-Style, Attributes) ->
+			true
+		;	default_style(Type, Style)
+		),
+		atomic_list_concat([
+			'<div class="logtalk-input-group">',
+			'<label class="logtalk-widget-label" for="', WidgetId, '">', Label, '</label><br>',
+			'<input id="', WidgetId, '" ',
+			'class="logtalk-widget-input" ',
+			AttributesString, ' ',
+			EventHandler, '="', Handler, '" ',
+			'style="', Style, '"/>',
+			'</div>'
+		], HTML).
+
 	% auxiliary predicates
+
+	% Default styles for different widget types
+	default_style(text, 'margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;').
+	default_style(password, 'margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;').
+	default_style(number, 'margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;').
+	default_style(email, 'margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;').
+	default_style(url, 'margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;').
+	default_style(tel, 'margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;').
+	default_style(search, 'margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;').
+	default_style(date, 'margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;').
+	default_style(time, 'margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;').
+	default_style('datetime-local', 'margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;').
+	default_style(month, 'margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;').
+	default_style(week, 'margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;').
+	default_style(color, 'margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;').
+	default_style(file, 'margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;').
+	default_style(range, 'margin: 5px; width: 200px;').
+	default_style(slider, 'margin: 5px; width: 200px;').
+	default_style(checkbox, 'margin: 5px;').
+	default_style(radio, 'margin: 5px;').
+	default_style(dropdown, 'margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;').
+	default_style(button, 'margin: 5px; padding: 8px 16px; background-color: #007cba; color: white; border: none; border-radius: 3px; cursor: pointer;').
 
 	create_menu_option_elements([], '').
 	create_menu_option_elements([Option|Rest], OptionElements) :-
 		atomic_list_concat(['<option value="', Option, '">', Option, '</option>'], OptionElement),
 		create_menu_option_elements(Rest, RestElements),
 		atomic_list_concat([OptionElement, RestElements], OptionElements).
+
+	% Determine the appropriate JavaScript value expression based on input type
+	input_type_value_expression(text, 'String(this.value)').
+	input_type_value_expression(password, 'String(this.value)').
+	input_type_value_expression(email, 'String(this.value)').
+	input_type_value_expression(url, 'String(this.value)').
+	input_type_value_expression(tel, 'String(this.value)').
+	input_type_value_expression(search, 'String(this.value)').
+	input_type_value_expression(date, 'String(this.value)').
+	input_type_value_expression(time, 'String(this.value)').
+	input_type_value_expression('datetime-local', 'String(this.value)').
+	input_type_value_expression(month, 'String(this.value)').
+	input_type_value_expression(week, 'String(this.value)').
+	input_type_value_expression(color, 'String(this.value)').
+	input_type_value_expression(number, 'this.value').
+	input_type_value_expression(range, 'this.value').
+	input_type_value_expression(checkbox, 'this.checked ? \'true\' : \'false\'').
+	input_type_value_expression(radio, 'String(this.value)').
+	input_type_value_expression(file, 'String(this.files[0] ? this.files[0].name : \'\')').
+	input_type_value_expression(slider, 'this.value').
+	input_type_value_expression(dropdown, 'String(this.value)').
+	input_type_value_expression(button, '\'true\'').
+
+	% Determine default values based on input type
+	input_type_default_value(text, '').
+	input_type_default_value(password, '').
+	input_type_default_value(email, '').
+	input_type_default_value(url, '').
+	input_type_default_value(tel, '').
+	input_type_default_value(search, '').
+	input_type_default_value(date, '').
+	input_type_default_value(time, '').
+	input_type_default_value('datetime-local', '').
+	input_type_default_value(month, '').
+	input_type_default_value(week, '').
+	input_type_default_value(color, '#000000').
+	input_type_default_value(number, 0).
+	input_type_default_value(range, 0).
+	input_type_default_value(checkbox, false).
+	input_type_default_value(radio, '').
+	input_type_default_value(file, '').
+	input_type_default_value(slider, 0).
+	input_type_default_value(dropdown, '').
+	input_type_default_value(button, false).
+
+	% Convert list of key-value pairs to HTML attributes string
+	create_input_attributes_string([], '').
+	create_input_attributes_string([Key-Value|Rest], AttributesString) :-
+		atomic_list_concat([Key, '="', Value, '"'], AttributeString),
+		create_input_attributes_string(Rest, RestAttributesString),
+		(	RestAttributesString = '' ->
+			AttributesString = AttributeString
+		;	atomic_list_concat([AttributeString, ' ', RestAttributesString], AttributesString)
+		).
 
 :- end_object.
