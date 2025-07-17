@@ -251,9 +251,9 @@
 		;	CheckedAttr = ''
 		),
 		atomic_list_concat([
-			'<div class="form-field">',
-			'<input type="checkbox" id="', Name, '" name="', Name, '" value="true" ', CheckedAttr, '>',
+			'<div class="form-field checkbox-field">',
 			'<label for="', Name, '">', Label, '</label>',
+			'<input type="checkbox" id="', Name, '" name="', Name, '" value="true" ', CheckedAttr, '>',
 			'</div>'
 		], Element).
 
@@ -316,6 +316,21 @@
 			'  outline: none;',
 			'  border-color: #007cba;',
 			'  box-shadow: 0 0 0 2px rgba(0, 124, 186, 0.2);',
+			'}',
+			'.checkbox-field {',
+			'  display: flex;',
+			'  align-items: center;',
+			'  gap: 10px;',
+			'}',
+			'.checkbox-field label {',
+			'  display: inline;',
+			'  margin-bottom: 0;',
+			'  flex: 1;',
+			'}',
+			'.checkbox-field input[type="checkbox"] {',
+			'  width: auto;',
+			'  margin: 0;',
+			'  flex-shrink: 0;',
 			'}',
 			'.form-buttons {',
 			'  margin-top: 20px;',
