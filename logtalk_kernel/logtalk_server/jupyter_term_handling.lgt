@@ -52,9 +52,9 @@
 :- object(jupyter_term_handling).
 
 	:- info([
-		version is 0:10:0,
+		version is 0:11:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-06-27,
+		date is 2025-07-18,
 		comment is 'This object provides predicates to handle terms received from the client, compute their results and assert them with term_response/1.'
 	]).
 
@@ -1365,7 +1365,7 @@ handle_update_completion_data.
 	% assert_success_response(+Type, +Bindings, +Output, +AdditionalData)
 	%
 	% Type is the type of the term read from the client.
-	% It is one of: directive, clause_definition, query
+	% It is one of: query, widget, form
 	% Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the term.
 	% Output is the output of the term which was executed.
 	% AdditionalData is a list containing Key=Value pairs providing additional data for the client.

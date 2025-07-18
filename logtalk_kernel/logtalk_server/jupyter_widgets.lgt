@@ -23,9 +23,9 @@
 	extends(jupyter_inputs)).
 
 	:- info([
-		version is 0:4:0,
+		version is 0:5:0,
 		author is 'Paulo Moura',
-		date is 2025-07-17,
+		date is 2025-07-18,
 		comment is 'Predicates for creating and managing HTML/JavaScript widgets in Logtalk notebooks.'
 	]).
 
@@ -120,10 +120,17 @@
 		argnames is ['WidgetId', 'Label']
 	]).
 
-	:- public(create_widget_input/3).
-	:- mode(create_widget_input(+atom, +atom, +list(pair(atom,ground))), one).
-	:- info(create_widget_input/3, [
-		comment is 'Creates a generic input widget with custom attributes.',
+	:- public(create_textarea_input/4).
+	:- mode(create_textarea_input(+atom, +atom, +atom, +integer), one).
+	:- info(create_textarea_input/4, [
+		comment is 'Creates a textarea input widget.',
+		argnames is ['WidgetId', 'Label', 'DefaultValue', 'Rows']
+	]).
+
+	:- public(create_input/3).
+	:- mode(create_input(+atom, +atom, +list(pair(atom,ground))), one).
+	:- info(create_input/3, [
+		comment is 'Creates an input widget with custom attributes.',
 		argnames is ['WidgetId', 'Label', 'Attributes']
 	]).
 
@@ -208,6 +215,12 @@
 		create_text_input_html(WidgetId, Label, DefaultValue, HTML),
 		assert_success_response(widget, [], '', [input_html-HTML]).
 
+	create_textarea_input(WidgetId, Label, DefaultValue, Rows) :-
+		check(widget_id, WidgetId),
+		assertz(widget_state_(WidgetId, textarea, DefaultValue)),
+		create_textarea_input_html(WidgetId, Label, DefaultValue, Rows, HTML),
+		assert_success_response(widget, [], '', [input_html-HTML]).
+
 	create_password_input(WidgetId, Label) :-
 		check(widget_id, WidgetId),
 		assertz(widget_state_(WidgetId, password_input, '')),
@@ -281,7 +294,7 @@
 		create_button_html(WidgetId, Label, HTML),
 		assert_success_response(widget, [], '', [input_html-HTML]).
 
-	create_widget_input(WidgetId, Label, Attributes) :-
+	create_input(WidgetId, Label, Attributes) :-
 		check(widget_id, WidgetId),
 		% Extract the type attribute to determine the widget type and default value
 		(	member(type-Type, Attributes) ->
@@ -294,7 +307,7 @@
 		;	input_type_default_value(Type, DefaultValue)
 		),
 		assertz(widget_state_(WidgetId, Type, DefaultValue)),
-		create_widget_input_html(WidgetId, Label, Attributes, HTML),
+		create_input_html(WidgetId, Label, Attributes, HTML),
 		assert_success_response(widget, [], '', [input_html-HTML]).
 
 	widget(WidgetId) :-
@@ -352,6 +365,22 @@
 			'value="', DefaultValue, '" ',
 			'onchange="', Handler, '" ',
 			'style="', Style, '"/>',
+			'</div>'
+		], HTML).
+
+	create_textarea_input_html(WidgetId, Label, DefaultValue, Rows, HTML) :-
+		create_update_handler(WidgetId, textarea, 'String(this.value)', Handler),
+		default_style(textarea, Style),
+		atomic_list_concat([
+			'<div class="logtalk-input-group">',
+			'<label class="logtalk-widget-label" for="', WidgetId, '">', Label, '</label><br>',
+			'<textarea id="', WidgetId, '" ',
+			'class="logtalk-widget-textarea" ',
+			'rows="', Rows, '" ',
+			'onchange="', Handler, '" ',
+			'style="', Style, '">',
+			DefaultValue,
+			'</textarea>',
 			'</div>'
 		], HTML).
 
@@ -529,7 +558,7 @@
 			'</div>'
 		], HTML).
 
-	create_widget_input_html(WidgetId, Label, Attributes, HTML) :-
+	create_input_html(WidgetId, Label, Attributes, HTML) :-
 		% Extract the type attribute to determine the value expression
 		(	member(type-Type, Attributes) ->
 			true
@@ -586,6 +615,7 @@
 	default_style(checkbox, 'margin: 5px;').
 	default_style(radio, 'margin: 5px;').
 	default_style(dropdown, 'margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;').
+	default_style(textarea, 'margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px; resize: vertical; font-family: inherit;').
 	default_style(button, 'margin: 5px; padding: 8px 16px; background-color: #007cba; color: white; border: none; border-radius: 3px; cursor: pointer;').
 
 	create_menu_option_elements([], '').
@@ -614,6 +644,7 @@
 	input_type_value_expression(file, 'String(this.files[0] ? this.files[0].name : \'\')').
 	input_type_value_expression(slider, 'this.value').
 	input_type_value_expression(dropdown, 'String(this.value)').
+	input_type_value_expression(textarea, 'String(this.value)').
 	input_type_value_expression(button, '\'true\'').
 
 	% Determine default values based on input type
@@ -636,6 +667,7 @@
 	input_type_default_value(file, '').
 	input_type_default_value(slider, 0).
 	input_type_default_value(dropdown, '').
+	input_type_default_value(textarea, '').
 	input_type_default_value(button, false).
 
 	% Convert list of key-value pairs to HTML attributes string

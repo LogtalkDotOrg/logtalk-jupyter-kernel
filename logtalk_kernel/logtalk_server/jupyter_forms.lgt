@@ -23,19 +23,26 @@
 	extends(jupyter_inputs)).
 
 	:- info([
-		version is 0:1:0,
+		version is 0:3:0,
 		author is 'Paulo Moura',
-		date is 2025-07-15,
+		date is 2025-07-18,
 		comment is 'Predicates for creating and managing HTML forms for data input in Logtalk notebooks.',
 		remarks is [
-			'Field specifications' - 'Each field specification is a compound term. Field names and labels should be atoms.',
+			'Field specifications' - 'Each field specification is a compound term with the same arguments as the corresponding jupyter_widgets predicate. Field names and labels should be atoms.',
 			'Text field' - '``text_field(Name, Label, DefaultValue)``.',
-			'Email field' - '``email_field(Name, Label, DefaultValue)``.',
-			'Password field' - '``password_field(Name, Label)``.',
-			'Number field' - '``number_field(Name, Label, DefaultValue)``.',
 			'Textarea field' - '``textarea_field(Name, Label, DefaultValue, Rows)``.',
-			'Select field' - '``select_field(Name, Label, Options, DefaultValue)``.',
-			'Checkbox field' - '``checkbox_field(Name, Label, DefaultValue)``.',
+			'Email field' - '``email_field(Name, Label, DefaultValue, Pattern)``.',
+			'URL field' - '``url_field(Name, Label, DefaultValue, Pattern)``.',
+			'Password field' - '``password_field(Name, Label)``.',
+			'Number field' - '``number_field(Name, Label, Min, Max, Step, DefaultValue)``.',
+			'Slider field' - '``slider_field(Name, Label, Min, Max, Step, DefaultValue)``.',
+			'Dropdown field' - '``dropdown_field(Name, Label, MenuOptions)``.',
+			'Checkbox field' - '``checkbox_field(Name, Label, Checked)``.',
+			'Date field' - '``date_field(Name, Label, DefaultValue)``.',
+			'Time field' - '``time_field(Name, Label, DefaultValue)``.',
+			'Color field' - '``color_field(Name, Label, DefaultValue)``.',
+			'File field' - '``file_field(Name, Label)``.',
+			'Generic input field' - '``input_field(Name, Label, Attributes)``.',
 			'Form options' - 'The form options are compound terms with a single atom argument.',
 			'Title option' - '``title(Title)``.',
 			'Submit button label option' - '``submit_label(Label)``.',
@@ -202,19 +209,19 @@
 			'</div>'
 		], Element).
 
-	create_field_element(number_field(Name, Label, DefaultValue), Element) :-
+	create_field_element(number_field(Name, Label, Min, Max, Step, DefaultValue), Element) :-
 		atomic_list_concat([
 			'<div class="form-field">',
 			'<label for="', Name, '">', Label, '</label>',
-			'<input type="number" id="', Name, '" name="', Name, '" value="', DefaultValue, '">',
+			'<input type="number" id="', Name, '" name="', Name, '" min="', Min, '" max="', Max, '" step="', Step, '" value="', DefaultValue, '">',
 			'</div>'
 		], Element).
 
-	create_field_element(email_field(Name, Label, DefaultValue), Element) :-
+	create_field_element(email_field(Name, Label, DefaultValue, Pattern), Element) :-
 		atomic_list_concat([
 			'<div class="form-field">',
 			'<label for="', Name, '">', Label, '</label>',
-			'<input type="email" id="', Name, '" name="', Name, '" value="', DefaultValue, '">',
+			'<input type="email" id="', Name, '" name="', Name, '" value="', DefaultValue, '" pattern="', Pattern, '">',
 			'</div>'
 		], Element).
 
@@ -234,14 +241,23 @@
 			'</div>'
 		], Element).
 
-	create_field_element(select_field(Name, Label, Options, DefaultValue), Element) :-
-		create_select_options(Options, DefaultValue, OptionElements),
+	create_field_element(dropdown_field(Name, Label, MenuOptions), Element) :-
+		create_select_options(MenuOptions, '', OptionElements),
 		atomic_list_concat([
 			'<div class="form-field">',
 			'<label for="', Name, '">', Label, '</label>',
 			'<select id="', Name, '" name="', Name, '">',
 			OptionElements,
 			'</select>',
+			'</div>'
+		], Element).
+
+	create_field_element(input_field(Name, Label, Attributes), Element) :-
+		create_input_attributes_string(Attributes, AttributesString),
+		atomic_list_concat([
+			'<div class="form-field">',
+			'<label for="', Name, '">', Label, '</label>',
+			'<input id="', Name, '" name="', Name, '" ', AttributesString, '>',
 			'</div>'
 		], Element).
 
@@ -257,6 +273,54 @@
 			'</div>'
 		], Element).
 
+	create_field_element(slider_field(Name, Label, Min, Max, Step, DefaultValue), Element) :-
+		atomic_list_concat([
+			'<div class="form-field">',
+			'<label for="', Name, '">', Label, '</label>',
+			'<input type="range" id="', Name, '" name="', Name, '" min="', Min, '" max="', Max, '" step="', Step, '" value="', DefaultValue, '">',
+			'</div>'
+		], Element).
+
+	create_field_element(date_field(Name, Label, DefaultValue), Element) :-
+		atomic_list_concat([
+			'<div class="form-field">',
+			'<label for="', Name, '">', Label, '</label>',
+			'<input type="date" id="', Name, '" name="', Name, '" value="', DefaultValue, '">',
+			'</div>'
+		], Element).
+
+	create_field_element(time_field(Name, Label, DefaultValue), Element) :-
+		atomic_list_concat([
+			'<div class="form-field">',
+			'<label for="', Name, '">', Label, '</label>',
+			'<input type="time" id="', Name, '" name="', Name, '" value="', DefaultValue, '">',
+			'</div>'
+		], Element).
+
+	create_field_element(color_field(Name, Label, DefaultValue), Element) :-
+		atomic_list_concat([
+			'<div class="form-field">',
+			'<label for="', Name, '">', Label, '</label>',
+			'<input type="color" id="', Name, '" name="', Name, '" value="', DefaultValue, '">',
+			'</div>'
+		], Element).
+
+	create_field_element(url_field(Name, Label, DefaultValue, Pattern), Element) :-
+		atomic_list_concat([
+			'<div class="form-field">',
+			'<label for="', Name, '">', Label, '</label>',
+			'<input type="url" id="', Name, '" name="', Name, '" value="', DefaultValue, '" pattern="', Pattern, '">',
+			'</div>'
+		], Element).
+
+	create_field_element(file_field(Name, Label), Element) :-
+		atomic_list_concat([
+			'<div class="form-field">',
+			'<label for="', Name, '">', Label, '</label>',
+			'<input type="file" id="', Name, '" name="', Name, '">',
+			'</div>'
+		], Element).
+
 	% Create select options
 	create_select_options([], _, '').
 	create_select_options([Option|Rest], DefaultValue, OptionElements) :-
@@ -267,6 +331,16 @@
 		atomic_list_concat(['<option value="', Option, '" ', SelectedAttr, '>', Option, '</option>'], OptionElement),
 		create_select_options(Rest, DefaultValue, RestElements),
 		atomic_list_concat([OptionElement, RestElements], OptionElements).
+
+	% Convert list of key-value pairs to HTML attributes string
+	create_input_attributes_string([], '').
+	create_input_attributes_string([Key-Value|Rest], AttributesString) :-
+		atomic_list_concat([Key, '="', Value, '"'], AttributeString),
+		create_input_attributes_string(Rest, RestAttributesString),
+		(	RestAttributesString = '' ->
+			AttributesString = AttributeString
+		;	atomic_list_concat([AttributeString, ' ', RestAttributesString], AttributesString)
+		).
 
 	% Create form submit handler (similar to widget update handler)
 	create_form_submit_handler(FormId, Handler) :-
