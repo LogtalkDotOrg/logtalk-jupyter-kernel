@@ -23,9 +23,9 @@
 	extends(jupyter_inputs)).
 
 	:- info([
-		version is 0:5:0,
+		version is 0:6:0,
 		author is 'Paulo Moura',
-		date is 2025-07-18,
+		date is 2025-07-19,
 		comment is 'Predicates for creating and managing HTML/JavaScript widgets in Logtalk notebooks.'
 	]).
 
@@ -171,7 +171,7 @@
 	:- public(widgets/0).
 	:- mode(widgets, one).
 	:- info(widgets/0, [
-		comment is 'Pretty-print all widgets.'
+		comment is 'Pretty-prints all widgets.'
 	]).
 
 	:- public(widgets/1).

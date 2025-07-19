@@ -23,12 +23,12 @@
 	extends(jupyter_inputs)).
 
 	:- info([
-		version is 0:3:0,
+		version is 0:4:0,
 		author is 'Paulo Moura',
-		date is 2025-07-18,
+		date is 2025-07-19,
 		comment is 'Predicates for creating and managing HTML forms for data input in Logtalk notebooks.',
 		remarks is [
-			'Field specifications' - 'Each field specification is a compound term with the same arguments as the corresponding jupyter_widgets predicate. Field names and labels should be atoms.',
+			'Field specifications' - 'Each field specification is a compound term with the same arguments as the corresponding widget predicates. Field names and labels should be atoms.',
 			'Text field' - '``text_field(Name, Label, DefaultValue)``.',
 			'Textarea field' - '``textarea_field(Name, Label, DefaultValue, Rows)``.',
 			'Email field' - '``email_field(Name, Label, DefaultValue, Pattern)``.',
@@ -44,25 +44,25 @@
 			'File field' - '``file_field(Name, Label)``.',
 			'Generic input field' - '``input_field(Name, Label, Attributes)``.',
 			'Form options' - 'The form options are compound terms with a single atom argument.',
-			'Title option' - '``title(Title)``.',
-			'Submit button label option' - '``submit_label(Label)``.',
-			'Cancel button label option' - '``cancel_label(Label)``.',
+			'Title option' - '``title(Title)``. Default is "Input Form".',
+			'Submit button label option' - '``submit_label(Label)``. Default is "Submit".',
+			'Cancel button label option' - '``cancel_label(Label)``. Default is "Cancel".',
 			'Style option' - '``style(Style)`` (not including the ``<style>`` and ``</style>`` tags).'
 		]
-	]).
-
-	:- public(create_input_form/2).
-	:- mode(create_input_form(+atom, +list(compound)), one).
-	:- info(create_input_form/2, [
-		comment is 'Create an input form with default options.',
-		argnames is ['FormId', 'FieldSpecs']
 	]).
 
 	:- public(create_input_form/3).
 	:- mode(create_input_form(+atom, +list(compound), +list(compound)), one).
 	:- info(create_input_form/3, [
-		comment is 'Create an input form with specified options.',
+		comment is 'Creates an input form with specified options.',
 		argnames is ['FormId', 'FieldSpecs', 'Options']
+	]).
+
+	:- public(create_input_form/2).
+	:- mode(create_input_form(+atom, +list(compound)), one).
+	:- info(create_input_form/2, [
+		comment is 'Creates an input form with default options.',
+		argnames is ['FormId', 'FieldSpecs']
 	]).
 
 	:- public(form/1).
@@ -75,7 +75,7 @@
 	:- public(get_form_data/2).
 	:- mode(get_form_data(+atom, -list(pair(atom,ground))), zero_or_one).
 	:- info(get_form_data/2, [
-		comment is 'Get the data submitted for a form.',
+		comment is 'Gets the data submitted for a form.',
 		argnames is ['FormId', 'Data']
 	]).
 
@@ -125,14 +125,14 @@
 		;	true
 		).
 
-	create_input_form(FormId, FieldSpecs) :-
-		create_input_form(FormId, FieldSpecs, []).
-
 	create_input_form(FormId, FieldSpecs, Options) :-
 		check(form_id, FormId),
 		assertz(form_data_(FormId, [])),
 		create_form_html(FormId, FieldSpecs, Options, HTML),
 		assert_success_response(form, [], '', [input_html-HTML]).
+
+	create_input_form(FormId, FieldSpecs) :-
+		create_input_form(FormId, FieldSpecs, []).
 
 	form(FormId) :-
 		form_data_(FormId, _).
