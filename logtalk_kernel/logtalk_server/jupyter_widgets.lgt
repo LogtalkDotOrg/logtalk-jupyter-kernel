@@ -567,7 +567,7 @@
 		input_type_value_expression(Type, ValueExpression),
 		create_update_handler(WidgetId, Type, ValueExpression, Handler),
 		% Build the input attributes string
-		create_input_attributes_string(Attributes, AttributesString),
+		^^create_input_attributes_string(Attributes, AttributesString),
 		% Determine the event handler based on input type
 		(	Type = checkbox ->
 			EventHandler = 'onchange'
@@ -669,15 +669,5 @@
 	input_type_default_value(dropdown, '').
 	input_type_default_value(textarea, '').
 	input_type_default_value(button, false).
-
-	% Convert list of key-value pairs to HTML attributes string
-	create_input_attributes_string([], '').
-	create_input_attributes_string([Key-Value|Rest], AttributesString) :-
-		atomic_list_concat([Key, '="', Value, '"'], AttributeString),
-		create_input_attributes_string(Rest, RestAttributesString),
-		(	RestAttributesString = '' ->
-			AttributesString = AttributeString
-		;	atomic_list_concat([AttributeString, ' ', RestAttributesString], AttributesString)
-		).
 
 :- end_object.

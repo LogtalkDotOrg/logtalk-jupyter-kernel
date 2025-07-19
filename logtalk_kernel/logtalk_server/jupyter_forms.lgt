@@ -253,7 +253,7 @@
 		], Element).
 
 	create_field_element(input_field(Name, Label, Attributes), Element) :-
-		create_input_attributes_string(Attributes, AttributesString),
+		^^create_input_attributes_string(Attributes, AttributesString),
 		atomic_list_concat([
 			'<div class="form-field">',
 			'<label for="', Name, '">', Label, '</label>',
@@ -332,16 +332,6 @@
 		create_select_options(Rest, DefaultValue, RestElements),
 		atomic_list_concat([OptionElement, RestElements], OptionElements).
 
-	% Convert list of key-value pairs to HTML attributes string
-	create_input_attributes_string([], '').
-	create_input_attributes_string([Key-Value|Rest], AttributesString) :-
-		atomic_list_concat([Key, '="', Value, '"'], AttributeString),
-		create_input_attributes_string(Rest, RestAttributesString),
-		(	RestAttributesString = '' ->
-			AttributesString = AttributeString
-		;	atomic_list_concat([AttributeString, ' ', RestAttributesString], AttributesString)
-		).
-
 	% Create form submit handler (similar to widget update handler)
 	create_form_submit_handler(FormId, Handler) :-
 		^^webserver(IP, Port),
@@ -363,7 +353,7 @@
 			'  border: 1px solid #ddd;',
 			'  border-radius: 8px;',
 			'  background-color: #f9f9f9;',
-			'  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;',
+			'  font-family: system-ui, "Segoe UI", "Liberation Sans", Arial, "Noto Sans", Roboto, sans-serif;',
 			'}',
 			'.logtalk-form h3 {',
 			'  margin-top: 0;',

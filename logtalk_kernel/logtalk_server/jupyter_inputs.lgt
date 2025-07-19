@@ -22,9 +22,9 @@
 :- object(jupyter_inputs).
 
 	:- info([
-		version is 0:1:0,
+		version is 0:2:0,
 		author is 'Paulo Moura',
-		date is 2025-07-15,
+		date is 2025-07-19,
 		comment is 'Common functionality for HTML/JavaScript based input widgets and forms in Logtalk notebooks.'
 	]).
 
@@ -38,7 +38,7 @@
 	:- public(set_webserver/2).
 	:- mode(set_webserver(+atom, +positive_integer), one).
 	:- info(set_webserver/2, [
-		comment is 'Set the input callback webserver IP address and port. Called automatically by the kernel.',
+		comment is 'Sets the input callback webserver IP address and port. Called automatically by the kernel.',
 		argnames is ['IP', 'Port']
 	]).
 
@@ -50,11 +50,27 @@
 		argnames is ['IP', 'Port']
 	]).
 
+	:- protected(create_input_attributes_string/2).
+	:- mode(create_input_attributes_string(+list(pair(atom,ground)), -atom), one).
+	:- info(create_input_attributes_string/2, [
+		comment is 'Converts a list of attributes to a HTML attributes string.',
+		argnames is ['Attributes', 'String']
+	]).
+
 	webserver(IP, Port) :-
 		webserver_(IP, Port).
 
 	set_webserver(IP, Port) :-
 		retractall(webserver_(_, _)),
 		assertz(webserver_(IP, Port)).
+
+	create_input_attributes_string([], '').
+	create_input_attributes_string([Key-Value|Rest], AttributesString) :-
+		atomic_list_concat([Key, '="', Value, '"'], AttributeString),
+		create_input_attributes_string(Rest, RestAttributesString),
+		(	RestAttributesString = '' ->
+			AttributesString = AttributeString
+		;	atomic_list_concat([AttributeString, ' ', RestAttributesString], AttributesString)
+		).
 
 :- end_object.
