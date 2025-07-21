@@ -23,9 +23,9 @@
 	extends(jupyter_inputs)).
 
 	:- info([
-		version is 0:6:0,
+		version is 0:7:0,
 		author is 'Paulo Moura',
-		date is 2025-07-19,
+		date is 2025-07-21,
 		comment is 'Predicates for creating and managing HTML/JavaScript widgets in Logtalk notebooks.'
 	]).
 
@@ -618,11 +618,14 @@
 	default_style(textarea, 'margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px; resize: vertical; font-family: inherit;').
 	default_style(button, 'margin: 5px; padding: 8px 16px; background-color: #007cba; color: white; border: none; border-radius: 3px; cursor: pointer;').
 
-	create_menu_option_elements([], '').
-	create_menu_option_elements([Option|Rest], OptionElements) :-
-		atomic_list_concat(['<option value="', Option, '">', Option, '</option>'], OptionElement),
-		create_menu_option_elements(Rest, RestElements),
-		atomic_list_concat([OptionElement, RestElements], OptionElements).
+	create_menu_option_elements(Options, Elements) :-
+		create_menu_option_elements_list(Options, Elements0),
+		atomic_list_concat(Elements0, Elements).
+
+	create_menu_option_elements_list([], []).
+	create_menu_option_elements_list([Option| Options], [Element| Elements]) :-
+		atomic_list_concat(['<option value="', Option, '">', Option, '</option>'], Element),
+		create_menu_option_elements_list(Options, Elements).
 
 	% Determine the appropriate JavaScript value expression based on input type
 	input_type_value_expression(text, 'String(this.value)').

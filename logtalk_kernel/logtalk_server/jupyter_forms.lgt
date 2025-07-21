@@ -23,9 +23,9 @@
 	extends(jupyter_inputs)).
 
 	:- info([
-		version is 0:4:0,
+		version is 0:5:0,
 		author is 'Paulo Moura',
-		date is 2025-07-19,
+		date is 2025-07-21,
 		comment is 'Predicates for creating and managing HTML forms for data input in Logtalk notebooks.',
 		remarks is [
 			'Field specifications' - 'Each field specification is a compound term with the same arguments as the corresponding widget predicates. Field names and labels should be atoms.',
@@ -179,28 +179,28 @@
 			'</style>'
 		], HTML).
 
-	% Extract form options
 	extract_form_options([], 'Input Form', 'Submit', 'Cancel', Style) :-
 		default_style(Style).
-	extract_form_options([title(Title)|Rest], Title, SubmitLabel, CancelLabel, Style) :-
-		extract_form_options(Rest, _, SubmitLabel, CancelLabel, Style).
-	extract_form_options([submit_label(Label)|Rest], Title, Label, CancelLabel, Style) :-
-		extract_form_options(Rest, Title, _, CancelLabel, Style).
-	extract_form_options([cancel_label(Label)|Rest], Title, SubmitLabel, Label, Style) :-
-		extract_form_options(Rest, Title, SubmitLabel, _, Style).
-	extract_form_options([style(Style)|Rest], Title, SubmitLabel, CancelLabel, Style) :-
-		extract_form_options(Rest, Title, SubmitLabel, CancelLabel, _).
-	extract_form_options([_|Rest], Title, SubmitLabel, CancelLabel, Style) :-
-		extract_form_options(Rest, Title, SubmitLabel, CancelLabel, Style).
+	extract_form_options([title(Title)| Options], Title, SubmitLabel, CancelLabel, Style) :-
+		extract_form_options(Options, _, SubmitLabel, CancelLabel, Style).
+	extract_form_options([submit_label(Label)| Options], Title, Label, CancelLabel, Style) :-
+		extract_form_options(Options, Title, _, CancelLabel, Style).
+	extract_form_options([cancel_label(Label)| Options], Title, SubmitLabel, Label, Style) :-
+		extract_form_options(Options, Title, SubmitLabel, _, Style).
+	extract_form_options([style(Style)| Options], Title, SubmitLabel, CancelLabel, Style) :-
+		extract_form_options(Options, Title, SubmitLabel, CancelLabel, _).
+	extract_form_options([_| Options], Title, SubmitLabel, CancelLabel, Style) :-
+		extract_form_options(Options, Title, SubmitLabel, CancelLabel, Style).
 
-	% Create field elements
-	create_field_elements([], '').
-	create_field_elements([FieldSpec|Rest], FieldElements) :-
-		create_field_element(FieldSpec, FieldElement),
-		create_field_elements(Rest, RestElements),
-		atomic_list_concat([FieldElement, RestElements], FieldElements).
+	create_field_elements(Specs, Elements) :-
+		create_field_elements_list(Specs, Elements0),
+		atomic_list_concat(Elements0, Elements).
 
-	% Create individual field element
+	create_field_elements_list([], []).
+	create_field_elements_list([Spec| Specs], [Element| Elements]) :-
+		create_field_element(Spec, Element),
+		create_field_elements_list(Specs, Elements).
+
 	create_field_element(text_field(Name, Label, DefaultValue), Element) :-
 		atomic_list_concat([
 			'<div class="form-field">',
@@ -321,18 +321,18 @@
 			'</div>'
 		], Element).
 
-	% Create select options
-	create_select_options([], _, '').
-	create_select_options([Option|Rest], DefaultValue, OptionElements) :-
-		(	Option == DefaultValue ->
-			SelectedAttr = 'selected'
-		;	SelectedAttr = ''
-		),
-		atomic_list_concat(['<option value="', Option, '" ', SelectedAttr, '>', Option, '</option>'], OptionElement),
-		create_select_options(Rest, DefaultValue, RestElements),
-		atomic_list_concat([OptionElement, RestElements], OptionElements).
+	create_select_options(Options, DefaultValue, OptionElements) :-
+		create_select_options_list(Options, Option, OptionElements0),
+		atomic_list_concat(OptionElements0, OptionElements).
 
-	% Create form submit handler (similar to widget update handler)
+	create_select_options_list([], _, []).
+	create_select_options_list([Option| Options], DefaultValue, [Element| Elements]) :-
+		(	Option == DefaultValue ->
+			atomic_list_concat(['<option value="', Option, '" selected>', Option, '</option>'], Element)
+		;	atomic_list_concat(['<option value="', Option, '">', Option, '</option>'], Element)
+		),
+		create_select_options_list(Options, DefaultValue, Elements).
+
 	create_form_submit_handler(FormId, Handler) :-
 		^^webserver(IP, Port),
 		atomic_list_concat([
