@@ -27,7 +27,7 @@ Note that a public online use of this kernel (instead of private or local) may b
 
 The kernel is implemented in a way that basically all functionality except the loading of configuration files can easily be overridden. This is especially useful for **extending the kernel for further Prolog backends** or running code with a different version of a backend. For further information about this, see [Configuration](#configuration).
 
-Also see the [JupyterLab Logtalk CodeMirror Extension](https://github.com/LogtalkDotOrg/jupyterlab-logtalk-codemirror-extension) for *syntax highlighting* of Logtalk code in JupyterLab (forked from the [JupyterLab Prolog CodeMirror Extension](https://github.com/hhu-stups/jupyterlab-prolog-codemirror-extension)).
+Also see the [JupyterLab Logtalk CodeMirror Extension](https://github.com/LogtalkDotOrg/jupyterlab-logtalk-codemirror-extension) for *syntax highlighting* of Logtalk source code in JupyterLab 4.x.
 
 
 ## Examples
@@ -207,7 +207,7 @@ Adjustments of the Logtalk server code are loaded when the server is restarted. 
 
 ### Building and publishing
 
-Make sure that both the `pyproject.toml` file and the `jupyter` object (in the `logtalk_kernel/logtalk_server/jupyter.lgt` file) report the same kernel version.
+Make sure that both the `pyproject.toml` file and the `jupyter` object (in the `logtalk_kernel/logtalk_server/jupyter.lgt` file) report the same kernel version. In the `twine` command below, replace `VERSION` with the actual version number (e.g., `1.0.0`).
 
 	$ python3 -m build .
 	$ twine upload dist/logtalk_jupyter_kernel-VERSION.tar.gz dist/logtalk_jupyter_kernel-VERSION-py3-none-any.whl
