@@ -27,8 +27,6 @@ Note that a public online use of this kernel (instead of private or local) may b
 
 The kernel is implemented in a way that basically all functionality except the loading of configuration files can easily be overridden. This is especially useful for **extending the kernel for further Prolog backends** or running code with a different version of a backend. For further information about this, see [Configuration](#configuration).
 
-Also see the [JupyterLab Logtalk CodeMirror Extension](https://github.com/LogtalkDotOrg/jupyterlab-logtalk-codemirror-extension) for *syntax highlighting* of Logtalk source code in JupyterLab 4.x.
-
 
 ## Examples
 
@@ -61,6 +59,8 @@ Logtalk notebooks can be run using JupyterLab, JupyterLab Desktop, Jupyter noteb
 ### Running using JupyterLab
 
 Simply start JupyterLab (e.g. by typing `jupyter-lab` in a shell) and then click on the Logtalk Notebook (or Logtalk Console) icon in the Launcher or open an existing notebook.
+
+Also see the [JupyterLab Logtalk CodeMirror Extension](https://github.com/LogtalkDotOrg/jupyterlab-logtalk-codemirror-extension) for *syntax highlighting* of Logtalk source code in JupyterLab 4.x.
 
 ### Running using JupyterLab Desktop
 
