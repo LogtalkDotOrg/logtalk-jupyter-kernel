@@ -38,14 +38,14 @@ from jupyter_client.kernelspec import KernelSpecManager
 logger = logging.getLogger(__name__)
 
 KERNELSPEC_FILES = [
-    "kernel.js",
+    "logo-svg.svg"
 ]
 
 
 def get_kernelspec_dir_path():
     """
     Get the path of the kernelspec directory where the static files needed for the installation are.
-    This currently only includes the kernel.js file,
+    This currently only includes the logo.svg file,
     because the kernelspec (kernel.json) is generated dynamically.
     """
     dirname = os.path.dirname(__file__)
@@ -58,7 +58,7 @@ def create_kernelspec(dest_dir):
         kernel_json = {
             "argv": [sys.executable, "-m", "logtalk_kernel", "-f", "{connection_file}"],
             "display_name": "Logtalk",
-            "language": "logtalk",
+            "language": "logtalk"
         }
         json.dump(kernel_json, f, ensure_ascii=False, indent=4)
 
