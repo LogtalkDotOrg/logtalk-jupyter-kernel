@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-	<text x="12" y="20" font-family="monospace" font-size="24" text-anchor="middle" fill="currentColor">⊨</text>
+	<style>
+	    :root {
+	      color-scheme: dark light;
+	    }
+	  </style>
+	<text x="12" y="20" font-family="monospace" font-size="24" text-anchor="middle" fill="CanvasText">⊨</text>
 </svg>
