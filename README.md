@@ -173,10 +173,10 @@ The predicate argument is the name of the integration script used to run Logtalk
   - Tested with Python 3.11.7
 - **Jupyter** installation with JupyterLab and/or Juypter Notebook
   - Tested with
-    - `jupyter_core`: 5.7.2
-    - `jupyterlab`: 4.2.3
-    - `notebook`: 7.2.1
-    - `jupytext`: 1.16.7
+    - `jupyter_core`: 5.8.1
+    - `jupyterlab`: 4.4.5
+    - `notebook`: 7.4.4
+    - `jupytext`: 1.17.2
 - Logtalk and one or more supported Prolog backends (see above)
 - Installing **Graphviz** with `python3 -m pip` may not suffice (notably, on Windows)
   - Also run the Graphviz [installer](https://graphviz.org/download/) and add its executables to the `PATH` (a reboot may be required afterwards)

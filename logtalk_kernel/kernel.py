@@ -78,7 +78,6 @@ from logtalk_kernel.logtalk_kernel_base_implementation import CallbackHandler, L
 from threading import Thread
 from http.server import HTTPServer
 import socket
-import socketserver
 from contextlib import closing
 
 # Constants
