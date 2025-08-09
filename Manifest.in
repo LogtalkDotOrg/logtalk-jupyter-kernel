@@ -1,8 +1,10 @@
+include LICENSE
+include README.md
+include logtalk_kernel/logtalk_server/*.lgt
 include notebooks/JupyterKernelForLogtalkOverview.ipynb
 include notebooks/LogtalkTutorial.ipynb
-include notebooks/*.png
-include logtalk_kernel/logtalk_server/*.lgt
 include logtalk_kernel/kernelspec/*.png
 include logtalk_kernel/kernelspec/*.svg
+exclude notebooks/*.lgt
 exclude logtalk_kernel/kernelspec/*.js
 exclude logtalk_kernel/kernelspec/*.json
