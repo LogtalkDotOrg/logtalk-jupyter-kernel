@@ -30,7 +30,7 @@ The kernel is implemented in a way that basically all functionality except the l
 
 ## Examples
 
-The directory [notebooks](./notebooks) contains some example Juypter notebooks, including a Logtalk short tutorial and a notebook giving an overview of the kernel's features and its implementation. Note that all of them can be viewed with [nbviewer](https://nbviewer.org/) without having to install the kernel.
+The directory [notebooks](https://github.com/LogtalkDotOrg/logtalk-jupyter-kernel/tree/master/notebooks) contains some example Juypter notebooks, including a Logtalk short tutorial and a notebook giving an overview of the kernel's features and its implementation. Note that all of them can be viewed with [nbviewer](https://nbviewer.org/) without having to install the kernel.
 
 
 ## Install
