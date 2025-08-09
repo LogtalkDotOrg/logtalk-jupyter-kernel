@@ -3,7 +3,7 @@
 
 A [Jupyter](https://jupyter.org/) kernel for [Logtalk](https://logtalk.org/) based on [prolog-jupyter-kernel](https://github.com/hhu-stups/prolog-jupyter-kernel) and [IPython kernel](https://github.com/ipython/ipykernel).
 
-This project is a fork of the [prolog-jupyter-kernel](https://github.com/hhu-stups/prolog-jupyter-kernel) project (developed by Anne Brecklinghaus in her Master's thesis at the University of Düsseldorf under the supervision of Michael Leuschel and Philipp Körner) and still under development. It includes back-ports of recent patches and improvements by Michael Leuschel, dgelessus, and Silas Kraume. Major changes are committed and more are expected. Furthermore, no liability is accepted for correctness and completeness (see the [LICENSE](LICENSE) file).
+This project is a fork of the [prolog-jupyter-kernel](https://github.com/hhu-stups/prolog-jupyter-kernel) project (developed by Anne Brecklinghaus in her Master's thesis at the University of Düsseldorf under the supervision of Michael Leuschel and Philipp Körner) and still under development. It includes back-ports of recent patches and improvements by Michael Leuschel, dgelessus, and Silas Kraume. Major features have been added (including support for data visualization, widgets, and cell/line magic) and major changes have been committed (notably, for portability) to this fork. Furthermore, no liability is accepted for correctness and completeness (see the [LICENSE](LICENSE) file).
 
 🙏 Sponsored by [Permion](https://permion.ai/) and [GitHub Sponsors](https://github.com/sponsors/pmoura).
 
@@ -54,13 +54,13 @@ There are the following options which can be seen when running `python3 -m logta
 
 ## Running
 
-Logtalk notebooks can be run using JupyterLab, JupyterLab Desktop, Jupyter notebook, or VSCode.
+Logtalk notebooks can be run using JupyterLab, JupyterLab Desktop, Jupyter notebook, and VSCode.
 
 ### Running using JupyterLab
 
 Simply start JupyterLab (e.g. by typing `jupyter-lab` in a shell) and then click on the Logtalk Notebook (or Logtalk Console) icon in the Launcher or open an existing notebook.
 
-Also see the [JupyterLab Logtalk CodeMirror Extension](https://github.com/LogtalkDotOrg/jupyterlab-logtalk-codemirror-extension) for *syntax highlighting* of Logtalk source code in JupyterLab 4.x.
+Also see the [JupyterLab Logtalk CodeMirror Extension](https://github.com/LogtalkDotOrg/jupyterlab-logtalk-codemirror-extension) for syntax highlighting and automatic indentation of Logtalk source code in JupyterLab 4.x.
 
 ### Running using JupyterLab Desktop
 
@@ -72,11 +72,11 @@ This is not an issue on Linux or Windows where, assuming that the `LOGTALKHOME` 
 
 ### Running using Jupyter notebook
 
-Simply start Jupyter notebook (e.g. by typing `jupyter notebook` in a shell) and then open an existing notebook.
+Simply start Jupyter notebook (e.g. by typing `jupyter notebook` in a shell) and then open an existing notebook or create a new one selecting the Logtalk kernel.
 
 ### Running using VSCode
 
-Simply open an existing notebook. Ensure that the [Logtalk plug-in for VSCode](https://github.com/LogtalkDotOrg/logtalk-for-vscode) is also installed for syntax highlighting in code cells.
+Simply open an existing notebook or create a new one selecting the Logtalk kernel. Ensure that the [Logtalk for VSCode extension](https://github.com/LogtalkDotOrg/logtalk-for-vscode) is also installed for syntax highlighting in code cells.
 
 ### Configuration
 
