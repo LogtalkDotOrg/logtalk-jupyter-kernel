@@ -33,7 +33,6 @@ callback webserver configuration.
 
 import platform
 import os
-from traitlets.config import get_config
 
 # Constants
 DEFAULT_ERROR_PREFIX = "!     "
