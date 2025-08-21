@@ -23,7 +23,7 @@
 	extends(jupyter_inputs)).
 
 	:- info([
-		version is 0:5:1,
+		version is 0:6:0,
 		author is 'Paulo Moura',
 		date is 2025-08-21,
 		comment is 'Predicates for creating and managing HTML forms for data input in Logtalk notebooks.',
@@ -37,6 +37,7 @@
 			'Number field' - '``number_field(Name, Label, Min, Max, Step, DefaultValue)``.',
 			'Slider field' - '``slider_field(Name, Label, Min, Max, Step, DefaultValue)``.',
 			'Dropdown field' - '``dropdown_field(Name, Label, MenuOptions)``.',
+			'Dropdown field' - '``dropdown_field(Name, Label, DefaultValue, MenuOptions)``.',
 			'Checkbox field' - '``checkbox_field(Name, Label, Checked)``.',
 			'Date field' - '``date_field(Name, Label, DefaultValue)``.',
 			'Time field' - '``time_field(Name, Label, DefaultValue)``.',
@@ -243,6 +244,17 @@
 
 	create_field_element(dropdown_field(Name, Label, MenuOptions), Element) :-
 		create_select_options(MenuOptions, '', OptionElements),
+		atomic_list_concat([
+			'<div class="form-field">',
+			'<label for="', Name, '">', Label, '</label>',
+			'<select id="', Name, '" name="', Name, '">',
+			OptionElements,
+			'</select>',
+			'</div>'
+		], Element).
+
+	create_field_element(dropdown_field(Name, Label, DefaultValue, MenuOptions), Element) :-
+		create_select_options(MenuOptions, DefaultValue, OptionElements),
 		atomic_list_concat([
 			'<div class="form-field">',
 			'<label for="', Name, '">', Label, '</label>',
