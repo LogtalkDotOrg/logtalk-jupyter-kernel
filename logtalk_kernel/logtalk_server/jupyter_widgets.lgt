@@ -23,9 +23,9 @@
 	extends(jupyter_inputs)).
 
 	:- info([
-		version is 0:7:0,
+		version is 0:7:1,
 		author is 'Paulo Moura',
-		date is 2025-07-21,
+		date is 2025-08-21,
 		comment is 'Predicates for creating and managing HTML/JavaScript widgets in Logtalk notebooks.'
 	]).
 
@@ -569,9 +569,9 @@
 		% Build the input attributes string
 		^^create_input_attributes_string(Attributes, AttributesString),
 		% Determine the event handler based on input type
-		(	Type = checkbox ->
+		(	Type == checkbox ->
 			EventHandler = 'onchange'
-		;	Type = button ->
+		;	Type == button ->
 			EventHandler = 'onclick'
 		;	member(Type, [email, url]) ->
 			EventHandler = 'onblur'

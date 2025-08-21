@@ -22,9 +22,9 @@
 :- object(jupyter_inputs).
 
 	:- info([
-		version is 0:2:0,
+		version is 0:2:1,
 		author is 'Paulo Moura',
-		date is 2025-07-19,
+		date is 2025-08-21,
 		comment is 'Common functionality for HTML/JavaScript based input widgets and forms in Logtalk notebooks.'
 	]).
 
@@ -68,7 +68,7 @@
 	create_input_attributes_string([Key-Value|Rest], AttributesString) :-
 		atomic_list_concat([Key, '="', Value, '"'], AttributeString),
 		create_input_attributes_string(Rest, RestAttributesString),
-		(	RestAttributesString = '' ->
+		(	RestAttributesString == '' ->
 			AttributesString = AttributeString
 		;	atomic_list_concat([AttributeString, ' ', RestAttributesString], AttributesString)
 		).
