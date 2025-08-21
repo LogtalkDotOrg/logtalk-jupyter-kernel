@@ -222,7 +222,7 @@ Usually, if the execution of a goal causes an exception, the corresponding Logta
 
 Debugging the server code is not possible in the usual way by tracing invocations. Furthermore, all messages exchanged with the client are written to the standard streams. Therefore, printing helpful debugging messages does not work either. Instead, if `server_logging` is configured, **messages can be written to a log file** by calling `log/1` or `log/2` from the `jupyter_logging` object. By default, only the responses sent to the client are logged.
 
-When a query is executed, all its output is written to a file named `.server_output`, which is deleted afterwards by `jupyter_query_handling::delete_output_file`. If an error occurs during the actual execution, the file cannot be deleted and thus, the **output of the goal can be accessed**. Otherwise, the deletion might be prevented.
+When a query is executed, all its output is written to a file named `.server_output`, which is deleted afterwards by the `jupyter_query_handling::delete_output_file/1` predicate. If an error occurs during the actual execution, the file cannot be deleted and thus, the **output of the goal can be accessed**. Otherwise, the deletion might be prevented.
 
 Furthermore, the server might send a response which the client cannot handle. In that case, **logging for the Python code** can be enabled by configuring `jupyter_logging`. For instance, the client logs the responses received from the server.
 

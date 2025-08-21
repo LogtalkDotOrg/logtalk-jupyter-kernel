@@ -23,9 +23,9 @@
 	extends(jupyter_inputs)).
 
 	:- info([
-		version is 0:5:0,
+		version is 0:5:1,
 		author is 'Paulo Moura',
-		date is 2025-07-21,
+		date is 2025-08-21,
 		comment is 'Predicates for creating and managing HTML forms for data input in Logtalk notebooks.',
 		remarks is [
 			'Field specifications' - 'Each field specification is a compound term with the same arguments as the corresponding widget predicates. Field names and labels should be atoms.',
@@ -322,7 +322,7 @@
 		], Element).
 
 	create_select_options(Options, DefaultValue, OptionElements) :-
-		create_select_options_list(Options, Option, OptionElements0),
+		create_select_options_list(Options, DefaultValue, OptionElements0),
 		atomic_list_concat(OptionElements0, OptionElements).
 
 	create_select_options_list([], _, []).
