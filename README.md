@@ -153,7 +153,7 @@ In most cases, the following shortcut predicates can be used:
 - ECLiPSe: `eclipse`
 - GNU Prolog: `gnu`
 - SICStus Prolog: `sicstus`
-- SWI-Prolog (default backend): `swi` 
+- SWI-Prolog (default backend): `swi`
 - Trealla Prolog: `trealla`
 - XVM : `xvm`
 - YAP: `yap`

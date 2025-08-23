@@ -737,7 +737,7 @@
 % assert_sld_data(+Port, +MGoal, +Current, +Parent)
 %
 % Assert the data which is needed to create a dot file representing the SLD tree.
-% For SICStus Prolog, Current and Parent are invocation numbers of the current invovation and the parent invocation.
+% For SICStus Prolog, Current and Parent are invocation numbers of the current invocation and the parent invocation.
 % For SWI-Prolog, Current and Parent are integer references to the frame.
 assert_sld_data(call, MGoal, Current, Parent) :-
 	collect_sld_data, % SLD data is to be collected
@@ -848,8 +848,8 @@ compute_unique_ids([GoalCodes-CurrentFrame-ParentFrame|SldData], CurrentId, Acti
 	(	member(CurrentFrame-PreviousId, ActiveIds) ->
 		% A goal on the same level was already encountered
 		% The corresponding element needs to be replaced in the active ID list
-		delete(ActiveIds, CurrentFrame-PreviousId, ReaminingActiveIds),
-		NewActiveIds = [CurrentFrame-CurrentId|ReaminingActiveIds]
+		delete(ActiveIds, CurrentFrame-PreviousId, RemainingActiveIds),
+		NewActiveIds = [CurrentFrame-CurrentId|RemainingActiveIds]
 	;	NewActiveIds = [CurrentFrame-CurrentId|ActiveIds]
 	),
 	% Retrieve the parent's ID
@@ -1239,7 +1239,7 @@ gen_atom(Atom, In, Out) :-
 	format_to_codes('~w', [Atom], Codes),
 	append(Codes, Out, In).
 
-% Convenience predicates for visualising Prolog terms (show_term/1) using show_graph:
+% Convenience predicates for visualizing Prolog terms (show_term/1) using show_graph:
 % jupyter::show_graph(dot_subnode(_,_,Term),dot_subtree/3)
 
 dot_subtree(Term,Nr,SubTerm) :-

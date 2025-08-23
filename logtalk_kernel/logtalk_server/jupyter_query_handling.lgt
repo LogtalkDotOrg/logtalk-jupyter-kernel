@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Copyright (c) 2022-2023 Paulo Moura  
+%  Copyright (c) 2022-2025 Paulo Moura
 %  Copyright (c) 2022 Anne Brecklinghaus, Michael Leuschel, dgelessus
 %  SPDX-License-Identifier: MIT
 %
@@ -196,13 +196,13 @@
 	assert_query_data(CallRequestId, Runtime, TermData, OriginalTermData) :-
 		nonvar(OriginalTermData),
 		!,
-		% Remember all queries' IDs, goal and runtime so that it can be accessed by jupyter:print_query_time/0 and jupyter:print_queries/1
+		% Remember all queries' IDs, goal and runtime so that it can be accessed by jupyter::print_query_time/0 and jupyter::print_queries/1
 		(	TermData = OriginalTermData ->
 			StoreOriginalTermData = same
 		;	% there was a replacement of $Var terms in the original term -> store both terms data
 			StoreOriginalTermData = OriginalTermData
 		),
-		% Assert the data with assertz/1 so that they can be accessed in the correct order with jupyter:print_queries/1
+		% Assert the data with assertz/1 so that they can be accessed in the correct order with jupyter::print_queries/1
 		% use a catch/3 to succeed in case of assert error due to cyclic terms in TermData
 		catch(assertz(query_data(CallRequestId, Runtime, TermData, StoreOriginalTermData)), _, true).
 	assert_query_data(_CallRequestId, _Runtime, _TermData, _OriginalTermData).
@@ -341,7 +341,7 @@
 %	% remove_output_lines(++Lines, -NewLines)
 %	%
 %	% Lines is a list of codes corresponding to lines read from a file to which output of a goal was written.
-%	% In some cases such as for a jupyter::trace/1 or juypter::print_sld_tree/1 call, not all lines should be included in the output sent to the client.
+%	% In some cases such as for a jupyter::trace/1 or jupyter::print_sld_tree/1 call, not all lines should be included in the output sent to the client.
 %	remove_output_lines(Lines, NewLines) :-
 %		remove_output_lines_for(sld_tree_breakpoint_messages),
 %		!,

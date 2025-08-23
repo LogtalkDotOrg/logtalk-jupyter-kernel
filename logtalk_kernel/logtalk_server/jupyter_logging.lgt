@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Copyright (c) 2022-2023 Paulo Moura  
+%  Copyright (c) 2022-2025 Paulo Moura
 %  Copyright (c) 2022 Anne Brecklinghaus, Michael Leuschel, dgelessus
 %  SPDX-License-Identifier: MIT
 %
@@ -28,17 +28,17 @@
 :- object(jupyter_logging).
 
 	:- info([
-		version is 0:2:0,
+		version is 0:2:1,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-03-05,
+		date is 2025-08-21,
 		comment is 'Logging support.'
 	]).
 
 	:- public(create_log_file/1).
-	:- mode(create_log_file(-boolean), zero_or_one).
+	:- mode(create_log_file(--boolean), one).
 	:- info(create_log_file/1, [
 		comment is 'Creates a log file if possible. Each running backend uses its own log file.',
-		argnames is ['IsSuccess']
+		argnames is ['Success']
 	]).
 
 	:- public(log/1).
@@ -60,7 +60,7 @@
 	% create_log_file(-IsSuccess)
 	create_log_file(true) :-
 		% Open a log file (jupyter_logging to stdout would send the messages to the client)
-		% On Windows platforms, opening a file with SICStus which is alread opened by another process (i.e. another Prolog server) fails
+		% On Windows platforms, opening a file with SICStus which is already opened by another process (i.e. another Prolog server) fails
 		% Therefore separate log files are created for each Prolog backend
 		current_logtalk_flag(prolog_dialect, Dialect),
 		atom_concat('.logtalk_server_log_', Dialect, LogFileName),
@@ -78,7 +78,7 @@
 		!,
 		format(log_stream, Format, Arguments),
 		flush_output(log_stream).
-	log(_Control, _Arguments).
+	log(_Format, _Arguments).
 	% No new log file could be opened
 
 :- end_object.
