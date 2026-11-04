@@ -19,6 +19,7 @@ logtalk_doclet_logs/
 .ipynb_checkpoints/
 .jupyter/
 .jupyter_ystore.db
+.logtalk_kernel.log
 build/
 logtalk_kernel.egg-info/
 logtalk_kernel/__pycache__/

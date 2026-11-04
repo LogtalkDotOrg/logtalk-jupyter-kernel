@@ -73,6 +73,9 @@ class LogtalkKernelBaseImplementation:
 
         self.logtalk_proc = None
         self.is_server_restart_required = False
+        self.communication_log_file = os.path.abspath('.logtalk_kernel.log')
+        self.last_server_request = None
+        self.last_server_response = None
 
         # Run handle_signal_interrupt when the kernel is interrupted
         signal(SIGINT, self.handle_signal_interrupt)
@@ -213,15 +216,15 @@ class LogtalkKernelBaseImplementation:
             except KeyboardInterrupt:
                 self.handle_interrupt()
                 return {'status': 'error', 'ename' : 'interrupt', 'evalue' : '', 'traceback' : ''}
-            except BrokenPipeError:
-                self.logger.error(error_prefix + 'Broken pipe\n' + error_prefix + 'The Logtalk server needs to be restarted', self.error_ansi_escape_codes)
+            except BrokenPipeError as exception:
+                debugging_message = self.log_server_error(exception)
                 self.is_server_restart_required = True
-                self.send_response_display_data(error_prefix + 'Something went wrong\n' + error_prefix + 'The Logtalk server needs to be restarted\n', self.error_ansi_escape_codes)
+                self.send_response_display_data(error_prefix + 'Something went wrong\n' + error_prefix + 'The Logtalk server needs to be restarted\n' + error_prefix + debugging_message + '\n', self.error_ansi_escape_codes)
                 return {'status': 'error', 'ename' : 'broken pipe', 'evalue' : '', 'traceback' : ''}
             except Exception as exception:
-                self.logger.error(exception, exc_info=True)
+                debugging_message = self.log_server_error(exception)
                 self.is_server_restart_required = True
-                self.send_response_display_data(error_prefix + 'Something went wrong\n' + error_prefix + 'The Logtalk server needs to be restarted\n', self.error_ansi_escape_codes)
+                self.send_response_display_data(error_prefix + 'Something went wrong\n' + error_prefix + 'The Logtalk server needs to be restarted\n' + error_prefix + debugging_message + '\n', self.error_ansi_escape_codes)
                 return {'status': 'error', 'ename' : 'exception', 'evalue' : '', 'traceback' : ''}
         else:
             response_dict = self.server_request(self.kernel.execution_count, 'call', {'code':code})
@@ -323,6 +326,39 @@ class LogtalkKernelBaseImplementation:
     ############################################################################
 
 
+    def log_server_error(self, exception):
+        """Persist communication diagnostics and return a message for the frontend."""
+        process = self.logtalk_proc
+        details = (
+            'Logtalk server communication/response handling failed\n'
+            'Backend: %r\nWorking directory: %r\n'
+            'Process arguments: %r\nProcess PID: %r\nProcess return code: %r\n'
+            'Request: %r\nRaw response: %r'
+        ) % (
+            self.backend, os.getcwd(),
+            process.args if process is not None else None,
+            process.pid if process is not None else None,
+            process.poll() if process is not None else None,
+            self.last_server_request, self.last_server_response,
+        )
+        exc_info = (type(exception), exception, exception.__traceback__)
+        self.logger.error(details, exc_info=exc_info)
+        record = self.logger.makeRecord(
+            self.logger.name, logging.ERROR, __file__, 0, details, (), exc_info
+        )
+        formatter = logging.Formatter('[%(asctime)s] %(levelname)s - %(message)s')
+        try:
+            with open(self.communication_log_file, 'a', encoding='utf-8') as log_file:
+                log_file.write(formatter.format(record) + '\n\n')
+        except OSError:
+            self.logger.error(
+                'Could not write debugging information to %s',
+                self.communication_log_file, exc_info=True
+            )
+            return 'Could not write debugging information to ' + self.communication_log_file + '; see the kernel log'
+        return 'Debugging information written to ' + self.communication_log_file
+
+
     def server_request(self, id, method, params=None, log_response=True):
         """
         Sends a request to the Logtalk server, reads the JSON response, deserializes and returns it.
@@ -333,11 +369,14 @@ class LogtalkKernelBaseImplementation:
         ------
         JSONDecodeError if the response could not be deserialized
         """
+        self.last_server_request = None
+        self.last_server_response = None
         # Create a JSON-RCP Request object (https://www.jsonrpc.org/specification#request_object)
         if params is None:
             request = json.dumps({'jsonrpc':'2.0', 'id':id, 'method':method})
         else:
             request = json.dumps({'jsonrpc':'2.0', 'id':id, 'method':method, 'params':params})
+        self.last_server_request = request
         self.logger.debug('The Request object is: ' + str(request))
 
         # Send the request to the Logtalk server
@@ -347,18 +386,14 @@ class LogtalkKernelBaseImplementation:
 
         # Read the JSON-RCP Response object (http://www.jsonrpc.org/specification#response_object)
         response_string = self.logtalk_proc.stdout.readline()
-        # Write response_string to a file for debugging
-        # with open("logtalk_kernel_response_debug.txt", "a", encoding="utf-8") as debug_file:
-        #     debug_file.write(response_string + "\n")
+        self.last_server_response = response_string
         if log_response:
             self.logger.debug('response: ' + response_string)
 
         try:
             return json.loads(response_string)
-        except json.decoder.JSONDecodeError as exception:
-            self.logger.debug('The Response object is no valid JSON object: ' + str(response_string))
-            self.logger.debug(len(str(response_string)))
-            self.logger.debug(ord(str(response_string)))
+        except json.decoder.JSONDecodeError:
+            self.logger.debug('The Response object is not valid JSON: %r', response_string)
             raise
 
 

@@ -233,6 +233,10 @@ When the Logtalk code makes calls to foreign language libraries (notably C or C+
 	Something went wrong
 	The Logtalk server needs to be restarted
 
+When this message is displayed, the kernel automatically appends debugging information to `.logtalk_kernel.log` in the kernel's initial working directory, independently of the `jupyter_logging` and `server_logging` settings. The notebook displays the absolute log file path. Each entry includes a timestamp, the Python exception and traceback, the backend, current working directory, process arguments, PID and exit status (`None` if still running), the last JSON-RPC request, and the raw response (including unexpected non-JSON output or an empty response). If the log cannot be written, the notebook reports that failure and diagnostics remain available in the kernel's normal logging output.
+
+The log may contain notebook code and query results. Review it before sharing and delete it when no longer needed.
+
 These issues can be debugged by running the problematic query in a terminal after diverting the Prolog output streams to a file. For example, assuming in the Prolog backend you're using the stream redirecting uses a `set_stream/2` predicate:
 
 	?- open(out, write, S),
