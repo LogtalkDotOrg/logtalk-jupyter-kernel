@@ -22,9 +22,9 @@
 :- object(jupyter_inputs).
 
 	:- info([
-		version is 0:2:1,
+		version is 0:2:2,
 		author is 'Paulo Moura',
-		date is 2025-08-21,
+		date is 2026-11-04,
 		comment is 'Common functionality for HTML/JavaScript based input widgets and forms in Logtalk notebooks.'
 	]).
 
@@ -55,6 +55,10 @@
 	:- info(create_input_attributes_string/2, [
 		comment is 'Converts a list of attributes to a HTML attributes string.',
 		argnames is ['Attributes', 'String']
+	]).
+
+	:- uses(user, [
+		atomic_list_concat/2
 	]).
 
 	webserver(IP, Port) :-
