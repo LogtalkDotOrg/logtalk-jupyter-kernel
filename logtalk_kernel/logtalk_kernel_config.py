@@ -1,6 +1,6 @@
 #############################################################################
 #
-#  Copyright (c) 2022-2025 Paulo Moura
+#  Copyright (c) 2022-2026 Paulo Moura
 #  Copyright (c) 2022 Anne Brecklinghaus, Michael Leuschel, dgelessus
 #  SPDX-License-Identifier: MIT
 #
@@ -69,6 +69,7 @@ else:
 # c.LogtalkKernel.backend = "eclipselgt" + EXTENSION
 # c.LogtalkKernel.backend = "gplgt" + EXTENSION
 # c.LogtalkKernel.backend = "sicstuslgt" + EXTENSION
+# c.LogtalkKernel.backend = "shumwaylgt" + EXTENSION
 c.LogtalkKernel.backend = "swilgt" + EXTENSION
 # c.LogtalkKernel.backend = "tplgt" + EXTENSION
 # c.LogtalkKernel.backend = "xvmlgt" + EXTENSION
@@ -146,6 +147,27 @@ c.LogtalkKernel.backend_data = {
     "sicstuslgt.ps1": {
         "failure_response": "no",
         "success_response": "yes",
+        "error_prefix": DEFAULT_ERROR_PREFIX,
+        "informational_prefix": DEFAULT_INFORMATIONAL_PREFIX,
+        "program_arguments": DEFAULT_PROGRAM_ARGS,
+    },
+    "shumwaylgt": {
+        "failure_response": "false",
+        "success_response": "true",
+        "error_prefix": DEFAULT_ERROR_PREFIX,
+        "informational_prefix": DEFAULT_INFORMATIONAL_PREFIX,
+        "program_arguments": DEFAULT_PROGRAM_ARGS,
+    },
+    "shumwaylgt.sh": {
+        "failure_response": "false",
+        "success_response": "true",
+        "error_prefix": DEFAULT_ERROR_PREFIX,
+        "informational_prefix": DEFAULT_INFORMATIONAL_PREFIX,
+        "program_arguments": DEFAULT_PROGRAM_ARGS,
+    },
+    "shumwaylgt.ps1": {
+        "failure_response": "false",
+        "success_response": "true",
         "error_prefix": DEFAULT_ERROR_PREFIX,
         "informational_prefix": DEFAULT_INFORMATIONAL_PREFIX,
         "program_arguments": DEFAULT_PROGRAM_ARGS,

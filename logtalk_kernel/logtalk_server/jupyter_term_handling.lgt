@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Copyright (c) 2022-2025 Paulo Moura
+%  Copyright (c) 2022-2026 Paulo Moura
 %  Copyright (c) 2022 Anne Brecklinghaus, Michael Leuschel, dgelessus
 %  SPDX-License-Identifier: MIT
 %
@@ -52,9 +52,9 @@
 :- object(jupyter_term_handling).
 
 	:- info([
-		version is 0:11:0,
+		version is 0:12:0,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-07-18,
+		date is 2026-11-04,
 		comment is 'This object provides predicates to handle terms received from the client, compute their results and assert them with term_response/1.'
 	]).
 
@@ -191,6 +191,8 @@
 			\+ user::current_predicate(gnu/0).
 		is_query_alias(sicstus, jupyter::set_prolog_backend('sicstuslgt.ps1')) :-
 			\+ user::current_predicate(sicstus/0).
+		is_query_alias(shumway, jupyter::set_prolog_backend('shumwaylgt.ps1')) :-
+			\+ user::current_predicate(shumway/0).
 		is_query_alias(swi, jupyter::set_prolog_backend('swilgt.ps1')) :-
 			\+ user::current_predicate(swi/0).
 		is_query_alias(trealla, jupyter::set_prolog_backend('tplgt.ps1')) :-
@@ -210,6 +212,8 @@
 			\+ user::current_predicate(gnu/0).
 		is_query_alias(sicstus, jupyter::set_prolog_backend('sicstuslgt.sh')) :-
 			\+ user::current_predicate(sicstus/0).
+		is_query_alias(shumway, jupyter::set_prolog_backend('shumwaylgt.sh')) :-
+			\+ user::current_predicate(shumway/0).
 		is_query_alias(swi, jupyter::set_prolog_backend('swilgt.sh')) :-
 			\+ user::current_predicate(swi/0).
 		is_query_alias(trealla, jupyter::set_prolog_backend('tplgt.sh')) :-
@@ -225,6 +229,8 @@
 			\+ user::current_predicate(gnu/0).
 		is_query_alias(sicstus, jupyter::set_prolog_backend(sicstuslgt)) :-
 			\+ user::current_predicate(sicstus/0).
+		is_query_alias(shumway, jupyter::set_prolog_backend(shumwaylgt)) :-
+			\+ user::current_predicate(shumway/0).
 		is_query_alias(swi, jupyter::set_prolog_backend(swilgt)) :-
 			\+ user::current_predicate(swi/0).
 		is_query_alias(trealla, jupyter::set_prolog_backend(tplgt)) :-

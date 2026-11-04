@@ -1,6 +1,6 @@
 #############################################################################
 #
-#  Copyright (c) 2022-2025 Paulo Moura
+#  Copyright (c) 2022-2026 Paulo Moura
 #  Copyright (c) 2022 Anne Brecklinghaus, Michael Leuschel, dgelessus
 #  SPDX-License-Identifier: MIT
 #
@@ -174,6 +174,15 @@ class LogtalkKernel(Kernel):
                 "--noinfo",
                 "--goal", "\"set_logtalk_flag`(report`,off`)`,logtalk_load`(`'logtalk_server/loader.lgt`'`)`,`'::`'`(jupyter_server`,start`);halt.\"",
                 "--nologo"],
+        "shumwaylgt": ["shumwaylgt",
+                "--quiet",
+                "--goal", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt."],
+        "shumwaylgt.sh": ["shumwaylgt.sh",
+                "--quiet",
+                "--goal", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt."],
+        "shumwaylgt.ps1": ["shumwaylgt.ps1",
+                "--quiet",
+                "--goal", "\"set_logtalk_flag`(report`,off`)`,logtalk_load`(`'logtalk_server/loader.lgt`'`)`,`'::`'`(jupyter_server`,start`);halt.\""],
         "swilgt": ["swilgt",
                 "-q",
                 "-g", "set_logtalk_flag(report,off),logtalk_load('logtalk_server/loader.lgt'),'::'(jupyter_server,start);halt"],
@@ -283,6 +292,27 @@ class LogtalkKernel(Kernel):
         "sicstuslgt.ps1": {
             "failure_response": "no",
             "success_response": "yes",
+            "error_prefix": DEFAULT_ERROR_PREFIX,
+            "informational_prefix": DEFAULT_INFORMATIONAL_PREFIX,
+            "program_arguments": DEFAULT_PROGRAM_ARGS
+        },
+        "shumwaylgt": {
+            "failure_response": "false",
+            "success_response": "true",
+            "error_prefix": DEFAULT_ERROR_PREFIX,
+            "informational_prefix": DEFAULT_INFORMATIONAL_PREFIX,
+            "program_arguments": DEFAULT_PROGRAM_ARGS
+        },
+        "shumwaylgt.sh": {
+            "failure_response": "false",
+            "success_response": "true",
+            "error_prefix": DEFAULT_ERROR_PREFIX,
+            "informational_prefix": DEFAULT_INFORMATIONAL_PREFIX,
+            "program_arguments": DEFAULT_PROGRAM_ARGS
+        },
+        "shumwaylgt.ps1": {
+            "failure_response": "false",
+            "success_response": "true",
             "error_prefix": DEFAULT_ERROR_PREFIX,
             "informational_prefix": DEFAULT_INFORMATIONAL_PREFIX,
             "program_arguments": DEFAULT_PROGRAM_ARGS

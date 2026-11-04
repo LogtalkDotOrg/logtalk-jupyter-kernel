@@ -18,6 +18,7 @@ Logtalk 3.81.0 (or later version) plus at least one of the supported Prolog back
 - [ECLiPSe 7.0 #57 or later](http://eclipseclp.org/)
 - [GNU Prolog 1.6.0 or later](http://www.gprolog.org/) (use git version until 1.6.0 is released)
 - [SICStus Prolog 4.5.1 or later](https://sicstus.sics.se/)
+- [Shumway Prolog 0.9.3 or later](https://github.com/gusbro/Shumway)
 - [SWI-Prolog 8.4.3 or later](https://www.swi-prolog.org/) (default)
 - [Trealla Prolog 2.65.5 or later](https://github.com/trealla-prolog/trealla)
 - [XVM 10.0.0 or later](https://permion.ai/)
@@ -153,6 +154,7 @@ In most cases, the following shortcut predicates can be used:
 - ECLiPSe: `eclipse`
 - GNU Prolog: `gnu`
 - SICStus Prolog: `sicstus`
+- Shumway Prolog: `shumway`
 - SWI-Prolog (default backend): `swi`
 - Trealla Prolog: `trealla`
 - XVM : `xvm`
