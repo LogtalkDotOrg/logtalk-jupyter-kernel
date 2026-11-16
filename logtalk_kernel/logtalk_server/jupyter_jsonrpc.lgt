@@ -28,9 +28,9 @@
 :- object(jupyter_jsonrpc).
 
 	:- info([
-		version is 0:3:0,
+		version is 0:3:1,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-03-10,
+		date is 2026-11-16,
 		comment is 'This object andles all reading, writing, and parsing of JSON messages. It is based on jsonrpc_server.pl and jsonrpc_client.pl from SICStus 4.5.1.'
 	]).
 
@@ -156,7 +156,8 @@
 
 	% error_object_code(ErrorCode, NumericErrorCode, JsonRpcErrorMessage)
 	%
-	% Pre-defined errorserror_object_code(parse_error, -32700, 'Invalid JSON was received by the server.').
+	% Pre-defined errors
+	error_object_code(parse_error,          -32700, 'Invalid JSON was received by the server.').
 	error_object_code(invalid_request,       -32600, 'The JSON sent is not a valid Request object.').
 	error_object_code(method_not_found,      -32601, 'The method does not exist / is not available.').
 	error_object_code(invalid_params,        -32602, 'Invalid method parameter(s).').
@@ -185,8 +186,25 @@
 	%
 	% Reads the next message from the standard input stream and parses it.
 	next_jsonrpc_message(Message) :-
-		read_message(RPC),
-		parse_message(RPC, Message).
+		current_input(In),
+		(	at_end_of_stream(In) ->
+			fail
+		;	catch(
+				(	read_message(RPC),
+					parse_message(RPC, Message)
+				),
+				Exception,
+				json_read_exception(Exception, Message)
+			)
+		).
+
+	% json_read_exception(+Exception, -Message)
+	json_read_exception(error(domain_error(json, line(_)), _), malformed_json) :-
+		!.
+	json_read_exception(domain_error(json, line(_)), malformed_json) :-
+		!.
+	json_read_exception(Exception, _Message) :-
+		throw(Exception).
 
 	% read_message(-JsonRpcMessage)
 	:- if(current_logtalk_flag(prolog_dialect, eclipse)).

@@ -45,9 +45,9 @@
 :- object(jupyter_request_handling).
 
 	:- info([
-		version is 0:11:0,
+		version is 0:11:1,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2025-03-10,
+		date is 2026-11-16,
 		comment is 'This object provides predicates to start a loop reading and handling JSON RPC requests.'
 	]).
 
@@ -179,6 +179,8 @@
 	dispatch_message(invalid(_RPC), _Stack, continue) :-
 		% Malformed -> the Id must be null
 		send_error_reply(@(null), invalid_request, '').
+	dispatch_message(malformed_json, _Stack, continue) :-
+		send_error_reply(@(null), parse_error, '').
 
 	% dispatch_request(+Method, +Message, +Stack, -Cont)
 	%
