@@ -52,9 +52,9 @@
 :- object(jupyter_term_handling).
 
 	:- info([
-		version is 0:12:1,
+		version is 0:12:2,
 		author is 'Anne Brecklinghaus, Michael Leuschel, and Paulo Moura',
-		date is 2026-11-04,
+		date is 2026-11-16,
 		comment is 'This object provides predicates to handle terms received from the client, compute their results and assert them with term_response/1.'
 	]).
 
@@ -396,7 +396,7 @@
 	%
 	% Bindings is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the term currently being handled.
 	% BindingsWithoutSingletons contains the elements of Bindings except for (named) singleton variables starting with '_'
-	remove_singleton_variables([], []) :- !.
+	remove_singleton_variables([], []).
 	remove_singleton_variables([Name=_Var|Bindings], BindingsWithoutSingletons) :-
 		% Name starts with '_'
 		sub_atom(Name, 0, 1, _After, '_'),
@@ -405,42 +405,39 @@
 	remove_singleton_variables([Binding|Bindings], [Binding|BindingsWithoutSingletons]) :-
 		remove_singleton_variables(Bindings, BindingsWithoutSingletons).
 
-	% json_parsable_vars(+NonParsableVars, +Bindings, -JsonParsableVars)
+	% json_parsable_vars(+ResultBindings, +AllBindings, -JsonParsableBindings)
 	%
-	% NonParsableVars and Bindings are lists of Name=Var pairs, where Name is the name of a variable Var occurring in the term currently being handled.
-	% As not all of the values can be parsed to JSON (e.g. uninstantiated variables and compounds), they need to be made JSON parsable first.
-	% Bindings is needed in case any variable term needs to be converted to an atom and contains other variables.
-	% By using Bindings, the names of the variables can be preserved.
-	% In case of domain variables with bounded domains (lower and upper bound exist) which are not bound to a single value,
-	%  the value returned to the client is a list of lists where each of those lists contains a lower and upper bound of a range the variable can be in.
-	json_parsable_vars([], _Variables, []) :- !.
+	% Converts result bindings to key-value pairs whose values are JSON strings.
+	% AllBindings preserves variable names when serializing terms and identifies the first name of shared unbound variables.
+	% Shared unbound variables are represented by their first name without instantiating them.
+	% Other values are written as terms and wrapped as chars/1 to ensure JSON string encoding.
+	json_parsable_vars([], _Variables, []).
 	json_parsable_vars([VarName=Var|RemainingBindings], Bindings, JsonParsableBindings) :-
 		var(Var),
-		same_var(RemainingBindings, Var),
+		first_variable_name(Bindings, Var, FirstVarName),
+		VarName == FirstVarName,
 		!,
-		% The list of Name=Var pairs contains at least one element OtherName=Var where Var is uninstantiated
-		% Unify the variable Var with VarName
-		Var=VarName,
 		json_parsable_vars(RemainingBindings, Bindings, JsonParsableBindings).
-	json_parsable_vars([_VarName=Var|RemainingBindings], Bindings, JsonParsableBindings) :-
+	json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName-chars(FirstVarNameChars)|JsonParsableBindings]) :-
 		var(Var),
+		first_variable_name(Bindings, Var, FirstVarName),
 		!,
-		% The variable is uninstantiated and therefore not included in the result list
+		atom_chars(FirstVarName, FirstVarNameChars),
 		json_parsable_vars(RemainingBindings, Bindings, JsonParsableBindings).
-	json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName-VarAtom|JsonParsableBindings]) :-
-		% Convert the value to an atom as it may be compound and cannot be parsed to JSON otherwise
+	json_parsable_vars([VarName=Var|RemainingBindings], Bindings, [VarName-chars(VarAtomChars)|JsonParsableBindings]) :-
+		% Convert the value to text and force it to be encoded as a JSON string
 		write_term_to_atom(Var, VarAtom, [variable_names(Bindings), quoted(true)]),
+		atom_chars(VarAtom, VarAtomChars),
 		json_parsable_vars(RemainingBindings, Bindings, JsonParsableBindings).
 
-	% same_var(+BindingsWithoutSingletons, +Var)
+	% first_variable_name(+Bindings, +Var, -VarName)
 	%
-	% BindingsWithoutSingletons is a list of Name=Var pairs, where Name is the name of a variable Var occurring in the term currently being handled.
-	% Fails if BindingsWithoutSingletons does not contain any element VarName=Var1 where Var1 and Var are identical (==).
-	same_var([], _Var) :- fail.
-	same_var([_VarName=Var1|_BindingsWithoutSingletons], Var2) :-
-		Var1 == Var2, !.
-	same_var([_Binding|BindingsWithoutSingletons], Var) :-
-		same_var(BindingsWithoutSingletons, Var).
+	% Bindings is a list of Name=Var pairs. Finds the first name associated with Var.
+	first_variable_name([VarName=Var1|_Bindings], Var2, VarName) :-
+		Var1 == Var2,
+		!.
+	first_variable_name([_Binding|Bindings], Var, VarName) :-
+		first_variable_name(Bindings, Var, VarName).
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
